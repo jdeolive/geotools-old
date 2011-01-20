@@ -1919,6 +1919,7 @@ public class SLDParser {
         NodeList children = root.getChildNodes();
         final int length = children.getLength();
         List<Expression> expressions = new ArrayList<Expression>();
+        List<Boolean> cdatas = new ArrayList<Boolean>();
         for (int i = 0; i < length; i++) {
             Node child = children.item(i);
 
@@ -1953,6 +1954,7 @@ public class SLDParser {
                     }
                     // add the text node as a literal
                     expressions.add(literal);
+                    cdatas.add(false);
                 }
             } else if (child.getNodeType() == Node.ELEMENT_NODE) {
 
@@ -1962,6 +1964,7 @@ public class SLDParser {
                 // add the element node as an expression
                 expressions.add(org.geotools.filter.ExpressionDOMParser
                         .parseExpression(child));
+                cdatas.add(false);
             } else if (child.getNodeType() == Node.CDATA_SECTION_NODE) {
                 String value = child.getNodeValue();
                 if (value != null && value.length() != 0) {
@@ -1975,6 +1978,7 @@ public class SLDParser {
                     }
                     // add the text node as a literal
                     expressions.add(literal);
+                    cdatas.add(true);
                 }
             } else
                 continue;
@@ -2001,23 +2005,29 @@ public class SLDParser {
                 
                 // ok, string literal.  
                 String s = (String) literal.getValue();
-                if("".equals(s.trim())) {
-                    // If it's whitespace, we have to remove it and continue
-                    expressions.remove(0);
+                if(!cdatas.get(0)) {
+                    if("".equals(s.trim())) {
+                        // If it's whitespace, we have to remove it and continue
+                        expressions.remove(0);
+                        cdatas.remove(0);
+                    } else {
+                        // if it's not only whitespace, remove anyways the eventual whitespace 
+                        // at its beginning, and then exit, leading whitespace removal is done
+                        if(s.startsWith(" ")) {
+                            s = LEADING_WHITESPACES.matcher(s).replaceAll("");
+                            expressions.set(0, ff.literal(s));
+                        }
+                        break;
+                    } 
                 } else {
-                    // if it's not only whitespace, remove anyways the eventual whitespace 
-                    // at its beginning, and then exit, leading whitespace removal is done
-                    if(s.startsWith(" ")) {
-                        s = LEADING_WHITESPACES.matcher(s).replaceAll("");
-                        expressions.set(0, ff.literal(s));
-                    }
                     break;
-                } 
+                }
             }
             
             // remove also all trailing white spaces the same way
             while(expressions.size() > 0) {
-                Expression ex = expressions.get(expressions.size() - 1);
+                final int idx = expressions.size() - 1;
+                Expression ex = expressions.get(idx);
                 
                 // if it's not a string literal we're done
                 if(!(ex instanceof Literal))
@@ -2028,16 +2038,21 @@ public class SLDParser {
                 
                 // ok, string literal.  
                 String s = (String) literal.getValue();
-                if("".equals(s.trim())) {
-                 // If it's whitespace, we have to remove it and continue
-                    expressions.remove(expressions.size() - 1);
-                } else {
-                    // if it's not only whitespace, remove anyways the eventual whitespace 
-                    // at its end, and then exit, trailing whitespace removal is done
-                    if(s.endsWith(" ")) {
-                        s = TRAILING_WHITESPACES.matcher(s).replaceAll("");
-                        expressions.set(expressions.size() - 1, ff.literal(s));
+                if(!cdatas.get(idx)) {
+                    if("".equals(s.trim())) {
+                     // If it's whitespace, we have to remove it and continue
+                        expressions.remove(idx);
+                        cdatas.remove(idx);
+                    } else {
+                        // if it's not only whitespace, remove anyways the eventual whitespace 
+                        // at its end, and then exit, trailing whitespace removal is done
+                        if(s.endsWith(" ")) {
+                            s = TRAILING_WHITESPACES.matcher(s).replaceAll("");
+                            expressions.set(idx, ff.literal(s));
+                        }
+                        break;
                     }
+                } else {
                     break;
                 }
             }
