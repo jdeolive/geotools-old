@@ -6,6 +6,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -127,8 +128,11 @@ class WMSCoverageReader extends AbstractGridCoverage2DReader {
         this.format = formats.iterator().next();
         for (String format : formats) {
             if ("image/png".equals(format) || "image/png24".equals(format)
-                    || "png".equals(format) || "png24".equals(format))
+                    || "png".equals(format) || "png24".equals(format)
+                    || "image/png; mode=24bit".equals(format)) {
                 this.format = format;
+                break;
+            }
         }
     }
 
@@ -332,7 +336,7 @@ class WMSCoverageReader extends AbstractGridCoverage2DReader {
             mapRequest.addLayer(layer);
         }
         mapRequest.setDimensions(width, height);
-        mapRequest.setFormat(format);
+        mapRequest.setFormat(URLEncoder.encode(format, "ASCII"));
         mapRequest.setSRS(requestSrs);
         mapRequest.setBBox(gridEnvelope);
         mapRequest.setTransparent(true);
