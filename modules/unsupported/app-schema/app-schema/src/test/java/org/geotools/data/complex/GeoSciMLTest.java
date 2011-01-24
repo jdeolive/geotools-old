@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -241,7 +242,15 @@ public class GeoSciMLTest {
         query.setTypeName(typeName.getLocalPart());
         FeatureCollection<FeatureType, Feature> features = source.getFeatures(query);
         assertNotNull(features);
-        assertEquals(2, features.size());
+        assertEquals(2, size(features));
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 
     private int getCount(FeatureCollection features) {

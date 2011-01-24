@@ -456,7 +456,7 @@ public class FeatureChainingTest {
         Filter filter = ff.like(property,
                 "Olivine basalt, tuff, microgabbro, minor sedimentary rocks");
         FeatureCollection<FeatureType, Feature> filteredResults = mfSource.getFeatures(filter);
-        assertEquals(3, filteredResults.size());
+        assertEquals(3, size(filteredResults));
         FeatureIterator<Feature> iterator = filteredResults.features();
         Feature feature = iterator.next();
         assertEquals("mf1", feature.getIdentifier().toString());
@@ -477,7 +477,7 @@ public class FeatureChainingTest {
                 .property("gsml:composition/gsml:CompositionPart/gsml:proportion/gsml:CGI_TermValue/gsml:value");
         filter = ff.equals(property, ff.literal("significant"));
         filteredResults = guSource.getFeatures(filter);
-        assertEquals(2, filteredResults.size());
+        assertEquals(2, size(filteredResults));
         iterator = filteredResults.features();
         feature = iterator.next();
         assertEquals("gu.25678", feature.getIdentifier().toString());
@@ -491,7 +491,7 @@ public class FeatureChainingTest {
         property = ff.property("gsml:specification/gsml:GeologicUnit/gsml:occurrence/@xlink:href");
         filter = ff.like(property, "urn:cgi:feature:MappedFeature:mf1");
         filteredResults = mfSource.getFeatures(filter);
-        assertEquals(1, filteredResults.size());
+        assertEquals(1, size(filteredResults));
         feature = filteredResults.features().next();
         assertEquals("mf1", feature.getIdentifier().toString());
 
@@ -501,7 +501,7 @@ public class FeatureChainingTest {
         property = ff.property("gml:name");
         filter = ff.equals(property, ff.literal("Yaugher Volcanic Group 2"));
         filteredResults = guSource.getFeatures(filter);
-        assertEquals(1, filteredResults.size());
+        assertEquals(1, size(filteredResults));
         // There are 2 rows for 1 feature that matches this filter:
         // gu.25678=-Py|Yaugher Volcanic Group 1
         // gu.25678=-Py|Yaugher Volcanic Group 2
@@ -538,7 +538,7 @@ public class FeatureChainingTest {
         property = ff.property("gsml:exposureColor/gsml:CGI_TermValue/gsml:value");
         filter = ff.equals(property, ff.literal("Yellow"));
         filteredResults = guSource.getFeatures(filter);
-        assertEquals(1, filteredResults.size());
+        assertEquals(1, size(filteredResults));
         feature = filteredResults.features().next();
         // ensure it's the right feature
         assertEquals("gu.25678", feature.getIdentifier().toString());
@@ -588,7 +588,7 @@ public class FeatureChainingTest {
         FeatureSource fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         FeatureCollection features = (FeatureCollection) fSource.getFeatures();
 
-        assertEquals(5, features.size());
+        assertEquals(5, size(features));
 
         FeatureIterator iterator = features.features();
         while (iterator.hasNext()) {
@@ -634,7 +634,7 @@ public class FeatureChainingTest {
         fSource = (FeatureSource) dataAccess.getFeatureSource(typeName);
         features = (FeatureCollection) fSource.getFeatures();
 
-        assertEquals(5, features.size());
+        assertEquals(5, size(features));
 
         iterator = features.features();
         while (iterator.hasNext()) {
@@ -770,9 +770,17 @@ public class FeatureChainingTest {
                 CGI_TERM_VALUE).getFeatures();
         // ControlledConcept
         ccFeatures = DataAccessRegistry.getFeatureSource(CONTROLLED_CONCEPT).getFeatures();
-        assertEquals(4, mfFeatures.size());
-        assertEquals(3, guFeatures.size());
-        assertEquals(4, cpFeatures.size());
-        assertEquals(6, cgiFeatures.size());
+        assertEquals(4, size(mfFeatures));
+        assertEquals(3, size(guFeatures));
+        assertEquals(4, size(cpFeatures));
+        assertEquals(6, size(cgiFeatures));
+    }
+
+    private static int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 }

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import org.geotools.xml.SchemaIndex;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.ComplexType;
 import org.opengis.feature.type.FeatureType;
@@ -88,7 +90,7 @@ public class GeologicUnitTest {
      * 
      * @param location
      *            schema location path that can be found through getClass().getResource()
-     * @return 
+     * @return
      */
     private SchemaIndex loadSchema(final String location) throws IOException {
         final URL catalogLocation = getClass().getResource(schemaBase + "mappedPolygons.oasis.xml");
@@ -172,16 +174,24 @@ public class GeologicUnitTest {
                 .getFeatureSource(FeatureChainingTest.GEOLOGIC_UNIT);
 
         FeatureCollection guFeatures = (FeatureCollection) guSource.getFeatures();
-        assertEquals(3, guFeatures.size());
+        assertEquals(3, size(guFeatures));
 
         FeatureSource cpSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.COMPOSITION_PART);
         FeatureCollection cpFeatures = (FeatureCollection) cpSource.getFeatures();
-        assertEquals(4, cpFeatures.size());
+        assertEquals(4, size(cpFeatures));
 
         FeatureSource cgiSource = DataAccessRegistry
                 .getFeatureSource(FeatureChainingTest.CGI_TERM_VALUE);
         FeatureCollection cgiFeatures = (FeatureCollection) cgiSource.getFeatures();
-        assertEquals(6, cgiFeatures.size());
+        assertEquals(6, size(cgiFeatures));
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 }

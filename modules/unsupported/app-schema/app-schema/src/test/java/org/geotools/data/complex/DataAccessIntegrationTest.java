@@ -375,7 +375,15 @@ public class DataAccessIntegrationTest {
         FeatureCollection<FeatureType, Feature> filteredResults = mfDataAccess.getFeatureSource(
                 MAPPED_FEATURE).getFeatures(filter);
 
-        assertEquals(3, filteredResults.size());
+        assertEquals(3, size(filteredResults));
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 
     /**

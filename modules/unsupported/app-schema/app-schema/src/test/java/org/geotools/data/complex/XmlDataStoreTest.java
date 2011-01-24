@@ -147,7 +147,7 @@ public class XmlDataStoreTest extends TestCase {
         MOCK_DATASTORE.setValidElements(ls);
 
         FeatureCollection features = getFeatures(MAX_FEATURES, inputFilter);
-        int size = features.size();
+        int size = size(features);
 
         assertEquals(ls.size(), size);
         Query query = MOCK_DATASTORE.getQuery();
@@ -167,7 +167,7 @@ public class XmlDataStoreTest extends TestCase {
         MOCK_DATASTORE.setValidElements(ls);
 
         FeatureCollection features = getFeatures(MAX_FEATURES, inputFilter);
-        int size = features.size();
+        int size = size(features);
 
         assertEquals(ls.size(), size);
     }
@@ -181,7 +181,7 @@ public class XmlDataStoreTest extends TestCase {
         MOCK_DATASTORE.setValidElements(ls);
 
         FeatureCollection features = getFeatures(MAX_FEATURES, filter);
-        int size = features.size();
+        int size = size(features);
         assertEquals(0, size);
 
         List<Feature> results = new ArrayList<Feature>();
@@ -669,5 +669,13 @@ public class XmlDataStoreTest extends TestCase {
         FeatureCollection features = (FeatureCollection) fSource.getFeatures(namedQuery(
                 inputFilter, new Integer(maxFeatures)));
         return features;
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 }

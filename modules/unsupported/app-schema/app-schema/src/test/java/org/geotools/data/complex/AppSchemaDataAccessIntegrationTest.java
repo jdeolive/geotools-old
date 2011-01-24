@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -512,7 +513,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // _=FORM:String,COMPOSITION:String
         // 25699=strataform|cp.167775491936278844,cp.167775491936278812,cp.167775491936278856
         // 25682=cross-cutting|cp.167775491936278812
-        assertEquals(2, filteredResults.size());
+        assertEquals(2, size(filteredResults));
 
         // Filtering on mapped feature features that chain the re-mapped geologic unit features
         // First we need to recreate the mapping with a mapping file where gsml:specification exists
@@ -536,7 +537,7 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
         // 25678=vein|cp.167775491936278856|urn:cgi:classifierScheme:GSV:GeologicalUnitType|mf2,mf3
         // There are 2 mapped features: mf2 and mf3.
         // You can verify by looking at MappedFeaturePropertiesFile.properties as well
-        assertEquals(2, filteredResults.size());
+        assertEquals(2, size(filteredResults));
     }
 
     /**
@@ -580,5 +581,13 @@ public class AppSchemaDataAccessIntegrationTest extends DataAccessIntegrationTes
             Object dbType = params.get("dbtype");
             return dbType == null ? false : dbType.equals("er-data-access");
         }
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 }

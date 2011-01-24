@@ -91,7 +91,7 @@ public class VocabFunctionsTest extends TestCase {
                 .getFeatureSource(EXAMPLE_TYPE);
         exCollection = (FeatureCollection<FeatureType, Feature>) fSource.getFeatures();
 
-        assertEquals(exCollection.size(), 3);
+        assertEquals(3, size(exCollection));
     }
 
     public void tearDown() {
@@ -125,6 +125,14 @@ public class VocabFunctionsTest extends TestCase {
             assertEquals(recodedName, value);
         }
         exCollection.close(features);
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 
     /**

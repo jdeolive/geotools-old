@@ -94,7 +94,7 @@ public class BBoxTest {
         // property name exists and is a geometry attribute
         BBOX filter = ff.bbox(ff.property("gsml:shape"), -1.1, 52.5, -1.1, 52.6, null);
         FeatureCollection<FeatureType, Feature> features = fSource.getFeatures(filter);
-        assertEquals(features.size(), 2);
+        assertEquals(2, size(features));
         Iterator<Feature> iterator = features.iterator();
         Feature f = iterator.next();
         assertEquals(f.getIdentifier().toString(), "mf1");
@@ -104,7 +104,7 @@ public class BBoxTest {
         // prove that it would fail when property name is not a geometry attribute
         filter = ff.bbox(ff.property("gml:name[1]"), -1.2, 52.5, -1.1, 52.6, null);
         features = fSource.getFeatures(filter);
-        assertEquals(features.size(), 0);
+        assertEquals(0, size(features));
     }
 
     @Test
@@ -119,11 +119,19 @@ public class BBoxTest {
         // and our test data only have 1 geometry, so it doesn't test multiple geometries case
         BBOX filter = ff.bbox(ff.property(""), -1.1, 52.5, -1.1, 52.6, null);
         FeatureCollection<FeatureType, Feature> features = fSource.getFeatures(filter);
-        assertEquals(features.size(), 2);
+        assertEquals(2, size(features));
         Iterator<Feature> iterator = features.iterator();
         Feature f = iterator.next();
         assertEquals(f.getIdentifier().toString(), "mf1");
         f = iterator.next();
         assertEquals(f.getIdentifier().toString(), "mf3");
+    }
+
+    private int size(FeatureCollection<FeatureType, Feature> features) {
+        int size = 0;
+        for (Iterator i = features.iterator(); i.hasNext(); i.next()) {
+            size++;
+        }
+        return size;
     }
 }
