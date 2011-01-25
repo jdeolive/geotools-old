@@ -36,7 +36,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.And;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.filter.spatial.BBOX;
@@ -412,5 +414,18 @@ public abstract class JDBCFeatureSourceTest extends JDBCTestSupport {
         } finally {        
             features.close();
         }
+    }
+    
+    public void testLikeFilter() throws Exception {
+        FilterFactory2 ff = (FilterFactory2) dataStore.getFilterFactory();
+        PropertyIsLike caseSensitiveLike = ff.like(ff.property(aname("stringProperty")), 
+                "Z*", "*", "?", "\\", true);
+        PropertyIsLike caseInsensitiveLike = ff.like(ff.property(aname("stringProperty")), 
+                "Z*", "*", "?", "\\", false);
+        PropertyIsLike caseInsensitiveLike2 = ff.like(ff.property(aname("stringProperty")), 
+                "z*", "*", "?", "\\", false);
+        assertEquals(0, featureSource.getCount(new Query(null, caseSensitiveLike)));
+        assertEquals(1, featureSource.getCount(new Query(null, caseInsensitiveLike)));
+        assertEquals(1, featureSource.getCount(new Query(null, caseInsensitiveLike2)));
     }
 }
