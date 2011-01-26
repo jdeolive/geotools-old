@@ -263,24 +263,10 @@ public abstract class XSD {
     /**
      * Returns the qualified name for the specified local part.
      * 
-     * @return The QName, or null if no such name exists.
+     * @return The QName, built by simply prepending the namespace for this xsd.
      */
     public QName qName(String local) {
-        for (Field f : getClass().getFields()) {
-            if (Modifier.isStatic(f.getModifiers()) && QName.class.equals(f.getType())) {
-                try {
-                    QName name = (QName) f.get(null);
-                    if (name.getLocalPart().equals(local)) {
-                        return name;
-                    }
-                } 
-                catch(Exception e) {
-                    throw new RuntimeException(e);
-                }
-                
-            }
-        }
-        return null;
+        return new QName(getNamespaceURI(), local);
     }
 
     /**
