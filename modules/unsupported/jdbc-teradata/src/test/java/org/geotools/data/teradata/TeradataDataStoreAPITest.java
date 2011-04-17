@@ -35,7 +35,6 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class TeradataDataStoreAPITest extends JDBCDataStoreAPITest {
 
-
     protected JDBCDataStoreAPITestSetup createTestSetup() {
         return new TeradataDataStoreAPITestSetup(new TeradataTestSetup());
     }

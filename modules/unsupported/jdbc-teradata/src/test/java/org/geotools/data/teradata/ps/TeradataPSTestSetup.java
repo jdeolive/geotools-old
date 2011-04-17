@@ -17,7 +17,7 @@
 package org.geotools.data.teradata.ps;
 
 import org.geotools.data.teradata.TeradataGISDialect;
-import org.geotools.data.teradata.TeradataPSDialect;
+import org.geotools.data.teradata.TeradataDialect;
 import org.geotools.data.teradata.TeradataTestSetup;
 import org.geotools.jdbc.JDBCDataStore;
 
@@ -41,7 +41,7 @@ public class TeradataPSTestSetup extends TeradataTestSetup {
             first = false;
         }
         // for this test we need a PS based dialect
-        TeradataPSDialect dialect = new TeradataPSDialect(dataStore, (TeradataGISDialect) dataStore
+        TeradataDialect dialect = new TeradataDialect(dataStore, (TeradataGISDialect) dataStore
                 .getSQLDialect());
         dialect.setLooseBBOXEnabled(false);
         dataStore.setSQLDialect(dialect);
