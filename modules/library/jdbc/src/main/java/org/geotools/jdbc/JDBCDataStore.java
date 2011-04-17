@@ -752,7 +752,25 @@ public final class JDBCDataStore extends ContentDataStore
         
         return null;
     }
+
+    /**
+     * Returns the database typename of the column by inspecting the metadata.
+     */
+    public String getColumnSqlTypeName(Connection cx, String schemaName, String tableName, 
+        String columnName) throws SQLException {
+
+        ResultSet columns =  null;
+        try {
+            columns = cx.getMetaData().getColumns(null, schemaName, tableName, columnName);
+            columns.next();
     
+            return columns.getString("TYPE_NAME");
+        } 
+        finally {
+            columns.close();
+        }
+    }
+
     /**
      * Creates a new instance of {@link JDBCFeatureStore}.
      *
