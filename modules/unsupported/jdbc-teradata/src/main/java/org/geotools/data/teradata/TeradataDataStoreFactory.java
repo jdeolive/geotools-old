@@ -69,7 +69,7 @@ public class TeradataDataStoreFactory extends JDBCDataStoreFactory {
     /**
      * Tessellation lookup table
      */
-    public static final Param TESSELLATION_TALBE = new Param("tessellationTable", String.class, 
+    public static final Param TESSELLATION_TABLE = new Param("tessellationTable", String.class, 
         "Tessellation lookup table", false, "sysspatial.tessellation");
     
     // SET QUERY_BAND = 'ApplicationName=TZA-InsuranceService;
