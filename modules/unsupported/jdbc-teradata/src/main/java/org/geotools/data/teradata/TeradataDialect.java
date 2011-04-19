@@ -146,7 +146,6 @@ public class TeradataDialect extends PreparedStatementSQLDialect {
             ResultSet rs, String column, GeometryFactory factory, Connection cx)
             throws IOException, SQLException {
 
-
         Clob clob = rs.getClob(column);
         InputStream wkt = clob.getAsciiStream();
         try {
@@ -197,7 +196,6 @@ public class TeradataDialect extends PreparedStatementSQLDialect {
         encodeColumnName(geometryColumn, sql);
         sql.append(".ST_Envelope().ST_AsBinary()");
     }
-    
     
     public void encodePrimaryKey(String column, StringBuffer sql) {
        encodeColumnName(column, sql);
