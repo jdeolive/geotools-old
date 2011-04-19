@@ -2,6 +2,9 @@ package org.geotools.data.teradata;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,6 +38,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 public class TeradataDialect extends PreparedStatementSQLDialect {
@@ -140,28 +145,28 @@ public class TeradataDialect extends PreparedStatementSQLDialect {
     public Geometry decodeGeometryValue(GeometryDescriptor descriptor,
             ResultSet rs, String column, GeometryFactory factory, Connection cx)
             throws IOException, SQLException {
-        WKBAttributeIO reader = getWkbReader(factory);
+
+
+        Clob clob = rs.getClob(column);
+        InputStream wkt = clob.getAsciiStream();
+        try {
+            return new WKTReader(factory).read(new InputStreamReader(wkt));
+        } 
+        catch (ParseException e) {
+            throw (IOException) new IOException().initCause(e);
+        }
+        finally {
+            wkt.close();
+        }
+        /*WKBAttributeIO reader = getWkbReader(factory);
 
         Geometry g = (Geometry) reader.read(rs, column);
-        return g;
+        return g;*/
     }
     
     WKBAttributeIO getWkbReader(GeometryFactory factory) {
         factory = factory != null ? factory : dataStore.getGeometryFactory();
         return new WKBAttributeIO(factory);
-    }
-
-    @Override
-    public Geometry decodeGeometryValue(GeometryDescriptor descriptor, ResultSet rs, int column,
-            GeometryFactory factory, Connection cx) throws IOException, SQLException {
-        String columnName = rs.getMetaData().getColumnName( column );
-        return decodeGeometryValue(descriptor, rs, columnName, factory, cx);
-    }
-
-    public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
-            StringBuffer sql) {
-        encodeColumnName(gatt.getLocalName(), sql);
-        sql.append(".ST_AsBinary()");
     }
 
     @Override
@@ -177,11 +182,22 @@ public class TeradataDialect extends PreparedStatementSQLDialect {
     }
 
     @Override
+    public void encodeColumnType(String sqlTypeName, StringBuffer sql) {
+        if ("DECIMAL".equals(sqlTypeName)) {
+            sql.append(sqlTypeName).append("(10,2)");
+        }
+        else {
+            super.encodeColumnType(sqlTypeName, sql);
+        }
+    }
+    
+    @Override
     public void encodeGeometryEnvelope(String tableName, String geometryColumn,
             StringBuffer sql) {
         encodeColumnName(geometryColumn, sql);
         sql.append(".ST_Envelope().ST_AsBinary()");
     }
+    
     
     public void encodePrimaryKey(String column, StringBuffer sql) {
        encodeColumnName(column, sql);
@@ -714,6 +730,7 @@ public class TeradataDialect extends PreparedStatementSQLDialect {
             Map<Integer, String> overrides) {
         overrides.put(Types.VARCHAR, "VARCHAR");
         overrides.put(Types.DOUBLE, "FLOAT");
+        overrides.put(Types.NUMERIC, "DECIMAL");
     }
 
     @Override
