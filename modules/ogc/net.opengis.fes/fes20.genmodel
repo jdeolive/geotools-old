@@ -2,9 +2,9 @@
 <genmodel:GenModel xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/net.opengis.fes/src"
-    modelPluginID="net.opengis.fes" modelName="Fes20" importerID="org.eclipse.xsd.ecore.importer"
-    complianceLevel="6.0" copyrightFields="false" usedGenPackages="../net.opengis.ows/ows11.genmodel#//ows11 ../org.w3.xlink/xlink.genmodel#//xlink platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore">
-  <foreignModel>file:/Users/jdeolive/Projects/gt_trunk/git/modules/ogc/net.opengis.fes/schemas/filter/2.0/filterAll.xsd</foreignModel>
+    modelPluginID="net.opengis.fes" modelName="Fes20" importerID="org.eclipse.emf.importer.java"
+    complianceLevel="6.0" copyrightFields="false" usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type ../net.opengis.ows/ows11.genmodel#//ows11 platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace">
+  <foreignModel>@model</foreignModel>
   <genPackages prefix="Fes20" basePackage="net.opengis" disposableProviderFactory="true"
       ecorePackage="fes20.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="fes20.ecore#//ComparisonOperatorNameTypeMember0">
@@ -84,12 +84,9 @@
     <genDataTypes ecoreDataType="fes20.ecore#//VersionActionTokensObject"/>
     <genDataTypes ecoreDataType="fes20.ecore#//VersionType"/>
     <genClasses image="false" ecoreClass="fes20.ecore#//AbstractAdhocQueryExpressionType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractProjectionClauseGroup"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference fes20.ecore#//AbstractAdhocQueryExpressionType/abstractProjectionClause"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSelectionClauseGroup"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSelectionClause"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSortingClauseGroup"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSortingClause"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractProjectionClause"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSelectionClause"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/abstractSortingClause"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/aliases"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute fes20.ecore#//AbstractAdhocQueryExpressionType/typeNames"/>
     </genClasses>

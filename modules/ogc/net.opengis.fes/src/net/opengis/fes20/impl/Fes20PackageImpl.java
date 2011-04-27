@@ -86,6 +86,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EValidator;
 
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
@@ -728,8 +729,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
 
         // Initialize simple dependencies
         Ows11Package.eINSTANCE.eClass();
-        XlinkPackage.eINSTANCE.eClass();
-        XMLTypePackage.eINSTANCE.eClass();
 
         // Create package meta-data objects
         theFes20Package.createPackageContents();
@@ -769,7 +768,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getAbstractAdhocQueryExpressionType_AbstractProjectionClauseGroup() {
+    public EAttribute getAbstractAdhocQueryExpressionType_AbstractProjectionClause() {
         return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(0);
     }
 
@@ -778,8 +777,8 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EReference getAbstractAdhocQueryExpressionType_AbstractProjectionClause() {
-        return (EReference)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(1);
+    public EAttribute getAbstractAdhocQueryExpressionType_AbstractSelectionClause() {
+        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(1);
     }
 
     /**
@@ -787,7 +786,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getAbstractAdhocQueryExpressionType_AbstractSelectionClauseGroup() {
+    public EAttribute getAbstractAdhocQueryExpressionType_AbstractSortingClause() {
         return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(2);
     }
 
@@ -796,35 +795,8 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EReference getAbstractAdhocQueryExpressionType_AbstractSelectionClause() {
-        return (EReference)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(3);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EAttribute getAbstractAdhocQueryExpressionType_AbstractSortingClauseGroup() {
-        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(4);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EReference getAbstractAdhocQueryExpressionType_AbstractSortingClause() {
-        return (EReference)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(5);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
     public EAttribute getAbstractAdhocQueryExpressionType_Aliases() {
-        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(6);
+        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(3);
     }
 
     /**
@@ -833,7 +805,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * @generated
      */
     public EAttribute getAbstractAdhocQueryExpressionType_TypeNames() {
-        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(7);
+        return (EAttribute)abstractAdhocQueryExpressionTypeEClass.getEStructuralFeatures().get(4);
     }
 
     /**
@@ -3376,12 +3348,9 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
 
         // Create classes and their features
         abstractAdhocQueryExpressionTypeEClass = createEClass(ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE);
-        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE_GROUP);
-        createEReference(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE);
-        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE_GROUP);
-        createEReference(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE);
-        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE_GROUP);
-        createEReference(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE);
+        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE);
+        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE);
+        createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE);
         createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES);
         createEAttribute(abstractAdhocQueryExpressionTypeEClass, ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES);
 
@@ -3751,6 +3720,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         // Obtain other dependent packages
         XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
         Ows11Package theOws11Package = (Ows11Package)EPackage.Registry.INSTANCE.getEPackage(Ows11Package.eNS_URI);
+        EcorePackage theEcorePackage = (EcorePackage)EPackage.Registry.INSTANCE.getEPackage(EcorePackage.eNS_URI);
 
         // Create type parameters
 
@@ -3774,12 +3744,9 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
 
         // Initialize classes and features; add operations and parameters
         initEClass(abstractAdhocQueryExpressionTypeEClass, AbstractAdhocQueryExpressionType.class, "AbstractAdhocQueryExpressionType", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractProjectionClauseGroup(), ecorePackage.getEFeatureMapEntry(), "abstractProjectionClauseGroup", null, 0, -1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getAbstractAdhocQueryExpressionType_AbstractProjectionClause(), ecorePackage.getEObject(), null, "abstractProjectionClause", null, 0, -1, AbstractAdhocQueryExpressionType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSelectionClauseGroup(), ecorePackage.getEFeatureMapEntry(), "abstractSelectionClauseGroup", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getAbstractAdhocQueryExpressionType_AbstractSelectionClause(), ecorePackage.getEObject(), null, "abstractSelectionClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSortingClauseGroup(), ecorePackage.getEFeatureMapEntry(), "abstractSortingClauseGroup", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getAbstractAdhocQueryExpressionType_AbstractSortingClause(), ecorePackage.getEObject(), null, "abstractSortingClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractProjectionClause(), ecorePackage.getEJavaObject(), "abstractProjectionClause", null, 0, -1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSelectionClause(), ecorePackage.getEJavaObject(), "abstractSelectionClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSortingClause(), ecorePackage.getEJavaObject(), "abstractSortingClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getAbstractAdhocQueryExpressionType_Aliases(), this.getAliasesType(), "aliases", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getAbstractAdhocQueryExpressionType_TypeNames(), this.getTypeNamesListType(), "typeNames", null, 1, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
@@ -3815,46 +3782,46 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEAttribute(getAvailableFunctionType_Name(), theXMLTypePackage.getString(), "name", null, 1, 1, AvailableFunctionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(bboxTypeEClass, BBOXType.class, "BBOXType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getBBOXType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BBOXType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getBBOXType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, BBOXType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBBOXType_Any(), ecorePackage.getEFeatureMapEntry(), "any", null, 1, 1, BBOXType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBBOXType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BBOXType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getBBOXType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, BBOXType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBBOXType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 1, 1, BBOXType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(binaryComparisonOpTypeEClass, BinaryComparisonOpType.class, "BinaryComparisonOpType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getBinaryComparisonOpType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 2, 2, BinaryComparisonOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getBinaryComparisonOpType_Expression(), ecorePackage.getEObject(), null, "expression", null, 2, 2, BinaryComparisonOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryComparisonOpType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 2, 2, BinaryComparisonOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getBinaryComparisonOpType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 2, 2, BinaryComparisonOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getBinaryComparisonOpType_MatchAction(), this.getMatchActionType(), "matchAction", "Any", 0, 1, BinaryComparisonOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBinaryComparisonOpType_MatchCase(), theXMLTypePackage.getBoolean(), "matchCase", "true", 0, 1, BinaryComparisonOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(binaryLogicOpTypeEClass, BinaryLogicOpType.class, "BinaryLogicOpType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getBinaryLogicOpType_FilterPredicates(), ecorePackage.getEFeatureMapEntry(), "filterPredicates", null, 0, -1, BinaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_ComparisonOpsGroup(), ecorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_FilterPredicates(), theEcorePackage.getEFeatureMapEntry(), "filterPredicates", null, 0, -1, BinaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_ComparisonOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_ComparisonOps(), this.getComparisonOpsType(), null, "comparisonOps", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_SpatialOpsGroup(), ecorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_SpatialOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_SpatialOps(), this.getSpatialOpsType(), null, "spatialOps", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_TemporalOpsGroup(), ecorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_TemporalOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_TemporalOps(), this.getTemporalOpsType(), null, "temporalOps", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_LogicOpsGroup(), ecorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_LogicOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_LogicOps(), this.getLogicOpsType(), null, "logicOps", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_ExtensionOpsGroup(), ecorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_ExtensionOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_ExtensionOps(), this.getExtensionOpsType(), null, "extensionOps", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_Function(), this.getFunctionType(), null, "function", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryLogicOpType_IdGroup(), ecorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryLogicOpType_IdGroup(), theEcorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getBinaryLogicOpType_Id(), this.getAbstractIdType(), null, "id", null, 0, -1, BinaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(binarySpatialOpTypeEClass, BinarySpatialOpType.class, "BinarySpatialOpType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getBinarySpatialOpType_ValueReference(), theXMLTypePackage.getString(), "valueReference", null, 1, 1, BinarySpatialOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinarySpatialOpType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BinarySpatialOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getBinarySpatialOpType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, BinarySpatialOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinarySpatialOpType_Any(), ecorePackage.getEFeatureMapEntry(), "any", null, 0, 1, BinarySpatialOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinarySpatialOpType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BinarySpatialOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getBinarySpatialOpType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, BinarySpatialOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinarySpatialOpType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 0, 1, BinarySpatialOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(binaryTemporalOpTypeEClass, BinaryTemporalOpType.class, "BinaryTemporalOpType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getBinaryTemporalOpType_ValueReference(), theXMLTypePackage.getString(), "valueReference", null, 1, 1, BinaryTemporalOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryTemporalOpType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BinaryTemporalOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getBinaryTemporalOpType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, BinaryTemporalOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getBinaryTemporalOpType_Any(), ecorePackage.getEFeatureMapEntry(), "any", null, 0, 1, BinaryTemporalOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryTemporalOpType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, BinaryTemporalOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getBinaryTemporalOpType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, BinaryTemporalOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBinaryTemporalOpType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 0, 1, BinaryTemporalOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(comparisonOperatorsTypeEClass, ComparisonOperatorsType.class, "ComparisonOperatorsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getComparisonOperatorsType_Group(), ecorePackage.getEFeatureMapEntry(), "group", null, 0, -1, ComparisonOperatorsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getComparisonOperatorsType_Group(), theEcorePackage.getEFeatureMapEntry(), "group", null, 0, -1, ComparisonOperatorsType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getComparisonOperatorsType_ComparisonOperator(), this.getComparisonOperatorType(), null, "comparisonOperator", null, 1, -1, ComparisonOperatorsType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(comparisonOperatorTypeEClass, ComparisonOperatorType.class, "ComparisonOperatorType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -3866,21 +3833,21 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEReference(getConformanceType_Constraint(), theOws11Package.getDomainType(), null, "constraint", null, 1, -1, ConformanceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(distanceBufferTypeEClass, DistanceBufferType.class, "DistanceBufferType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getDistanceBufferType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, DistanceBufferType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getDistanceBufferType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, DistanceBufferType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getDistanceBufferType_Any(), ecorePackage.getEFeatureMapEntry(), "any", null, 1, 1, DistanceBufferType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getDistanceBufferType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, DistanceBufferType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getDistanceBufferType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, DistanceBufferType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getDistanceBufferType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 1, 1, DistanceBufferType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getDistanceBufferType_Distance(), this.getMeasureType(), null, "distance", null, 1, 1, DistanceBufferType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(documentRootEClass, DocumentRoot.class, "DocumentRoot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getDocumentRoot_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_XMLNSPrefixMap(), ecorePackage.getEStringToStringMapEntry(), null, "xMLNSPrefixMap", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_XSISchemaLocation(), ecorePackage.getEStringToStringMapEntry(), null, "xSISchemaLocation", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getDocumentRoot_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_XMLNSPrefixMap(), theEcorePackage.getEStringToStringMapEntry(), null, "xMLNSPrefixMap", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_XSISchemaLocation(), theEcorePackage.getEStringToStringMapEntry(), null, "xSISchemaLocation", null, 0, -1, null, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_Id(), this.getAbstractIdType(), null, "id", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_AbstractAdhocQueryExpression(), this.getAbstractAdhocQueryExpressionType(), null, "abstractAdhocQueryExpression", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_AbstractQueryExpression(), this.getAbstractQueryExpressionType(), null, "abstractQueryExpression", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_AbstractProjectionClause(), ecorePackage.getEObject(), null, "abstractProjectionClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_AbstractSelectionClause(), ecorePackage.getEObject(), null, "abstractSelectionClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_AbstractSortingClause(), ecorePackage.getEObject(), null, "abstractSortingClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_AbstractProjectionClause(), theEcorePackage.getEObject(), null, "abstractProjectionClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_AbstractSelectionClause(), theEcorePackage.getEObject(), null, "abstractSelectionClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_AbstractSortingClause(), theEcorePackage.getEObject(), null, "abstractSortingClause", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_After(), this.getBinaryTemporalOpType(), null, "after", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_TemporalOps(), this.getTemporalOpsType(), null, "temporalOps", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_And(), this.getBinaryLogicOpType(), null, "and", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
@@ -3901,7 +3868,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEReference(getDocumentRoot_EndedBy(), this.getBinaryTemporalOpType(), null, "endedBy", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_Ends(), this.getBinaryTemporalOpType(), null, "ends", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_Equals(), this.getBinarySpatialOpType(), null, "equals", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEReference(getDocumentRoot_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEReference(getDocumentRoot_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_ExtensionOps(), this.getExtensionOpsType(), null, "extensionOps", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_Filter(), this.getFilterType(), null, "filter", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getDocumentRoot_FilterCapabilities(), this.getFilterCapabilitiesType(), null, "filterCapabilities", null, 0, -2, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
@@ -3952,23 +3919,23 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEReference(getFilterCapabilitiesType_ExtendedCapabilities(), this.getExtendedCapabilitiesType(), null, "extendedCapabilities", null, 0, 1, FilterCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(filterTypeEClass, FilterType.class, "FilterType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getFilterType_ComparisonOpsGroup(), ecorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_ComparisonOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_ComparisonOps(), this.getComparisonOpsType(), null, "comparisonOps", null, 0, 1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getFilterType_SpatialOpsGroup(), ecorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_SpatialOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_SpatialOps(), this.getSpatialOpsType(), null, "spatialOps", null, 0, 1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getFilterType_TemporalOpsGroup(), ecorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_TemporalOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_TemporalOps(), this.getTemporalOpsType(), null, "temporalOps", null, 0, 1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getFilterType_LogicOpsGroup(), ecorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_LogicOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_LogicOps(), this.getLogicOpsType(), null, "logicOps", null, 0, 1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getFilterType_ExtensionOpsGroup(), ecorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_ExtensionOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_ExtensionOps(), this.getExtensionOpsType(), null, "extensionOps", null, 0, 1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_Function(), this.getFunctionType(), null, "function", null, 0, 1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getFilterType_IdGroup(), ecorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFilterType_IdGroup(), theEcorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, FilterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getFilterType_Id(), this.getAbstractIdType(), null, "id", null, 0, -1, FilterType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(functionTypeEClass, FunctionType.class, "FunctionType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getFunctionType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, -1, FunctionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getFunctionType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, -1, FunctionType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFunctionType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, -1, FunctionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getFunctionType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, -1, FunctionType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getFunctionType_Name(), theXMLTypePackage.getString(), "name", null, 1, 1, FunctionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(geometryOperandsTypeEClass, GeometryOperandsType.class, "GeometryOperandsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -3981,8 +3948,8 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEReference(getIdCapabilitiesType_ResourceIdentifier(), this.getResourceIdentifierType(), null, "resourceIdentifier", null, 1, -1, IdCapabilitiesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(literalTypeEClass, LiteralType.class, "LiteralType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getLiteralType_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, LiteralType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getLiteralType_Any(), ecorePackage.getEFeatureMapEntry(), "any", null, 0, 1, LiteralType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getLiteralType_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, LiteralType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getLiteralType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 0, 1, LiteralType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getLiteralType_Type(), theXMLTypePackage.getQName(), "type", null, 0, 1, LiteralType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(logicalOperatorsTypeEClass, LogicalOperatorsType.class, "LogicalOperatorsType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -3990,34 +3957,34 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEClass(logicOpsTypeEClass, LogicOpsType.class, "LogicOpsType", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
         initEClass(lowerBoundaryTypeEClass, LowerBoundaryType.class, "LowerBoundaryType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getLowerBoundaryType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, LowerBoundaryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getLowerBoundaryType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, LowerBoundaryType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getLowerBoundaryType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, LowerBoundaryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getLowerBoundaryType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, LowerBoundaryType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(measureTypeEClass, MeasureType.class, "MeasureType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getMeasureType_Value(), theXMLTypePackage.getDouble(), "value", null, 0, 1, MeasureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getMeasureType_Uom(), this.getUomIdentifier(), "uom", null, 1, 1, MeasureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(propertyIsBetweenTypeEClass, PropertyIsBetweenType.class, "PropertyIsBetweenType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getPropertyIsBetweenType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 1, 1, PropertyIsBetweenType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getPropertyIsBetweenType_Expression(), ecorePackage.getEObject(), null, "expression", null, 1, 1, PropertyIsBetweenType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getPropertyIsBetweenType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 1, 1, PropertyIsBetweenType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getPropertyIsBetweenType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 1, 1, PropertyIsBetweenType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getPropertyIsBetweenType_LowerBoundary(), this.getLowerBoundaryType(), null, "lowerBoundary", null, 1, 1, PropertyIsBetweenType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getPropertyIsBetweenType_UpperBoundary(), this.getUpperBoundaryType(), null, "upperBoundary", null, 1, 1, PropertyIsBetweenType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(propertyIsLikeTypeEClass, PropertyIsLikeType.class, "PropertyIsLikeType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getPropertyIsLikeType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 2, 2, PropertyIsLikeType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getPropertyIsLikeType_Expression(), ecorePackage.getEObject(), null, "expression", null, 2, 2, PropertyIsLikeType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getPropertyIsLikeType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 2, 2, PropertyIsLikeType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getPropertyIsLikeType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 2, 2, PropertyIsLikeType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getPropertyIsLikeType_EscapeChar(), theXMLTypePackage.getString(), "escapeChar", null, 1, 1, PropertyIsLikeType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getPropertyIsLikeType_SingleChar(), theXMLTypePackage.getString(), "singleChar", null, 1, 1, PropertyIsLikeType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getPropertyIsLikeType_WildCard(), theXMLTypePackage.getString(), "wildCard", null, 1, 1, PropertyIsLikeType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(propertyIsNilTypeEClass, PropertyIsNilType.class, "PropertyIsNilType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getPropertyIsNilType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, PropertyIsNilType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getPropertyIsNilType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, PropertyIsNilType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getPropertyIsNilType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, PropertyIsNilType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getPropertyIsNilType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, PropertyIsNilType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getPropertyIsNilType_NilReason(), theXMLTypePackage.getString(), "nilReason", null, 0, 1, PropertyIsNilType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(propertyIsNullTypeEClass, PropertyIsNullType.class, "PropertyIsNullType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getPropertyIsNullType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, PropertyIsNullType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getPropertyIsNullType_Expression(), ecorePackage.getEObject(), null, "expression", null, 0, 1, PropertyIsNullType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getPropertyIsNullType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 0, 1, PropertyIsNullType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getPropertyIsNullType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 0, 1, PropertyIsNullType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(resourceIdentifierTypeEClass, ResourceIdentifierType.class, "ResourceIdentifierType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEReference(getResourceIdentifierType_Metadata(), theOws11Package.getMetadataType(), null, "metadata", null, 0, 1, ResourceIdentifierType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4074,23 +4041,23 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEClass(temporalOpsTypeEClass, TemporalOpsType.class, "TemporalOpsType", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
         initEClass(unaryLogicOpTypeEClass, UnaryLogicOpType.class, "UnaryLogicOpType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getUnaryLogicOpType_ComparisonOpsGroup(), ecorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_ComparisonOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "comparisonOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_ComparisonOps(), this.getComparisonOpsType(), null, "comparisonOps", null, 0, 1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getUnaryLogicOpType_SpatialOpsGroup(), ecorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_SpatialOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "spatialOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_SpatialOps(), this.getSpatialOpsType(), null, "spatialOps", null, 0, 1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getUnaryLogicOpType_TemporalOpsGroup(), ecorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_TemporalOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "temporalOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_TemporalOps(), this.getTemporalOpsType(), null, "temporalOps", null, 0, 1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getUnaryLogicOpType_LogicOpsGroup(), ecorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_LogicOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "logicOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_LogicOps(), this.getLogicOpsType(), null, "logicOps", null, 0, 1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getUnaryLogicOpType_ExtensionOpsGroup(), ecorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_ExtensionOpsGroup(), theEcorePackage.getEFeatureMapEntry(), "extensionOpsGroup", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_ExtensionOps(), this.getExtensionOpsType(), null, "extensionOps", null, 0, 1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_Function(), this.getFunctionType(), null, "function", null, 0, 1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getUnaryLogicOpType_IdGroup(), ecorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUnaryLogicOpType_IdGroup(), theEcorePackage.getEFeatureMapEntry(), "idGroup", null, 0, -1, UnaryLogicOpType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEReference(getUnaryLogicOpType_Id(), this.getAbstractIdType(), null, "id", null, 0, -1, UnaryLogicOpType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         initEClass(upperBoundaryTypeEClass, UpperBoundaryType.class, "UpperBoundaryType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getUpperBoundaryType_ExpressionGroup(), ecorePackage.getEFeatureMapEntry(), "expressionGroup", null, 1, 1, UpperBoundaryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getUpperBoundaryType_Expression(), ecorePackage.getEObject(), null, "expression", null, 1, 1, UpperBoundaryType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getUpperBoundaryType_ExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "expressionGroup", null, 1, 1, UpperBoundaryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEReference(getUpperBoundaryType_Expression(), theEcorePackage.getEObject(), null, "expression", null, 1, 1, UpperBoundaryType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
         // Initialize enums and add enum literals
         initEEnum(comparisonOperatorNameTypeMember0EEnum, ComparisonOperatorNameTypeMember0.class, "ComparisonOperatorNameTypeMember0");
@@ -4175,28 +4142,10 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         createResource(eNS_URI);
 
         // Create annotations
-        // null
-        createNullAnnotations();
         // urn:opengis:specification:gml:schema-xlinks:v3.0c2
         createUrnopengisspecificationgmlschemaxlinksv3Annotations();
         // http:///org/eclipse/emf/ecore/util/ExtendedMetaData
         createExtendedMetaDataAnnotations();
-    }
-
-    /**
-     * Initializes the annotations for <b>null</b>.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    protected void createNullAnnotations() {
-        String source = null;			
-        addAnnotation
-          (this, 
-           source, 
-           new String[] {
-             "appinfo", "owsAll.xsd 2010-01-30\nowsGetResourceByID.xsd 2010-01-30\nowsDataIdentification.xsd 2010-01-30\nowsCommon.xsd 2010-01-30\nows19115subset.xsd 2010-01-30\nowsGetCapabilities.xsd 2010-01-30\nowsServiceIdentification.xsd 2010-01-30\nowsServiceProvider.xsd 2010-01-30\nowsOperationsMetadata.xsd 2010-01-30\nowsDomainType.xsd 2010-01-30\nowsExceptionReport.xsd 2011-02-07\nowsContents.xsd 2010-01-30\nowsInputOutputData.xsd 2010-01-30\nowsManifest.xsd 2010-01-30"
-           });																																																																																																																																																																																																																																																																																																	
     }
 
     /**
@@ -4206,13 +4155,13 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * @generated
      */
     protected void createUrnopengisspecificationgmlschemaxlinksv3Annotations() {
-        String source = "urn:opengis:specification:gml:schema-xlinks:v3.0c2";				
+        String source = "urn:opengis:specification:gml:schema-xlinks:v3.0c2";		
         addAnnotation
           (this, 
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																
+           });																																																																																																																																																																																																																																																																																											
     }
 
     /**
@@ -4222,64 +4171,13 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
      * @generated
      */
     protected void createExtendedMetaDataAnnotations() {
-        String source = "http:///org/eclipse/emf/ecore/util/ExtendedMetaData";					
+        String source = "http:///org/eclipse/emf/ecore/util/ExtendedMetaData";				
         addAnnotation
           (abstractAdhocQueryExpressionTypeEClass, 
            source, 
            new String[] {
              "name", "AbstractAdhocQueryExpressionType",
              "kind", "elementOnly"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractProjectionClauseGroup(), 
-           source, 
-           new String[] {
-             "kind", "group",
-             "name", "AbstractProjectionClause:group",
-             "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractProjectionClause(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "AbstractProjectionClause",
-             "namespace", "##targetNamespace",
-             "group", "AbstractProjectionClause:group"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractSelectionClauseGroup(), 
-           source, 
-           new String[] {
-             "kind", "group",
-             "name", "AbstractSelectionClause:group",
-             "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractSelectionClause(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "AbstractSelectionClause",
-             "namespace", "##targetNamespace",
-             "group", "AbstractSelectionClause:group"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractSortingClauseGroup(), 
-           source, 
-           new String[] {
-             "kind", "group",
-             "name", "AbstractSortingClause:group",
-             "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_AbstractSortingClause(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "AbstractSortingClause",
-             "namespace", "##targetNamespace",
-             "group", "AbstractSortingClause:group"
            });		
         addAnnotation
           (getAbstractAdhocQueryExpressionType_Aliases(), 
@@ -4351,13 +4249,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "kind", "element",
              "name", "Operator",
              "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (aliasesTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "AliasesType",
-             "itemType", "http://www.eclipse.org/emf/2003/XMLType#NCName"
            });		
         addAnnotation
           (argumentsTypeEClass, 
@@ -4740,34 +4631,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "wildcards", "##other",
              "name", ":3",
              "processing", "strict"
-           });		
-        addAnnotation
-          (comparisonOperatorNameTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "ComparisonOperatorNameType",
-             "memberTypes", "ComparisonOperatorNameType_._member_._0 ComparisonOperatorNameType_._member_._1"
-           });		
-        addAnnotation
-          (comparisonOperatorNameTypeMember0EEnum, 
-           source, 
-           new String[] {
-             "name", "ComparisonOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (comparisonOperatorNameTypeMember0ObjectEDataType, 
-           source, 
-           new String[] {
-             "name", "ComparisonOperatorNameType_._member_._0:Object",
-             "baseType", "ComparisonOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (comparisonOperatorNameTypeMember1EDataType, 
-           source, 
-           new String[] {
-             "name", "ComparisonOperatorNameType_._member_._1",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
-             "pattern", "extension:\\w{2,}"
            });		
         addAnnotation
           (comparisonOperatorsTypeEClass, 
@@ -5766,19 +5629,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "group", "expression:group"
            });		
         addAnnotation
-          (matchActionTypeEEnum, 
-           source, 
-           new String[] {
-             "name", "MatchActionType"
-           });		
-        addAnnotation
-          (matchActionTypeObjectEDataType, 
-           source, 
-           new String[] {
-             "name", "MatchActionType:Object",
-             "baseType", "MatchActionType"
-           });		
-        addAnnotation
           (measureTypeEClass, 
            source, 
            new String[] {
@@ -6027,14 +5877,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "namespace", "##targetNamespace"
            });		
         addAnnotation
-          (schemaElementEDataType, 
-           source, 
-           new String[] {
-             "name", "SchemaElement",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
-             "pattern", "schema\\-element\\(.+\\)"
-           });		
-        addAnnotation
           (sortByTypeEClass, 
            source, 
            new String[] {
@@ -6048,19 +5890,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "kind", "element",
              "name", "SortProperty",
              "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (sortOrderTypeEEnum, 
-           source, 
-           new String[] {
-             "name", "SortOrderType"
-           });		
-        addAnnotation
-          (sortOrderTypeObjectEDataType, 
-           source, 
-           new String[] {
-             "name", "SortOrderType:Object",
-             "baseType", "SortOrderType"
            });		
         addAnnotation
           (sortPropertyTypeEClass, 
@@ -6107,34 +5936,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "kind", "element",
              "name", "SpatialOperators",
              "namespace", "##targetNamespace"
-           });		
-        addAnnotation
-          (spatialOperatorNameTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "SpatialOperatorNameType",
-             "memberTypes", "SpatialOperatorNameType_._member_._0 SpatialOperatorNameType_._member_._1"
-           });		
-        addAnnotation
-          (spatialOperatorNameTypeMember0EEnum, 
-           source, 
-           new String[] {
-             "name", "SpatialOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (spatialOperatorNameTypeMember0ObjectEDataType, 
-           source, 
-           new String[] {
-             "name", "SpatialOperatorNameType_._member_._0:Object",
-             "baseType", "SpatialOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (spatialOperatorNameTypeMember1EDataType, 
-           source, 
-           new String[] {
-             "name", "SpatialOperatorNameType_._member_._1",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
-             "pattern", "extension:\\w{2,}"
            });		
         addAnnotation
           (spatialOperatorsTypeEClass, 
@@ -6233,34 +6034,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "name", "name"
            });		
         addAnnotation
-          (temporalOperatorNameTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "TemporalOperatorNameType",
-             "memberTypes", "TemporalOperatorNameType_._member_._0 TemporalOperatorNameType_._member_._1"
-           });		
-        addAnnotation
-          (temporalOperatorNameTypeMember0EEnum, 
-           source, 
-           new String[] {
-             "name", "TemporalOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (temporalOperatorNameTypeMember0ObjectEDataType, 
-           source, 
-           new String[] {
-             "name", "TemporalOperatorNameType_._member_._0:Object",
-             "baseType", "TemporalOperatorNameType_._member_._0"
-           });		
-        addAnnotation
-          (temporalOperatorNameTypeMember1EDataType, 
-           source, 
-           new String[] {
-             "name", "TemporalOperatorNameType_._member_._1",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
-             "pattern", "extension:\\w{2,}"
-           });		
-        addAnnotation
           (temporalOperatorsTypeEClass, 
            source, 
            new String[] {
@@ -6303,20 +6076,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
            new String[] {
              "name", "TemporalOpsType",
              "kind", "empty"
-           });		
-        addAnnotation
-          (typeNamesListTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "TypeNamesListType",
-             "itemType", "TypeNamesType"
-           });		
-        addAnnotation
-          (typeNamesTypeEDataType, 
-           source, 
-           new String[] {
-             "name", "TypeNamesType",
-             "memberTypes", "SchemaElement http://www.eclipse.org/emf/2003/XMLType#QName"
            });		
         addAnnotation
           (unaryLogicOpTypeEClass, 
@@ -6436,29 +6195,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "group", "_Id:group"
            });		
         addAnnotation
-          (uomIdentifierEDataType, 
-           source, 
-           new String[] {
-             "name", "UomIdentifier",
-             "memberTypes", "UomSymbol UomURI"
-           });		
-        addAnnotation
-          (uomSymbolEDataType, 
-           source, 
-           new String[] {
-             "name", "UomSymbol",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
-             "pattern", "[^:%20\\n\\r\\t]+"
-           });		
-        addAnnotation
-          (uomURIEDataType, 
-           source, 
-           new String[] {
-             "name", "UomURI",
-             "baseType", "http://www.eclipse.org/emf/2003/XMLType#anyURI",
-             "pattern", "([a-zA-Z][a-zA-Z0-9\\-\\+\\.]*:|\\.\\./|\\./|#).*"
-           });		
-        addAnnotation
           (upperBoundaryTypeEClass, 
            source, 
            new String[] {
@@ -6483,10 +6219,172 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
              "group", "expression:group"
            });		
         addAnnotation
+          (comparisonOperatorNameTypeMember0EEnum, 
+           source, 
+           new String[] {
+             "name", "ComparisonOperatorNameType_._member_._0"
+           });		
+        addAnnotation
+          (matchActionTypeEEnum, 
+           source, 
+           new String[] {
+             "name", "MatchActionType"
+           });		
+        addAnnotation
+          (sortOrderTypeEEnum, 
+           source, 
+           new String[] {
+             "name", "SortOrderType"
+           });		
+        addAnnotation
+          (spatialOperatorNameTypeMember0EEnum, 
+           source, 
+           new String[] {
+             "name", "SpatialOperatorNameType_._member_._0"
+           });		
+        addAnnotation
+          (temporalOperatorNameTypeMember0EEnum, 
+           source, 
+           new String[] {
+             "name", "TemporalOperatorNameType_._member_._0"
+           });		
+        addAnnotation
           (versionActionTokensEEnum, 
            source, 
            new String[] {
              "name", "VersionActionTokens"
+           });		
+        addAnnotation
+          (aliasesTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "AliasesType",
+             "itemType", "http://www.eclipse.org/emf/2003/XMLType#NCName"
+           });		
+        addAnnotation
+          (comparisonOperatorNameTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "ComparisonOperatorNameType",
+             "memberTypes", "ComparisonOperatorNameType_._member_._0 ComparisonOperatorNameType_._member_._1"
+           });		
+        addAnnotation
+          (comparisonOperatorNameTypeMember0ObjectEDataType, 
+           source, 
+           new String[] {
+             "name", "ComparisonOperatorNameType_._member_._0:Object",
+             "baseType", "ComparisonOperatorNameType_._member_._0"
+           });		
+        addAnnotation
+          (comparisonOperatorNameTypeMember1EDataType, 
+           source, 
+           new String[] {
+             "name", "ComparisonOperatorNameType_._member_._1",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
+             "pattern", "extension:\\w{2,}"
+           });		
+        addAnnotation
+          (matchActionTypeObjectEDataType, 
+           source, 
+           new String[] {
+             "name", "MatchActionType:Object",
+             "baseType", "MatchActionType"
+           });		
+        addAnnotation
+          (schemaElementEDataType, 
+           source, 
+           new String[] {
+             "name", "SchemaElement",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
+             "pattern", "schema\\-element\\(.+\\)"
+           });		
+        addAnnotation
+          (sortOrderTypeObjectEDataType, 
+           source, 
+           new String[] {
+             "name", "SortOrderType:Object",
+             "baseType", "SortOrderType"
+           });		
+        addAnnotation
+          (spatialOperatorNameTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "SpatialOperatorNameType",
+             "memberTypes", "SpatialOperatorNameType_._member_._0 SpatialOperatorNameType_._member_._1"
+           });		
+        addAnnotation
+          (spatialOperatorNameTypeMember0ObjectEDataType, 
+           source, 
+           new String[] {
+             "name", "SpatialOperatorNameType_._member_._0:Object",
+             "baseType", "SpatialOperatorNameType_._member_._0"
+           });		
+        addAnnotation
+          (spatialOperatorNameTypeMember1EDataType, 
+           source, 
+           new String[] {
+             "name", "SpatialOperatorNameType_._member_._1",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
+             "pattern", "extension:\\w{2,}"
+           });		
+        addAnnotation
+          (temporalOperatorNameTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "TemporalOperatorNameType",
+             "memberTypes", "TemporalOperatorNameType_._member_._0 TemporalOperatorNameType_._member_._1"
+           });		
+        addAnnotation
+          (temporalOperatorNameTypeMember0ObjectEDataType, 
+           source, 
+           new String[] {
+             "name", "TemporalOperatorNameType_._member_._0:Object",
+             "baseType", "TemporalOperatorNameType_._member_._0"
+           });		
+        addAnnotation
+          (temporalOperatorNameTypeMember1EDataType, 
+           source, 
+           new String[] {
+             "name", "TemporalOperatorNameType_._member_._1",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
+             "pattern", "extension:\\w{2,}"
+           });		
+        addAnnotation
+          (typeNamesListTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "TypeNamesListType",
+             "itemType", "TypeNamesType"
+           });		
+        addAnnotation
+          (typeNamesTypeEDataType, 
+           source, 
+           new String[] {
+             "name", "TypeNamesType",
+             "memberTypes", "SchemaElement http://www.eclipse.org/emf/2003/XMLType#QName"
+           });		
+        addAnnotation
+          (uomIdentifierEDataType, 
+           source, 
+           new String[] {
+             "name", "UomIdentifier",
+             "memberTypes", "UomSymbol UomURI"
+           });		
+        addAnnotation
+          (uomSymbolEDataType, 
+           source, 
+           new String[] {
+             "name", "UomSymbol",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#string",
+             "pattern", "[^:%20\\n\\r\\t]+"
+           });		
+        addAnnotation
+          (uomURIEDataType, 
+           source, 
+           new String[] {
+             "name", "UomURI",
+             "baseType", "http://www.eclipse.org/emf/2003/XMLType#anyURI",
+             "pattern", "([a-zA-Z][a-zA-Z0-9\\-\\+\\.]*:|\\.\\./|\\./|#).*"
            });		
         addAnnotation
           (versionActionTokensObjectEDataType, 

@@ -29,57 +29,57 @@ import org.eclipse.emf.ecore.EReference;
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          This XML Schema defines OGC query filter capabilities documents.
- *          
+ * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * This XML Schema Document includes and imports, directly and indirectly, all the XML Schemas defined by the OWS Common Implemetation Specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the GetResourceByID operation request message. This typical operation is specified as a base for profiling in specific OWS specifications. For information on the allowed changes and limitations in such profiling, see Subclause 9.4.1 of the OWS Common specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the parts of the MD_DataIdentification class of ISO 19115 (OGC Abstract Specification Topic 11) which are expected to be used for most datasets. This Schema also encodes the parts of this class that are expected to be useful for other metadata. Both may be used within the Contents section of OWS service metadata (Capabilities) documents.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes various parameters and parameter types that can be used in OWS operation requests and responses.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * 
  * 			GML 3.0 candidate xlinks schema. Copyright (c) 2001 OGC, All Rights Reserved.
- * 		
+ * 
  * This XML Schema Document encodes the parts of ISO 19115 used by the common "ServiceIdentification" and "ServiceProvider" sections of the GetCapabilities operation response, known as the service metadata XML document. The parts encoded here are the MD_Keywords, CI_ResponsibleParty, and related classes. The UML package prefixes were omitted from XML names, and the XML element names were all capitalized, for consistency with other OWS Schemas. This document also provides a simple coding of text in multiple languages, simplified from Annex J of ISO 19115.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * 
  *    <div xmlns="http://www.w3.org/1999/xhtml">
  *     <h1>About the XML namespace</h1>
@@ -93,7 +93,7 @@ import org.eclipse.emf.ecore.EReference;
  *       See <a href="http://www.w3.org/XML/1998/namespace.html">
  *       http://www.w3.org/XML/1998/namespace.html</a> and
  *       <a href="http://www.w3.org/TR/REC-xml">
- *       http://www.w3.org/TR/REC-xml</a> for information 
+ *       http://www.w3.org/TR/REC-xml</a> for information
  *       about this namespace.
  *      </p>
  *      <p>
@@ -103,24 +103,24 @@ import org.eclipse.emf.ecore.EReference;
  *       They should not be used with conflicting semantics by any Working
  *       Group, specification, or document instance.
  *      </p>
- *      <p>   
+ *      <p>
  *       See further below in this document for more information about <a href="#usage">how to refer to this schema document from your own
  *       XSD schema documents</a> and about <a href="#nsversioning">the
  *       namespace-versioning policy governing this schema document</a>.
  *      </p>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div xmlns="http://www.w3.org/1999/xhtml">
- *    
- *     <h3>Father (in any context at all)</h3> 
+ * 
+ *     <h3>Father (in any context at all)</h3>
  * 
  *     <div class="bodytext">
  *      <p>
- *       denotes Jon Bosak, the chair of 
- *       the original XML Working Group.  This name is reserved by 
- *       the following decision of the W3C XML Plenary and 
+ *       denotes Jon Bosak, the chair of
+ *       the original XML Working Group.  This name is reserved by
+ *       the following decision of the W3C XML Plenary and
  *       XML Coordination groups:
  *      </p>
  *      <blockquote>
@@ -133,7 +133,7 @@ import org.eclipse.emf.ecore.EReference;
  *      </blockquote>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div id="usage" xml:id="usage" xmlns="http://www.w3.org/1999/xhtml">
  *     <h2>
@@ -179,7 +179,7 @@ import org.eclipse.emf.ecore.EReference;
  *      </p>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div id="nsversioning" xml:id="nsversioning" xmlns="http://www.w3.org/1999/xhtml">
  *     <h2>
@@ -203,16 +203,16 @@ import org.eclipse.emf.ecore.EReference;
  *       Schema itself, or with the XML namespace itself.  In other words,
  *       if the XML Schema or XML namespaces change, the version of this
  *       document at <a href="http://www.w3.org/2001/xml.xsd">
- *        http://www.w3.org/2001/xml.xsd 
- *       </a> 
- *       will change accordingly; the version at 
+ *        http://www.w3.org/2001/xml.xsd
+ *       </a>
+ *       will change accordingly; the version at
  *       <a href="http://www.w3.org/2009/01/xml.xsd">
- *        http://www.w3.org/2009/01/xml.xsd 
- *       </a> 
+ *        http://www.w3.org/2009/01/xml.xsd
+ *       </a>
  *       will not change.
  *      </p>
  *      <p>
- *       Previous dated (and unchanging) versions of this schema 
+ *       Previous dated (and unchanging) versions of this schema
  *       document are at:
  *      </p>
  *      <ul>
@@ -235,61 +235,60 @@ import org.eclipse.emf.ecore.EReference;
  *      </ul>
  *     </div>
  *    </div>
- *   
+ * 
  * This XML Schema Document defines the GetCapabilities operation request and response XML elements and types, which are common to all OWSs. This XML Schema shall be edited by each OWS, for example, to specify a specific value for the "service" attribute.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
- * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		
+ * 
+ * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
- * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		
+ * 
+ * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the basic contents of the "OperationsMetadata" section of the GetCapabilities operation response, also known as the Capabilities XML document.
- * 			
+ * 
  * 			OWS is an OGC Standard.
  * 			Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 			To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the allowed values (or domain) of a quantity, often for an input or output parameter to an OWS. Such a parameter is sometimes called a variable, quantity, literal, or typed literal. Such a parameter can use one of many data types, including double, integer, boolean, string, or URI. The allowed values can also be encoded for a quantity that is not explicit or not transferred, but is constrained by a server implementation.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the Exception Report response to all OWS operations.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema  Document encodes the typical Contents section of an OWS service metadata (Capabilities) document. This  Schema can be built upon to define the Contents section for a specific OWS. If the ContentsBaseType in this XML Schema cannot be restricted and extended to define the Contents section for a specific OWS, all other relevant parts defined in owsContents.xsd shall be used by the "ContentsType" in the wxsContents.xsd prepared for the specific OWS.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document specifies types and elements for input and output of operation data, allowing including multiple data items with each data item either included or referenced. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document specifies types and elements for document or resource references and for package manifests that contain multiple references. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
  * <!-- end-model-doc -->
  * @see net.opengis.fes20.Fes20Factory
  * @model kind="package"
@@ -377,58 +376,31 @@ public interface Fes20Package extends EPackage {
     int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__HANDLE = ABSTRACT_QUERY_EXPRESSION_TYPE__HANDLE;
 
     /**
-     * The feature id for the '<em><b>Abstract Projection Clause Group</b></em>' attribute list.
+     * The feature id for the '<em><b>Abstract Projection Clause</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE_GROUP = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 0;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 0;
 
     /**
-     * The feature id for the '<em><b>Abstract Projection Clause</b></em>' containment reference list.
+     * The feature id for the '<em><b>Abstract Selection Clause</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 1;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 1;
 
     /**
-     * The feature id for the '<em><b>Abstract Selection Clause Group</b></em>' attribute list.
+     * The feature id for the '<em><b>Abstract Sorting Clause</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE_GROUP = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 2;
-
-    /**
-     * The feature id for the '<em><b>Abstract Selection Clause</b></em>' containment reference.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 3;
-
-    /**
-     * The feature id for the '<em><b>Abstract Sorting Clause Group</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE_GROUP = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 4;
-
-    /**
-     * The feature id for the '<em><b>Abstract Sorting Clause</b></em>' containment reference.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 5;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 2;
 
     /**
      * The feature id for the '<em><b>Aliases</b></em>' attribute.
@@ -437,7 +409,7 @@ public interface Fes20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 6;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 3;
 
     /**
      * The feature id for the '<em><b>Type Names</b></em>' attribute.
@@ -446,7 +418,7 @@ public interface Fes20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 7;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 4;
 
     /**
      * The number of structural features of the '<em>Abstract Adhoc Query Expression Type</em>' class.
@@ -455,7 +427,7 @@ public interface Fes20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 8;
+    int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 5;
 
     /**
      * The meta object id for the '{@link net.opengis.fes20.impl.AbstractIdTypeImpl <em>Abstract Id Type</em>}' class.
@@ -3538,70 +3510,37 @@ public interface Fes20Package extends EPackage {
     EClass getAbstractAdhocQueryExpressionType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractProjectionClauseGroup <em>Abstract Projection Clause Group</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractProjectionClause <em>Abstract Projection Clause</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Abstract Projection Clause Group</em>'.
-     * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractProjectionClauseGroup()
-     * @see #getAbstractAdhocQueryExpressionType()
-     * @generated
-     */
-    EAttribute getAbstractAdhocQueryExpressionType_AbstractProjectionClauseGroup();
-
-    /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractProjectionClause <em>Abstract Projection Clause</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Abstract Projection Clause</em>'.
+     * @return the meta object for the attribute list '<em>Abstract Projection Clause</em>'.
      * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractProjectionClause()
      * @see #getAbstractAdhocQueryExpressionType()
      * @generated
      */
-    EReference getAbstractAdhocQueryExpressionType_AbstractProjectionClause();
+    EAttribute getAbstractAdhocQueryExpressionType_AbstractProjectionClause();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSelectionClauseGroup <em>Abstract Selection Clause Group</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSelectionClause <em>Abstract Selection Clause</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Abstract Selection Clause Group</em>'.
-     * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSelectionClauseGroup()
-     * @see #getAbstractAdhocQueryExpressionType()
-     * @generated
-     */
-    EAttribute getAbstractAdhocQueryExpressionType_AbstractSelectionClauseGroup();
-
-    /**
-     * Returns the meta object for the containment reference '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSelectionClause <em>Abstract Selection Clause</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Abstract Selection Clause</em>'.
+     * @return the meta object for the attribute '<em>Abstract Selection Clause</em>'.
      * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSelectionClause()
      * @see #getAbstractAdhocQueryExpressionType()
      * @generated
      */
-    EReference getAbstractAdhocQueryExpressionType_AbstractSelectionClause();
+    EAttribute getAbstractAdhocQueryExpressionType_AbstractSelectionClause();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSortingClauseGroup <em>Abstract Sorting Clause Group</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSortingClause <em>Abstract Sorting Clause</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Abstract Sorting Clause Group</em>'.
-     * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSortingClauseGroup()
-     * @see #getAbstractAdhocQueryExpressionType()
-     * @generated
-     */
-    EAttribute getAbstractAdhocQueryExpressionType_AbstractSortingClauseGroup();
-
-    /**
-     * Returns the meta object for the containment reference '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSortingClause <em>Abstract Sorting Clause</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Abstract Sorting Clause</em>'.
+     * @return the meta object for the attribute '<em>Abstract Sorting Clause</em>'.
      * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAbstractSortingClause()
      * @see #getAbstractAdhocQueryExpressionType()
      * @generated
      */
-    EReference getAbstractAdhocQueryExpressionType_AbstractSortingClause();
+    EAttribute getAbstractAdhocQueryExpressionType_AbstractSortingClause();
 
     /**
      * Returns the meta object for the attribute '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAliases <em>Aliases</em>}'.
@@ -6685,52 +6624,28 @@ public interface Fes20Package extends EPackage {
         EClass ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE = eINSTANCE.getAbstractAdhocQueryExpressionType();
 
         /**
-         * The meta object literal for the '<em><b>Abstract Projection Clause Group</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Abstract Projection Clause</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE_GROUP = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractProjectionClauseGroup();
+        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractProjectionClause();
 
         /**
-         * The meta object literal for the '<em><b>Abstract Projection Clause</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>Abstract Selection Clause</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractProjectionClause();
+        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSelectionClause();
 
         /**
-         * The meta object literal for the '<em><b>Abstract Selection Clause Group</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Abstract Sorting Clause</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE_GROUP = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSelectionClauseGroup();
-
-        /**
-         * The meta object literal for the '<em><b>Abstract Selection Clause</b></em>' containment reference feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EReference ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSelectionClause();
-
-        /**
-         * The meta object literal for the '<em><b>Abstract Sorting Clause Group</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE_GROUP = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSortingClauseGroup();
-
-        /**
-         * The meta object literal for the '<em><b>Abstract Sorting Clause</b></em>' containment reference feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EReference ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSortingClause();
+        EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSortingClause();
 
         /**
          * The meta object literal for the '<em><b>Aliases</b></em>' attribute feature.

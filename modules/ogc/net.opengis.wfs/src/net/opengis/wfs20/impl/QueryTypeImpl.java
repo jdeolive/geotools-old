@@ -6,16 +6,24 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
 import net.opengis.fes20.impl.AbstractAdhocQueryExpressionTypeImpl;
 
 import net.opengis.wfs20.QueryType;
 import net.opengis.wfs20.Wfs20Package;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 
 /**
  * <!-- begin-user-doc -->
@@ -201,6 +209,38 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
         return super.eIsSet(featureID);
     }
 
+    /**
+     * @generated NOT
+     */
+    public void setFilter(Filter filter) {
+        setAbstractSelectionClause(filter);
+    }
+
+    /**
+     * @generated NOT
+     */
+    public Filter getFilter() {
+        return (Filter) getAbstractSelectionClause();
+    }
+    
+    /**
+     * @generated NOT
+     */
+    public EList<QName> getPropertyNames() {
+        return (EList) getAbstractProjectionClause();
+    }
+
+    /**
+     * @generated NOT
+     */
+    public List<SortBy> getSortBy() {
+        if (abstractSortingClause == null) {
+            abstractSortingClause = new ArrayList();
+        }
+        return (List<SortBy>) abstractSortingClause;
+    }
+
+    
     /**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

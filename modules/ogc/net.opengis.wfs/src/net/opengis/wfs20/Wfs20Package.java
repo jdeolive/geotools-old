@@ -29,14 +29,14 @@ import org.eclipse.emf.ecore.EReference;
  * </ul>
  * <!-- end-user-doc -->
  * <!-- begin-model-doc -->
- * This XML Schema Document includes and imports, 
- *       directly or indirectly, all the XML Schemas defined by the 
+ * This XML Schema Document includes and imports,
+ *       directly or indirectly, all the XML Schemas defined by the
  *       Web Feature Service (WFS) Implementation Specification.
  * 
  *       WFS is an OGC Standard.
  *       Copyright (c) 2010 Open Geospatial Consortium.  All Rights Reserved.
- *       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .     
- *       
+ *       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
+ * 
  * 
  *    <div xmlns="http://www.w3.org/1999/xhtml">
  *     <h1>About the XML namespace</h1>
@@ -50,7 +50,7 @@ import org.eclipse.emf.ecore.EReference;
  *       See <a href="http://www.w3.org/XML/1998/namespace.html">
  *       http://www.w3.org/XML/1998/namespace.html</a> and
  *       <a href="http://www.w3.org/TR/REC-xml">
- *       http://www.w3.org/TR/REC-xml</a> for information 
+ *       http://www.w3.org/TR/REC-xml</a> for information
  *       about this namespace.
  *      </p>
  *      <p>
@@ -60,24 +60,24 @@ import org.eclipse.emf.ecore.EReference;
  *       They should not be used with conflicting semantics by any Working
  *       Group, specification, or document instance.
  *      </p>
- *      <p>   
+ *      <p>
  *       See further below in this document for more information about <a href="#usage">how to refer to this schema document from your own
  *       XSD schema documents</a> and about <a href="#nsversioning">the
  *       namespace-versioning policy governing this schema document</a>.
  *      </p>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div xmlns="http://www.w3.org/1999/xhtml">
- *    
- *     <h3>Father (in any context at all)</h3> 
+ * 
+ *     <h3>Father (in any context at all)</h3>
  * 
  *     <div class="bodytext">
  *      <p>
- *       denotes Jon Bosak, the chair of 
- *       the original XML Working Group.  This name is reserved by 
- *       the following decision of the W3C XML Plenary and 
+ *       denotes Jon Bosak, the chair of
+ *       the original XML Working Group.  This name is reserved by
+ *       the following decision of the W3C XML Plenary and
  *       XML Coordination groups:
  *      </p>
  *      <blockquote>
@@ -90,7 +90,7 @@ import org.eclipse.emf.ecore.EReference;
  *      </blockquote>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div id="usage" xml:id="usage" xmlns="http://www.w3.org/1999/xhtml">
  *     <h2>
@@ -136,7 +136,7 @@ import org.eclipse.emf.ecore.EReference;
  *      </p>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *    <div id="nsversioning" xml:id="nsversioning" xmlns="http://www.w3.org/1999/xhtml">
  *     <h2>
@@ -160,16 +160,16 @@ import org.eclipse.emf.ecore.EReference;
  *       Schema itself, or with the XML namespace itself.  In other words,
  *       if the XML Schema or XML namespaces change, the version of this
  *       document at <a href="http://www.w3.org/2001/xml.xsd">
- *        http://www.w3.org/2001/xml.xsd 
- *       </a> 
- *       will change accordingly; the version at 
+ *        http://www.w3.org/2001/xml.xsd
+ *       </a>
+ *       will change accordingly; the version at
  *       <a href="http://www.w3.org/2009/01/xml.xsd">
- *        http://www.w3.org/2009/01/xml.xsd 
- *       </a> 
+ *        http://www.w3.org/2009/01/xml.xsd
+ *       </a>
  *       will not change.
  *      </p>
  *      <p>
- *       Previous dated (and unchanging) versions of this schema 
+ *       Previous dated (and unchanging) versions of this schema
  *       document are at:
  *      </p>
  *      <ul>
@@ -192,7 +192,7 @@ import org.eclipse.emf.ecore.EReference;
  *      </ul>
  *     </div>
  *    </div>
- *   
+ * 
  * 
  *          This XML Schema document includes and imports, directly or indirectly,
  *          all the XML Schema defined by the Filter Encoding Standard.
@@ -200,121 +200,120 @@ import org.eclipse.emf.ecore.EReference;
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * 
  *          This XML Schema defines OGC query filter capabilities documents.
- *          
+ * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
+ * 
  * This XML Schema Document includes and imports, directly and indirectly, all the XML Schemas defined by the OWS Common Implemetation Specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the GetResourceByID operation request message. This typical operation is specified as a base for profiling in specific OWS specifications. For information on the allowed changes and limitations in such profiling, see Subclause 9.4.1 of the OWS Common specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the parts of the MD_DataIdentification class of ISO 19115 (OGC Abstract Specification Topic 11) which are expected to be used for most datasets. This Schema also encodes the parts of this class that are expected to be useful for other metadata. Both may be used within the Contents section of OWS service metadata (Capabilities) documents.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes various parameters and parameter types that can be used in OWS operation requests and responses.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * 
  * 			GML 3.0 candidate xlinks schema. Copyright (c) 2001 OGC, All Rights Reserved.
- * 		
+ * 
  * This XML Schema Document encodes the parts of ISO 19115 used by the common "ServiceIdentification" and "ServiceProvider" sections of the GetCapabilities operation response, known as the service metadata XML document. The parts encoded here are the MD_Keywords, CI_ResponsibleParty, and related classes. The UML package prefixes were omitted from XML names, and the XML element names were all capitalized, for consistency with other OWS Schemas. This document also provides a simple coding of text in multiple languages, simplified from Annex J of ISO 19115.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document defines the GetCapabilities operation request and response XML elements and types, which are common to all OWSs. This XML Schema shall be edited by each OWS, for example, to specify a specific value for the "service" attribute.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
- * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		
+ * 
+ * This XML Schema Document encodes the common "ServiceIdentification" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceIdentification class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
- * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12). 
- * 		
+ * 
+ * This XML Schema Document encodes the common "ServiceProvider" section of the GetCapabilities operation response, known as the Capabilities XML document. This section encodes the SV_ServiceProvider class of ISO 19119 (OGC Abstract Specification Topic 12).
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the basic contents of the "OperationsMetadata" section of the GetCapabilities operation response, also known as the Capabilities XML document.
- * 			
+ * 
  * 			OWS is an OGC Standard.
  * 			Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 			To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the allowed values (or domain) of a quantity, often for an input or output parameter to an OWS. Such a parameter is sometimes called a variable, quantity, literal, or typed literal. Such a parameter can use one of many data types, including double, integer, boolean, string, or URI. The allowed values can also be encoded for a quantity that is not explicit or not transferred, but is constrained by a server implementation.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document encodes the Exception Report response to all OWS operations.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema  Document encodes the typical Contents section of an OWS service metadata (Capabilities) document. This  Schema can be built upon to define the Contents section for a specific OWS. If the ContentsBaseType in this XML Schema cannot be restricted and extended to define the Contents section for a specific OWS, all other relevant parts defined in owsContents.xsd shall be used by the "ContentsType" in the wxsContents.xsd prepared for the specific OWS.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document specifies types and elements for input and output of operation data, allowing including multiple data items with each data item either included or referenced. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * This XML Schema Document specifies types and elements for document or resource references and for package manifests that contain multiple references. The contents of each type and element specified here can be restricted and/or extended for each use in a specific OWS specification.
- * 		
+ * 
  * 		OWS is an OGC Standard.
  * 		Copyright (c) 2006,2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  * 		To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- * 		
+ * 
  * 
  *          Filter Encoding is an OGC Standard.
  *          Copyright (c) 2010 Open Geospatial Consortium, Inc. All Rights Reserved.
  *          To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
- *       
  * <!-- end-model-doc -->
  * @see net.opengis.wfs20.Wfs20Factory
  * @model kind="package"
@@ -826,7 +825,7 @@ public interface Wfs20Package extends EPackage {
     int DESCRIBE_FEATURE_TYPE_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
-     * The feature id for the '<em><b>Type Name</b></em>' attribute list.
+     * The feature id for the '<em><b>Type Name</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -918,7 +917,7 @@ public interface Wfs20Package extends EPackage {
     int DESCRIBE_STORED_QUERIES_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
-     * The feature id for the '<em><b>Stored Query Id</b></em>' attribute list.
+     * The feature id for the '<em><b>Stored Query Id</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -1857,7 +1856,7 @@ public interface Wfs20Package extends EPackage {
     int FEATURE_TYPE_TYPE__DEFAULT_CRS = 4;
 
     /**
-     * The feature id for the '<em><b>Other CRS</b></em>' attribute list.
+     * The feature id for the '<em><b>Other CRS</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3023,7 +3022,7 @@ public interface Wfs20Package extends EPackage {
     int OUTPUT_FORMAT_LIST_TYPE__GROUP = 0;
 
     /**
-     * The feature id for the '<em><b>Format</b></em>' attribute list.
+     * The feature id for the '<em><b>Format</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3344,16 +3343,7 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__HANDLE = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__HANDLE;
 
     /**
-     * The feature id for the '<em><b>Abstract Projection Clause Group</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_TYPE__ABSTRACT_PROJECTION_CLAUSE_GROUP = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE_GROUP;
-
-    /**
-     * The feature id for the '<em><b>Abstract Projection Clause</b></em>' containment reference list.
+     * The feature id for the '<em><b>Abstract Projection Clause</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3362,16 +3352,7 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__ABSTRACT_PROJECTION_CLAUSE = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_PROJECTION_CLAUSE;
 
     /**
-     * The feature id for the '<em><b>Abstract Selection Clause Group</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_TYPE__ABSTRACT_SELECTION_CLAUSE_GROUP = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE_GROUP;
-
-    /**
-     * The feature id for the '<em><b>Abstract Selection Clause</b></em>' containment reference.
+     * The feature id for the '<em><b>Abstract Selection Clause</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3380,16 +3361,7 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__ABSTRACT_SELECTION_CLAUSE = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SELECTION_CLAUSE;
 
     /**
-     * The feature id for the '<em><b>Abstract Sorting Clause Group</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_TYPE__ABSTRACT_SORTING_CLAUSE_GROUP = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE_GROUP;
-
-    /**
-     * The feature id for the '<em><b>Abstract Sorting Clause</b></em>' containment reference.
+     * The feature id for the '<em><b>Abstract Sorting Clause</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3599,7 +3571,7 @@ public interface Wfs20Package extends EPackage {
     int STORED_QUERY_LIST_ITEM_TYPE__TITLE = 0;
 
     /**
-     * The feature id for the '<em><b>Return Feature Type</b></em>' attribute list.
+     * The feature id for the '<em><b>Return Feature Type</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -4915,10 +4887,10 @@ public interface Wfs20Package extends EPackage {
     EClass getDescribeFeatureTypeType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.DescribeFeatureTypeType#getTypeName <em>Type Name</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.DescribeFeatureTypeType#getTypeName <em>Type Name</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Type Name</em>'.
+     * @return the meta object for the attribute '<em>Type Name</em>'.
      * @see net.opengis.wfs20.DescribeFeatureTypeType#getTypeName()
      * @see #getDescribeFeatureTypeType()
      * @generated
@@ -4968,10 +4940,10 @@ public interface Wfs20Package extends EPackage {
     EClass getDescribeStoredQueriesType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId <em>Stored Query Id</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId <em>Stored Query Id</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Stored Query Id</em>'.
+     * @return the meta object for the attribute '<em>Stored Query Id</em>'.
      * @see net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId()
      * @see #getDescribeStoredQueriesType()
      * @generated
@@ -5891,10 +5863,10 @@ public interface Wfs20Package extends EPackage {
     EAttribute getFeatureTypeType_DefaultCRS();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.FeatureTypeType#getOtherCRS <em>Other CRS</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.FeatureTypeType#getOtherCRS <em>Other CRS</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Other CRS</em>'.
+     * @return the meta object for the attribute '<em>Other CRS</em>'.
      * @see net.opengis.wfs20.FeatureTypeType#getOtherCRS()
      * @see #getFeatureTypeType()
      * @generated
@@ -6768,10 +6740,10 @@ public interface Wfs20Package extends EPackage {
     EAttribute getOutputFormatListType_Group();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.OutputFormatListType#getFormat <em>Format</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.OutputFormatListType#getFormat <em>Format</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Format</em>'.
+     * @return the meta object for the attribute '<em>Format</em>'.
      * @see net.opengis.wfs20.OutputFormatListType#getFormat()
      * @see #getOutputFormatListType()
      * @generated
@@ -7275,10 +7247,10 @@ public interface Wfs20Package extends EPackage {
     EReference getStoredQueryListItemType_Title();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.StoredQueryListItemType#getReturnFeatureType <em>Return Feature Type</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.StoredQueryListItemType#getReturnFeatureType <em>Return Feature Type</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Return Feature Type</em>'.
+     * @return the meta object for the attribute '<em>Return Feature Type</em>'.
      * @see net.opengis.wfs20.StoredQueryListItemType#getReturnFeatureType()
      * @see #getStoredQueryListItemType()
      * @generated
@@ -8465,7 +8437,7 @@ public interface Wfs20Package extends EPackage {
         EClass DESCRIBE_FEATURE_TYPE_TYPE = eINSTANCE.getDescribeFeatureTypeType();
 
         /**
-         * The meta object literal for the '<em><b>Type Name</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Type Name</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -8509,7 +8481,7 @@ public interface Wfs20Package extends EPackage {
         EClass DESCRIBE_STORED_QUERIES_TYPE = eINSTANCE.getDescribeStoredQueriesType();
 
         /**
-         * The meta object literal for the '<em><b>Stored Query Id</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Stored Query Id</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -9213,7 +9185,7 @@ public interface Wfs20Package extends EPackage {
         EAttribute FEATURE_TYPE_TYPE__DEFAULT_CRS = eINSTANCE.getFeatureTypeType_DefaultCRS();
 
         /**
-         * The meta object literal for the '<em><b>Other CRS</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Other CRS</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -9889,7 +9861,7 @@ public interface Wfs20Package extends EPackage {
         EAttribute OUTPUT_FORMAT_LIST_TYPE__GROUP = eINSTANCE.getOutputFormatListType_Group();
 
         /**
-         * The meta object literal for the '<em><b>Format</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Format</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -10285,7 +10257,7 @@ public interface Wfs20Package extends EPackage {
         EReference STORED_QUERY_LIST_ITEM_TYPE__TITLE = eINSTANCE.getStoredQueryListItemType_Title();
 
         /**
-         * The meta object literal for the '<em><b>Return Feature Type</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Return Feature Type</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated

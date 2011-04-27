@@ -6,6 +6,15 @@
  */
 package net.opengis.wfs20;
 
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.emf.common.util.EList;
+
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
+
 import net.opengis.fes20.AbstractAdhocQueryExpressionType;
 
 /**
@@ -79,5 +88,33 @@ public interface QueryType extends AbstractAdhocQueryExpressionType {
      * @generated
      */
     void setSrsName(String value);
+    
+    /**
+     * Convenience method to cast {@link #getAbstractSelectionClause()} to a filter object.
+     *  
+     * @generated NOT
+     */
+    Filter getFilter();
+    
+    /**
+     * Convenience method to set {{@link #getAbstractSelectionClause()} from a filter object.
+     *  
+     * @generated NOT
+     */
+    void setFilter(Filter filter);
+    
+    /**
+     * Convenience method to cast {@link #getAbstractProjectionClause()} to list of QName.
+     * 
+     * @generated NOT
+     */
+    EList<QName> getPropertyNames();
+    
+    /**
+     * Convenience method to cast {@link #getAbstractSortingClause()} to a list of SortBy.
+     * 
+     * @generated NOT
+     */
+    List<SortBy> getSortBy();
 
 } // QueryType
