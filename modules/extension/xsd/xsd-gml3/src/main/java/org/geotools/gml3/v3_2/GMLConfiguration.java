@@ -31,7 +31,6 @@ import org.geotools.gml3.bindings.CurveSegmentArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.CurveTypeBinding;
 import org.geotools.gml3.bindings.DirectPositionListTypeBinding;
 import org.geotools.gml3.bindings.DirectPositionTypeBinding;
-import org.geotools.gml3.bindings.DoubleListBinding;
 import org.geotools.gml3.bindings.EnvelopeTypeBinding;
 import org.geotools.gml3.bindings.FeatureArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.FeaturePropertyTypeBinding;
@@ -60,6 +59,8 @@ import org.geotools.gml3.bindings.SurfaceArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePatchArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfaceTypeBinding;
+import org.geotools.gml3.v3_2.bindings.AbstractRingTypeBinding;
+import org.geotools.gml3.v3_2.bindings.DoubleListBinding;
 import org.geotools.gml3.v3_2.bindings.GML32EncodingUtils;
 import org.geotools.gml3.v3_2.bindings.LinearRingTypeBinding;
 import org.geotools.xml.Configuration;
@@ -125,6 +126,8 @@ public class GMLConfiguration extends Configuration {
             AbstractGeometryTypeBinding.class);
         container.registerComponentImplementation(GML.AbstractRingPropertyType,
             AbstractRingPropertyTypeBinding.class);
+        container.registerComponentImplementation(GML.AbstractRingType,
+                AbstractRingTypeBinding.class);
         container.registerComponentImplementation(GML.BoundingShapeType,
             BoundingShapeTypeBinding.class);
         container.registerComponentImplementation(GML.CoordinatesType,

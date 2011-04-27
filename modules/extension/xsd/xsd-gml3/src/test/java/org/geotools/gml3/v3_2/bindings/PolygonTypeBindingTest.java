@@ -23,6 +23,8 @@ import org.geotools.gml3.v3_2.GML;
 import org.geotools.gml3.v3_2.GML32TestSupport;
 import org.w3c.dom.Document;
 
+import com.vividsolutions.jts.geom.Polygon;
+
 public class PolygonTypeBindingTest extends GML32TestSupport {
 //    public void testNoInterior() throws Exception {
 //        GML3MockData.polygon(document, document);
@@ -31,9 +33,14 @@ public class PolygonTypeBindingTest extends GML32TestSupport {
 //        assertNotNull(polygon);
 //    }
     
+    public void testParse() throws Exception {
+        GML3MockData.polygonWithPosList(document, document);
+        Polygon p = (Polygon) parse();
+        assertNotNull(p);
+    }
+
     public void testEncode() throws Exception {
         Document dom = encode(GML3MockData.polygon(), GML.Polygon);
-        print(dom);
         
         assertEquals("gml:Polygon", dom.getDocumentElement().getNodeName());
         XMLAssert.assertXpathExists("/gml:Polygon/gml:exterior", dom);
