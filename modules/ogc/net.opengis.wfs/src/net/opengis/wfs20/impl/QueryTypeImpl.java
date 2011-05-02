@@ -6,6 +6,7 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +69,7 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * @generated
      * @ordered
      */
-    protected static final String SRS_NAME_EDEFAULT = null;
+    protected static final URI SRS_NAME_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getSrsName() <em>Srs Name</em>}' attribute.
@@ -78,7 +79,7 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * @generated
      * @ordered
      */
-    protected String srsName = SRS_NAME_EDEFAULT;
+    protected URI srsName = SRS_NAME_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -125,7 +126,7 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * <!-- end-user-doc -->
      * @generated
      */
-    public String getSrsName() {
+    public URI getSrsName() {
         return srsName;
     }
 
@@ -134,8 +135,8 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setSrsName(String newSrsName) {
-        String oldSrsName = srsName;
+    public void setSrsName(URI newSrsName) {
+        URI oldSrsName = srsName;
         srsName = newSrsName;
         if (eNotificationRequired())
             eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.QUERY_TYPE__SRS_NAME, oldSrsName, srsName));
@@ -169,7 +170,7 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
                 setFeatureVersion((String)newValue);
                 return;
             case Wfs20Package.QUERY_TYPE__SRS_NAME:
-                setSrsName((String)newValue);
+                setSrsName((URI)newValue);
                 return;
         }
         super.eSet(featureID, newValue);

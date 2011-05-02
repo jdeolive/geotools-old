@@ -1,6 +1,7 @@
 package org.geotools.wfs.v2_0.bindings;
 
 import java.math.BigInteger;
+import java.net.URI;
 
 import javax.xml.namespace.QName;
 
@@ -26,7 +27,7 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " + 
         "   xsi:schemaLocation='http://www.opengis.net/wfs/2.0 " + 
         "                       http://schemas.opengis.net/wfs/2.0/wfs.xsd'> " + 
-        "   <wfs:Query typeNames='myns:InWaterA_1M'> " + 
+        "   <wfs:Query typeNames='myns:InWaterA_1M' srsName='epsg:4326'> " + 
         "      <fes:Filter> " + 
         "         <fes:ResourceId rid='InWaterA_1M.1234'/> " + 
         "      </fes:Filter> " + 
@@ -42,6 +43,7 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         QueryType q = (QueryType) gf.getAbstractQueryExpression().get(0);
         assertNotNull(q);
         
+        assertEquals(new URI("epsg:4326"), q.getSrsName());
         assertEquals(1, q.getTypeNames().size());
         assertEquals(
             new QName("http://www.someserver.com/myns", "InWaterA_1M"), q.getTypeNames().get(0));

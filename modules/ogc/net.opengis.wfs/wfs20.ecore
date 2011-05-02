@@ -150,6 +150,7 @@
         <details key="name" value="version"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUrl" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CreatedOrModifiedFeatureType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1034,8 +1035,7 @@
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="abstractQueryExpression"
         lowerBound="1" upperBound="-1" eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//AbstractQueryExpressionType"
-        changeable="false" volatile="true" transient="true" derived="true" containment="true"
-        resolveProxies="false">
+        volatile="true" transient="true" derived="true" containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="name" value="AbstractQueryExpression"/>
@@ -1091,6 +1091,8 @@
         <details key="name" value="startIndex"/>
       </eAnnotations>
     </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="metadata" eType="#//Map"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="formatOptions" eType="#//Map"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="GetFeatureWithLockType" eSuperTypes="#//GetFeatureType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1765,12 +1767,7 @@
         <details key="name" value="featureVersion"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="srsName" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//AnyURI">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="attribute"/>
-        <details key="name" value="srsName"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="srsName" eType="#//URI"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ReplaceType" eSuperTypes="#//AbstractTransactionActionType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -2493,4 +2490,6 @@
       <details key="baseType" value="UpdateActionType"/>
     </eAnnotations>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="URI" instanceClassName="java.net.URI"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="Map" instanceClassName="java.util.Map"/>
 </ecore:EPackage>

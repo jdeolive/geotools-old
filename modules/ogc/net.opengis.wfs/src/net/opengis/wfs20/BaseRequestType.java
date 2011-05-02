@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getHandle <em>Handle</em>}</li>
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getVersion <em>Version</em>}</li>
+ *   <li>{@link net.opengis.wfs20.BaseRequestType#getBaseUrl <em>Base Url</em>}</li>
  * </ul>
  * </p>
  *
@@ -164,5 +165,28 @@ public interface BaseRequestType extends EObject {
      * @generated
      */
     boolean isSetVersion();
+    
+    /**
+     * <!-- begin-user-doc -->
+     * The base url the request originated from.
+     * <p>
+     * While not part of the xml schema we add this property after the fact to allow applications
+     * to associate a base url with this request object.
+     * </p>
+     * <!-- end-user-doc -->
+     * 
+     * @model
+     */
+    String getBaseUrl();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.BaseRequestType#getBaseUrl <em>Base Url</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Base Url</em>' attribute.
+     * @see #getBaseUrl()
+     * @generated
+     */
+    void setBaseUrl(String value);
 
 } // BaseRequestType

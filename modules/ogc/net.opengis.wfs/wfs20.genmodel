@@ -52,6 +52,8 @@
     <genDataTypes ecoreDataType="wfs20.ecore#//StateValueTypeMember0Object"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//StateValueTypeMember1"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//UpdateActionTypeObject"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//URI"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//Map"/>
     <genClasses image="false" ecoreClass="wfs20.ecore#//AbstractTransactionActionType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//AbstractTransactionActionType/handle"/>
     </genClasses>
@@ -76,6 +78,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/handle"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/version"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/baseUrl"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//CreatedOrModifiedFeatureType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//CreatedOrModifiedFeatureType/group"/>
@@ -214,6 +217,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureType/resolveTimeout"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureType/resultType"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureType/startIndex"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureType/metadata"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureType/formatOptions"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//GetFeatureWithLockType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureWithLockType/expiry"/>

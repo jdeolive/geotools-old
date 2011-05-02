@@ -8,6 +8,7 @@ package net.opengis.wfs20.util;
 
 import java.math.BigInteger;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -275,6 +276,10 @@ public class Wfs20Validator extends EObjectValidator {
                 return validateStateValueTypeMember1((String)value, diagnostics, context);
             case Wfs20Package.UPDATE_ACTION_TYPE_OBJECT:
                 return validateUpdateActionTypeObject((UpdateActionType)value, diagnostics, context);
+            case Wfs20Package.URI:
+                return validateURI((URI)value, diagnostics, context);
+            case Wfs20Package.MAP:
+                return validateMap((Map)value, diagnostics, context);
             default:
                 return true;
         }
@@ -1155,6 +1160,24 @@ public class Wfs20Validator extends EObjectValidator {
      * @generated
      */
     public boolean validateUpdateActionTypeObject(UpdateActionType updateActionTypeObject, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateURI(URI uri, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateMap(Map map, DiagnosticChain diagnostics, Map<Object, Object> context) {
         return true;
     }
 

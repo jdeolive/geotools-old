@@ -8,9 +8,11 @@ package net.opengis.wfs20.impl;
 
 import java.math.BigInteger;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 import net.opengis.wfs20.*;
@@ -186,6 +188,10 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return createStateValueTypeMember1FromString(eDataType, initialValue);
             case Wfs20Package.UPDATE_ACTION_TYPE_OBJECT:
                 return createUpdateActionTypeObjectFromString(eDataType, initialValue);
+            case Wfs20Package.URI:
+                return createURIFromString(eDataType, initialValue);
+            case Wfs20Package.MAP:
+                return createMapFromString(eDataType, initialValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -239,6 +245,10 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return convertStateValueTypeMember1ToString(eDataType, instanceValue);
             case Wfs20Package.UPDATE_ACTION_TYPE_OBJECT:
                 return convertUpdateActionTypeObjectToString(eDataType, instanceValue);
+            case Wfs20Package.URI:
+                return convertURIToString(eDataType, instanceValue);
+            case Wfs20Package.MAP:
+                return convertMapToString(eDataType, instanceValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -1355,6 +1365,42 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
      */
     public String convertUpdateActionTypeObjectToString(EDataType eDataType, Object instanceValue) {
         return convertUpdateActionTypeToString(Wfs20Package.Literals.UPDATE_ACTION_TYPE, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public URI createURIFromString(EDataType eDataType, String initialValue) {
+        return (URI)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertURIToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public Map createMapFromString(EDataType eDataType, String initialValue) {
+        return (Map)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertMapToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
     }
 
     /**

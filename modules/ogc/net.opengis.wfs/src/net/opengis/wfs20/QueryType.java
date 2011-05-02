@@ -6,6 +6,7 @@
  */
 package net.opengis.wfs20;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -71,13 +72,12 @@ public interface QueryType extends AbstractAdhocQueryExpressionType {
      * </p>
      * <!-- end-user-doc -->
      * @return the value of the '<em>Srs Name</em>' attribute.
-     * @see #setSrsName(String)
+     * @see #setSrsName(URI)
      * @see net.opengis.wfs20.Wfs20Package#getQueryType_SrsName()
-     * @model dataType="org.eclipse.emf.ecore.xml.type.AnyURI"
-     *        extendedMetaData="kind='attribute' name='srsName'"
+     * @model dataType="net.opengis.wfs20.URI"
      * @generated
      */
-    String getSrsName();
+    URI getSrsName();
 
     /**
      * Sets the value of the '{@link net.opengis.wfs20.QueryType#getSrsName <em>Srs Name</em>}' attribute.
@@ -87,8 +87,8 @@ public interface QueryType extends AbstractAdhocQueryExpressionType {
      * @see #getSrsName()
      * @generated
      */
-    void setSrsName(String value);
-    
+    void setSrsName(URI value);
+
     /**
      * Convenience method to cast {@link #getAbstractSelectionClause()} to a filter object.
      *  

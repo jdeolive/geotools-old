@@ -431,9 +431,12 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
     /**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @generated
+     * @generated NOT
      */
     public Map getMetadata() {
+        if (metadata == null) {
+            metadata = new HashMap();
+        }
         return metadata;
     }
 

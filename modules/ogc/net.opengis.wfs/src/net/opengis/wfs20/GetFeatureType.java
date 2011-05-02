@@ -7,6 +7,7 @@
 package net.opengis.wfs20;
 
 import java.math.BigInteger;
+import java.util.Map;
 
 import net.opengis.fes20.AbstractQueryExpressionType;
 
@@ -31,6 +32,8 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  *   <li>{@link net.opengis.wfs20.GetFeatureType#getResolveTimeout <em>Resolve Timeout</em>}</li>
  *   <li>{@link net.opengis.wfs20.GetFeatureType#getResultType <em>Result Type</em>}</li>
  *   <li>{@link net.opengis.wfs20.GetFeatureType#getStartIndex <em>Start Index</em>}</li>
+ *   <li>{@link net.opengis.wfs20.GetFeatureType#getMetadata <em>Metadata</em>}</li>
+ *   <li>{@link net.opengis.wfs20.GetFeatureType#getFormatOptions <em>Format Options</em>}</li>
  * </ul>
  * </p>
  *
@@ -67,7 +70,7 @@ public interface GetFeatureType extends BaseRequestType {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Abstract Query Expression</em>' containment reference list.
      * @see net.opengis.wfs20.Wfs20Package#getGetFeatureType_AbstractQueryExpression()
-     * @model containment="true" required="true" transient="true" changeable="false" volatile="true" derived="true"
+     * @model containment="true" required="true" transient="true" volatile="true" derived="true"
      *        extendedMetaData="kind='element' name='AbstractQueryExpression' namespace='http://www.opengis.net/fes/2.0' group='http://www.opengis.net/fes/2.0#AbstractQueryExpression:group'"
      * @generated
      */
@@ -435,5 +438,44 @@ public interface GetFeatureType extends BaseRequestType {
      * @generated
      */
     boolean isSetStartIndex();
+    
+    /**
+     * A generic bag of extra information that implementations can use to carry vendor parameters
+     * <p>
+     * This property is not part of the standard model but an extension.
+     *  </p>
+     * @model
+     */
+     Map getMetadata();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.GetFeatureType#getMetadata <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Metadata</em>' attribute.
+     * @see #getMetadata()
+     * @generated
+     */
+    void setMetadata(Map value);
+    
+    /**
+     * The format options to be applied to any response to the GetFeature request.
+     * <p>
+     * This property is not part of the standard model but an extension.
+     *  </p>
+     * @model
+     */
+     Map getFormatOptions();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.GetFeatureType#getFormatOptions <em>Format Options</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Format Options</em>' attribute.
+     * @see #getFormatOptions()
+     * @generated
+     */
+    void setFormatOptions(Map value);
+
 
 } // GetFeatureType

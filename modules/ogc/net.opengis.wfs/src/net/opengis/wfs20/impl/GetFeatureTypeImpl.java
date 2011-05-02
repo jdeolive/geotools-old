@@ -8,6 +8,9 @@ package net.opengis.wfs20.impl;
 
 import java.math.BigInteger;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import net.opengis.fes20.AbstractQueryExpressionType;
 
 import net.opengis.wfs20.GetFeatureType;
@@ -46,6 +49,8 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *   <li>{@link net.opengis.wfs20.impl.GetFeatureTypeImpl#getResolveTimeout <em>Resolve Timeout</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.GetFeatureTypeImpl#getResultType <em>Result Type</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.GetFeatureTypeImpl#getStartIndex <em>Start Index</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.GetFeatureTypeImpl#getMetadata <em>Metadata</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.GetFeatureTypeImpl#getFormatOptions <em>Format Options</em>}</li>
  * </ul>
  * </p>
  *
@@ -255,6 +260,46 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
      * @ordered
      */
     protected boolean startIndexESet;
+
+    /**
+     * The default value of the '{@link #getMetadata() <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getMetadata()
+     * @generated
+     * @ordered
+     */
+    protected static final Map METADATA_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getMetadata() <em>Metadata</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getMetadata()
+     * @generated
+     * @ordered
+     */
+    protected Map metadata = METADATA_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getFormatOptions() <em>Format Options</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFormatOptions()
+     * @generated
+     * @ordered
+     */
+    protected static final Map FORMAT_OPTIONS_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getFormatOptions() <em>Format Options</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFormatOptions()
+     * @generated
+     * @ordered
+     */
+    protected Map formatOptions = FORMAT_OPTIONS_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -596,6 +641,54 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
     /**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
+     * @generated NOT
+     */
+    public Map getMetadata() {
+        if (metadata == null) {
+            metadata = new HashMap();
+        }
+        return metadata;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setMetadata(Map newMetadata) {
+        Map oldMetadata = metadata;
+        metadata = newMetadata;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.GET_FEATURE_TYPE__METADATA, oldMetadata, metadata));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated NOT
+     */
+    public Map getFormatOptions() {
+        if (formatOptions == null) {
+            formatOptions = new HashMap();
+        }
+        return formatOptions;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setFormatOptions(Map newFormatOptions) {
+        Map oldFormatOptions = formatOptions;
+        formatOptions = newFormatOptions;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.GET_FEATURE_TYPE__FORMAT_OPTIONS, oldFormatOptions, formatOptions));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
      * @generated
      */
     @Override
@@ -636,6 +729,10 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
                 return getResultType();
             case Wfs20Package.GET_FEATURE_TYPE__START_INDEX:
                 return getStartIndex();
+            case Wfs20Package.GET_FEATURE_TYPE__METADATA:
+                return getMetadata();
+            case Wfs20Package.GET_FEATURE_TYPE__FORMAT_OPTIONS:
+                return getFormatOptions();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -645,11 +742,16 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
      * <!-- end-user-doc -->
      * @generated
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wfs20Package.GET_FEATURE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
                 ((FeatureMap.Internal)getAbstractQueryExpressionGroup()).set(newValue);
+                return;
+            case Wfs20Package.GET_FEATURE_TYPE__ABSTRACT_QUERY_EXPRESSION:
+                getAbstractQueryExpression().clear();
+                getAbstractQueryExpression().addAll((Collection<? extends AbstractQueryExpressionType>)newValue);
                 return;
             case Wfs20Package.GET_FEATURE_TYPE__COUNT:
                 setCount((BigInteger)newValue);
@@ -672,6 +774,12 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
             case Wfs20Package.GET_FEATURE_TYPE__START_INDEX:
                 setStartIndex((BigInteger)newValue);
                 return;
+            case Wfs20Package.GET_FEATURE_TYPE__METADATA:
+                setMetadata((Map)newValue);
+                return;
+            case Wfs20Package.GET_FEATURE_TYPE__FORMAT_OPTIONS:
+                setFormatOptions((Map)newValue);
+                return;
         }
         super.eSet(featureID, newValue);
     }
@@ -686,6 +794,9 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
         switch (featureID) {
             case Wfs20Package.GET_FEATURE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
                 getAbstractQueryExpressionGroup().clear();
+                return;
+            case Wfs20Package.GET_FEATURE_TYPE__ABSTRACT_QUERY_EXPRESSION:
+                getAbstractQueryExpression().clear();
                 return;
             case Wfs20Package.GET_FEATURE_TYPE__COUNT:
                 setCount(COUNT_EDEFAULT);
@@ -707,6 +818,12 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
                 return;
             case Wfs20Package.GET_FEATURE_TYPE__START_INDEX:
                 unsetStartIndex();
+                return;
+            case Wfs20Package.GET_FEATURE_TYPE__METADATA:
+                setMetadata(METADATA_EDEFAULT);
+                return;
+            case Wfs20Package.GET_FEATURE_TYPE__FORMAT_OPTIONS:
+                setFormatOptions(FORMAT_OPTIONS_EDEFAULT);
                 return;
         }
         super.eUnset(featureID);
@@ -738,6 +855,10 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
                 return isSetResultType();
             case Wfs20Package.GET_FEATURE_TYPE__START_INDEX:
                 return isSetStartIndex();
+            case Wfs20Package.GET_FEATURE_TYPE__METADATA:
+                return METADATA_EDEFAULT == null ? metadata != null : !METADATA_EDEFAULT.equals(metadata);
+            case Wfs20Package.GET_FEATURE_TYPE__FORMAT_OPTIONS:
+                return FORMAT_OPTIONS_EDEFAULT == null ? formatOptions != null : !FORMAT_OPTIONS_EDEFAULT.equals(formatOptions);
         }
         return super.eIsSet(featureID);
     }
@@ -768,6 +889,10 @@ public class GetFeatureTypeImpl extends BaseRequestTypeImpl implements GetFeatur
         if (resultTypeESet) result.append(resultType); else result.append("<unset>");
         result.append(", startIndex: ");
         if (startIndexESet) result.append(startIndex); else result.append("<unset>");
+        result.append(", metadata: ");
+        result.append(metadata);
+        result.append(", formatOptions: ");
+        result.append(formatOptions);
         result.append(')');
         return result.toString();
     }

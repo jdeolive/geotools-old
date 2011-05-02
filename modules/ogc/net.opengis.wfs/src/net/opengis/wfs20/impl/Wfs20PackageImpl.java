@@ -10,6 +10,7 @@ import java.math.BigInteger;
 
 import java.util.List;
 
+import java.util.Map;
 import net.opengis.fes20.Fes20Package;
 
 import net.opengis.ows10.Ows10Package;
@@ -688,6 +689,20 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
     private EDataType updateActionTypeObjectEDataType = null;
 
     /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    private EDataType uriEDataType = null;
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    private EDataType mapEDataType = null;
+
+    /**
      * Creates an instance of the model <b>Package</b>, registered with
      * {@link org.eclipse.emf.ecore.EPackage.Registry EPackage.Registry} by the package
      * package URI value.
@@ -931,6 +946,15 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      */
     public EAttribute getBaseRequestType_Version() {
         return (EAttribute)baseRequestTypeEClass.getEStructuralFeatures().get(2);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EAttribute getBaseRequestType_BaseUrl() {
+        return (EAttribute)baseRequestTypeEClass.getEStructuralFeatures().get(3);
     }
 
     /**
@@ -2002,6 +2026,24 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      */
     public EAttribute getGetFeatureType_StartIndex() {
         return (EAttribute)getFeatureTypeEClass.getEStructuralFeatures().get(8);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EAttribute getGetFeatureType_Metadata() {
+        return (EAttribute)getFeatureTypeEClass.getEStructuralFeatures().get(9);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EAttribute getGetFeatureType_FormatOptions() {
+        return (EAttribute)getFeatureTypeEClass.getEStructuralFeatures().get(10);
     }
 
     /**
@@ -3746,6 +3788,24 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
+    public EDataType getURI() {
+        return uriEDataType;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EDataType getMap() {
+        return mapEDataType;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     public Wfs20Factory getWfs20Factory() {
         return (Wfs20Factory)getEFactoryInstance();
     }
@@ -3793,6 +3853,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__HANDLE);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__SERVICE);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__VERSION);
+        createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__BASE_URL);
 
         createdOrModifiedFeatureTypeEClass = createEClass(CREATED_OR_MODIFIED_FEATURE_TYPE);
         createEAttribute(createdOrModifiedFeatureTypeEClass, CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP);
@@ -3933,6 +3994,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         createEAttribute(getFeatureTypeEClass, GET_FEATURE_TYPE__RESOLVE_TIMEOUT);
         createEAttribute(getFeatureTypeEClass, GET_FEATURE_TYPE__RESULT_TYPE);
         createEAttribute(getFeatureTypeEClass, GET_FEATURE_TYPE__START_INDEX);
+        createEAttribute(getFeatureTypeEClass, GET_FEATURE_TYPE__METADATA);
+        createEAttribute(getFeatureTypeEClass, GET_FEATURE_TYPE__FORMAT_OPTIONS);
 
         getFeatureWithLockTypeEClass = createEClass(GET_FEATURE_WITH_LOCK_TYPE);
         createEAttribute(getFeatureWithLockTypeEClass, GET_FEATURE_WITH_LOCK_TYPE__EXPIRY);
@@ -4165,6 +4228,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         stateValueTypeMember0ObjectEDataType = createEDataType(STATE_VALUE_TYPE_MEMBER0_OBJECT);
         stateValueTypeMember1EDataType = createEDataType(STATE_VALUE_TYPE_MEMBER1);
         updateActionTypeObjectEDataType = createEDataType(UPDATE_ACTION_TYPE_OBJECT);
+        uriEDataType = createEDataType(URI);
+        mapEDataType = createEDataType(MAP);
     }
 
     /**
@@ -4250,6 +4315,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEAttribute(getBaseRequestType_Handle(), theXMLTypePackage.getString(), "handle", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_Service(), theXMLTypePackage.getString(), "service", "WFS", 1, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_Version(), theXMLTypePackage.getString(), "version", "2.0.0", 1, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBaseRequestType_BaseUrl(), ecorePackage.getEString(), "baseUrl", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(createdOrModifiedFeatureTypeEClass, CreatedOrModifiedFeatureType.class, "CreatedOrModifiedFeatureType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getCreatedOrModifiedFeatureType_Group(), theEcorePackage.getEFeatureMapEntry(), "group", null, 0, -1, CreatedOrModifiedFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4382,7 +4448,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
 
         initEClass(getFeatureTypeEClass, GetFeatureType.class, "GetFeatureType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getGetFeatureType_AbstractQueryExpressionGroup(), theEcorePackage.getEFeatureMapEntry(), "abstractQueryExpressionGroup", null, 1, -1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getGetFeatureType_AbstractQueryExpression(), theFes20Package.getAbstractQueryExpressionType(), null, "abstractQueryExpression", null, 1, -1, GetFeatureType.class, IS_TRANSIENT, IS_VOLATILE, !IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEReference(getGetFeatureType_AbstractQueryExpression(), theFes20Package.getAbstractQueryExpressionType(), null, "abstractQueryExpression", null, 1, -1, GetFeatureType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getGetFeatureType_Count(), theXMLTypePackage.getNonNegativeInteger(), "count", null, 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getGetFeatureType_OutputFormat(), theXMLTypePackage.getString(), "outputFormat", "application/gml+xml; version=3.2", 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getGetFeatureType_Resolve(), this.getResolveValueType(), "resolve", "none", 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4390,6 +4456,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEAttribute(getGetFeatureType_ResolveTimeout(), theXMLTypePackage.getPositiveInteger(), "resolveTimeout", "300", 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getGetFeatureType_ResultType(), this.getResultTypeType(), "resultType", "results", 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getGetFeatureType_StartIndex(), theXMLTypePackage.getNonNegativeInteger(), "startIndex", "0", 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getGetFeatureType_Metadata(), this.getMap(), "metadata", null, 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getGetFeatureType_FormatOptions(), this.getMap(), "formatOptions", null, 0, 1, GetFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(getFeatureWithLockTypeEClass, GetFeatureWithLockType.class, "GetFeatureWithLockType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getGetFeatureWithLockType_Expiry(), theXMLTypePackage.getPositiveInteger(), "expiry", "300", 0, 1, GetFeatureWithLockType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4500,7 +4568,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
 
         initEClass(queryTypeEClass, QueryType.class, "QueryType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getQueryType_FeatureVersion(), theXMLTypePackage.getString(), "featureVersion", null, 0, 1, QueryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getQueryType_SrsName(), theXMLTypePackage.getAnyURI(), "srsName", null, 0, 1, QueryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getQueryType_SrsName(), this.getURI(), "srsName", null, 0, 1, QueryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(replaceTypeEClass, ReplaceType.class, "ReplaceType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getReplaceType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 1, 1, ReplaceType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4646,6 +4714,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEDataType(stateValueTypeMember0ObjectEDataType, StateValueTypeMember0.class, "StateValueTypeMember0Object", IS_SERIALIZABLE, IS_GENERATED_INSTANCE_CLASS);
         initEDataType(stateValueTypeMember1EDataType, String.class, "StateValueTypeMember1", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
         initEDataType(updateActionTypeObjectEDataType, UpdateActionType.class, "UpdateActionTypeObject", IS_SERIALIZABLE, IS_GENERATED_INSTANCE_CLASS);
+        initEDataType(uriEDataType, java.net.URI.class, "URI", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
+        initEDataType(mapEDataType, Map.class, "Map", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
         // Create resource
         createResource(eNS_URI);
@@ -4670,7 +4740,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																																																																					
+           });																																																																																																																																																																																																																																																																																																																																																				
     }
 
     /**
@@ -6431,13 +6501,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            new String[] {
              "kind", "attribute",
              "name", "featureVersion"
-           });		
-        addAnnotation
-          (getQueryType_SrsName(), 
-           source, 
-           new String[] {
-             "kind", "attribute",
-             "name", "srsName"
            });		
         addAnnotation
           (replaceTypeEClass, 

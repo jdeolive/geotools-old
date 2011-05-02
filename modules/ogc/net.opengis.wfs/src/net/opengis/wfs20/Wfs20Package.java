@@ -576,13 +576,22 @@ public interface Wfs20Package extends EPackage {
     int BASE_REQUEST_TYPE__VERSION = 2;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int BASE_REQUEST_TYPE__BASE_URL = 3;
+
+    /**
      * The number of structural features of the '<em>Base Request Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int BASE_REQUEST_TYPE_FEATURE_COUNT = 3;
+    int BASE_REQUEST_TYPE_FEATURE_COUNT = 4;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl <em>Created Or Modified Feature Type</em>}' class.
@@ -724,6 +733,15 @@ public interface Wfs20Package extends EPackage {
     int CREATE_STORED_QUERY_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int CREATE_STORED_QUERY_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
      * The feature id for the '<em><b>Stored Query Definition</b></em>' containment reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -825,6 +843,15 @@ public interface Wfs20Package extends EPackage {
     int DESCRIBE_FEATURE_TYPE_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DESCRIBE_FEATURE_TYPE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
      * The feature id for the '<em><b>Type Name</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -915,6 +942,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int DESCRIBE_STORED_QUERIES_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
+
+    /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DESCRIBE_STORED_QUERIES_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
      * The feature id for the '<em><b>Stored Query Id</b></em>' attribute.
@@ -1403,6 +1439,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int DROP_STORED_QUERY_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
+
+    /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DROP_STORED_QUERY_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
      * The feature id for the '<em><b>Id</b></em>' attribute.
@@ -2047,6 +2092,15 @@ public interface Wfs20Package extends EPackage {
     int GET_FEATURE_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -2128,13 +2182,31 @@ public interface Wfs20Package extends EPackage {
     int GET_FEATURE_TYPE__START_INDEX = BASE_REQUEST_TYPE_FEATURE_COUNT + 8;
 
     /**
+     * The feature id for the '<em><b>Metadata</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_TYPE__METADATA = BASE_REQUEST_TYPE_FEATURE_COUNT + 9;
+
+    /**
+     * The feature id for the '<em><b>Format Options</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_TYPE__FORMAT_OPTIONS = BASE_REQUEST_TYPE_FEATURE_COUNT + 10;
+
+    /**
      * The number of structural features of the '<em>Get Feature Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int GET_FEATURE_TYPE_FEATURE_COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 9;
+    int GET_FEATURE_TYPE_FEATURE_COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 11;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.GetFeatureWithLockTypeImpl <em>Get Feature With Lock Type</em>}' class.
@@ -2172,6 +2244,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int GET_FEATURE_WITH_LOCK_TYPE__VERSION = GET_FEATURE_TYPE__VERSION;
+
+    /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_WITH_LOCK_TYPE__BASE_URL = GET_FEATURE_TYPE__BASE_URL;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -2255,6 +2336,24 @@ public interface Wfs20Package extends EPackage {
     int GET_FEATURE_WITH_LOCK_TYPE__START_INDEX = GET_FEATURE_TYPE__START_INDEX;
 
     /**
+     * The feature id for the '<em><b>Metadata</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_WITH_LOCK_TYPE__METADATA = GET_FEATURE_TYPE__METADATA;
+
+    /**
+     * The feature id for the '<em><b>Format Options</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_WITH_LOCK_TYPE__FORMAT_OPTIONS = GET_FEATURE_TYPE__FORMAT_OPTIONS;
+
+    /**
      * The feature id for the '<em><b>Expiry</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -2317,6 +2416,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int GET_PROPERTY_VALUE_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
+
+    /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_PROPERTY_VALUE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -2547,6 +2655,15 @@ public interface Wfs20Package extends EPackage {
     int LIST_STORED_QUERIES_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int LIST_STORED_QUERIES_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
      * The number of structural features of the '<em>List Stored Queries Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -2637,6 +2754,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int LOCK_FEATURE_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
+
+    /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int LOCK_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -3837,6 +3963,15 @@ public interface Wfs20Package extends EPackage {
     int TRANSACTION_TYPE__VERSION = BASE_REQUEST_TYPE__VERSION;
 
     /**
+     * The feature id for the '<em><b>Base Url</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int TRANSACTION_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
      * The feature id for the '<em><b>Group</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -4568,6 +4703,28 @@ public interface Wfs20Package extends EPackage {
 
 
     /**
+     * The meta object id for the '<em>URI</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see java.net.URI
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getURI()
+     * @generated
+     */
+    int URI = 82;
+
+
+    /**
+     * The meta object id for the '<em>Map</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see java.util.Map
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getMap()
+     * @generated
+     */
+    int MAP = 83;
+
+
+    /**
      * Returns the meta object for class '{@link net.opengis.wfs20.AbstractTransactionActionType <em>Abstract Transaction Action Type</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -4769,6 +4926,17 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EAttribute getBaseRequestType_Version();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.BaseRequestType#getBaseUrl <em>Base Url</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Base Url</em>'.
+     * @see net.opengis.wfs20.BaseRequestType#getBaseUrl()
+     * @see #getBaseRequestType()
+     * @generated
+     */
+    EAttribute getBaseRequestType_BaseUrl();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType <em>Created Or Modified Feature Type</em>}'.
@@ -6057,6 +6225,28 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EAttribute getGetFeatureType_StartIndex();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.GetFeatureType#getMetadata <em>Metadata</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Metadata</em>'.
+     * @see net.opengis.wfs20.GetFeatureType#getMetadata()
+     * @see #getGetFeatureType()
+     * @generated
+     */
+    EAttribute getGetFeatureType_Metadata();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.GetFeatureType#getFormatOptions <em>Format Options</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Format Options</em>'.
+     * @see net.opengis.wfs20.GetFeatureType#getFormatOptions()
+     * @see #getGetFeatureType()
+     * @generated
+     */
+    EAttribute getGetFeatureType_FormatOptions();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.GetFeatureWithLockType <em>Get Feature With Lock Type</em>}'.
@@ -8153,6 +8343,28 @@ public interface Wfs20Package extends EPackage {
     EDataType getUpdateActionTypeObject();
 
     /**
+     * Returns the meta object for data type '{@link java.net.URI <em>URI</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>URI</em>'.
+     * @see java.net.URI
+     * @model instanceClass="java.net.URI"
+     * @generated
+     */
+    EDataType getURI();
+
+    /**
+     * Returns the meta object for data type '{@link java.util.Map <em>Map</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Map</em>'.
+     * @see java.util.Map
+     * @model instanceClass="java.util.Map"
+     * @generated
+     */
+    EDataType getMap();
+
+    /**
      * Returns the factory that creates the instances of the model.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -8337,6 +8549,14 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EAttribute BASE_REQUEST_TYPE__VERSION = eINSTANCE.getBaseRequestType_Version();
+
+        /**
+         * The meta object literal for the '<em><b>Base Url</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute BASE_REQUEST_TYPE__BASE_URL = eINSTANCE.getBaseRequestType_BaseUrl();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl <em>Created Or Modified Feature Type</em>}' class.
@@ -9331,6 +9551,22 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EAttribute GET_FEATURE_TYPE__START_INDEX = eINSTANCE.getGetFeatureType_StartIndex();
+
+        /**
+         * The meta object literal for the '<em><b>Metadata</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute GET_FEATURE_TYPE__METADATA = eINSTANCE.getGetFeatureType_Metadata();
+
+        /**
+         * The meta object literal for the '<em><b>Format Options</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute GET_FEATURE_TYPE__FORMAT_OPTIONS = eINSTANCE.getGetFeatureType_FormatOptions();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.GetFeatureWithLockTypeImpl <em>Get Feature With Lock Type</em>}' class.
@@ -10985,6 +11221,26 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EDataType UPDATE_ACTION_TYPE_OBJECT = eINSTANCE.getUpdateActionTypeObject();
+
+        /**
+         * The meta object literal for the '<em>URI</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see java.net.URI
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getURI()
+         * @generated
+         */
+        EDataType URI = eINSTANCE.getURI();
+
+        /**
+         * The meta object literal for the '<em>Map</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see java.util.Map
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getMap()
+         * @generated
+         */
+        EDataType MAP = eINSTANCE.getMap();
 
     }
 

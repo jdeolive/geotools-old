@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getHandle <em>Handle</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getVersion <em>Version</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getBaseUrl <em>Base Url</em>}</li>
  * </ul>
  * </p>
  *
@@ -109,6 +110,26 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
      * @ordered
      */
     protected boolean versionESet;
+
+    /**
+     * The default value of the '{@link #getBaseUrl() <em>Base Url</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getBaseUrl()
+     * @generated
+     * @ordered
+     */
+    protected static final String BASE_URL_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getBaseUrl() <em>Base Url</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getBaseUrl()
+     * @generated
+     * @ordered
+     */
+    protected String baseUrl = BASE_URL_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -247,6 +268,27 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
      * <!-- end-user-doc -->
      * @generated
      */
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setBaseUrl(String newBaseUrl) {
+        String oldBaseUrl = baseUrl;
+        baseUrl = newBaseUrl;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.BASE_REQUEST_TYPE__BASE_URL, oldBaseUrl, baseUrl));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
@@ -256,6 +298,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return getService();
             case Wfs20Package.BASE_REQUEST_TYPE__VERSION:
                 return getVersion();
+            case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
+                return getBaseUrl();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -276,6 +320,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return;
             case Wfs20Package.BASE_REQUEST_TYPE__VERSION:
                 setVersion((String)newValue);
+                return;
+            case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
+                setBaseUrl((String)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -298,6 +345,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
             case Wfs20Package.BASE_REQUEST_TYPE__VERSION:
                 unsetVersion();
                 return;
+            case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
+                setBaseUrl(BASE_URL_EDEFAULT);
+                return;
         }
         super.eUnset(featureID);
     }
@@ -316,6 +366,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return isSetService();
             case Wfs20Package.BASE_REQUEST_TYPE__VERSION:
                 return isSetVersion();
+            case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
+                return BASE_URL_EDEFAULT == null ? baseUrl != null : !BASE_URL_EDEFAULT.equals(baseUrl);
         }
         return super.eIsSet(featureID);
     }
@@ -336,6 +388,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
         if (serviceESet) result.append(service); else result.append("<unset>");
         result.append(", version: ");
         if (versionESet) result.append(version); else result.append("<unset>");
+        result.append(", baseUrl: ");
+        result.append(baseUrl);
         result.append(')');
         return result.toString();
     }
