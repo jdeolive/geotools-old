@@ -3717,6 +3717,37 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
+    }
+
+    /**
+     * <p>
+     *  <pre>
+     *   <code>
+     *  &lt;complexType name="CurvePropertyType"&gt;
+     *      &lt;annotation&gt;
+     *          &lt;documentation&gt;A property that has a curve as its value domain may either be an appropriate geometry element encapsulated in an element of this type or an XLink reference to a remote geometry element (where remote includes geometry elements located elsewhere in the same document). Either the reference or the contained element shall be given, but neither both nor none.&lt;/documentation&gt;
+     *      &lt;/annotation&gt;
+     *      &lt;sequence minOccurs="0"&gt;
+     *          &lt;element ref="gml:AbstractCurve"/&gt;
+     *      &lt;/sequence&gt;
+     *      &lt;attributeGroup ref="gml:AssociationAttributeGroup"/&gt;
+     *      &lt;attributeGroup ref="gml:OwnershipAttributeGroup"/&gt;
+     *  &lt;/complexType&gt;
+     *
+     *    </code>
+     *   </pre>
+     * </p>
+     *
+     * 
+     */
+    public static final AttributeType CURVEPROPERTYTYPE_TYPE = build_CURVEPROPERTYTYPE_TYPE();
+     
+    private static AttributeType build_CURVEPROPERTYTYPE_TYPE() {
+        AttributeType builtType;
+        builtType = new AttributeTypeImpl(
+            new NameImpl("http://www.opengis.net/gml/3.2","CurvePropertyType"), com.vividsolutions.jts.geom.LineString.class, false,
+            false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
+        );
         return builtType;
     }
 
@@ -5998,41 +6029,6 @@ public class GMLSchema extends SchemaImpl {
             @Override
             public AttributeType buildSuper() {
                 return XSSchema.STRING_TYPE;
-            }
-        };
-        return builtType;
-    }
-
-    /**
-     * <p>
-     *  <pre>
-     *   <code>
-     *  &lt;complexType name="CurvePropertyType"&gt;
-     *      &lt;annotation&gt;
-     *          &lt;documentation&gt;A property that has a curve as its value domain may either be an appropriate geometry element encapsulated in an element of this type or an XLink reference to a remote geometry element (where remote includes geometry elements located elsewhere in the same document). Either the reference or the contained element shall be given, but neither both nor none.&lt;/documentation&gt;
-     *      &lt;/annotation&gt;
-     *      &lt;sequence minOccurs="0"&gt;
-     *          &lt;element ref="gml:AbstractCurve"/&gt;
-     *      &lt;/sequence&gt;
-     *      &lt;attributeGroup ref="gml:AssociationAttributeGroup"/&gt;
-     *      &lt;attributeGroup ref="gml:OwnershipAttributeGroup"/&gt;
-     *  &lt;/complexType&gt;
-     *
-     *    </code>
-     *   </pre>
-     * </p>
-     *
-     * @generated
-     */
-    public static final AttributeType CURVEPROPERTYTYPE_TYPE = build_CURVEPROPERTYTYPE_TYPE();
-     
-    private static AttributeType build_CURVEPROPERTYTYPE_TYPE() {
-        AttributeType builtType = new AbstractLazyAttributeTypeImpl(
-                new NameImpl("http://www.opengis.net/gml/3.2","CurvePropertyType"),
-                com.vividsolutions.jts.geom.MultiLineString.class, false, false, null, null) {
-            @Override
-            public AttributeType buildSuper() {
-                return XSSchema.ANYTYPE_TYPE;
             }
         };
         return builtType;
@@ -12626,49 +12622,11 @@ public class GMLSchema extends SchemaImpl {
     public static final AttributeType MULTICURVEPROPERTYTYPE_TYPE = build_MULTICURVEPROPERTYTYPE_TYPE();
      
     private static AttributeType build_MULTICURVEPROPERTYTYPE_TYPE() {
-        AttributeType builtType = new AbstractLazyAttributeTypeImpl(
-                new NameImpl("http://www.opengis.net/gml/3.2","MultiCurvePropertyType"),
-                com.vividsolutions.jts.geom.MultiLineString[].class, false, false, null, null) {
-            @Override
-            public AttributeType buildSuper() {
-                return XSSchema.ANYTYPE_TYPE;
-            }
-        };
-        return builtType;
-    }
-
-    /**
-     * <p>
-     *  <pre>
-     *   <code>
-     *  &lt;complexType name="MultiCurveType"&gt;
-     *      &lt;complexContent&gt;
-     *          &lt;extension base="gml:AbstractGeometricAggregateType"&gt;
-     *              &lt;sequence&gt;
-     *                  &lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:curveMember"/&gt;
-     *                  &lt;element minOccurs="0" ref="gml:curveMembers"/&gt;
-     *              &lt;/sequence&gt;
-     *          &lt;/extension&gt;
-     *      &lt;/complexContent&gt;
-     *  &lt;/complexType&gt;
-     *
-     *    </code>
-     *   </pre>
-     * </p>
-     *
-     * @generated
-     */
-    public static final AttributeType MULTICURVETYPE_TYPE = build_MULTICURVETYPE_TYPE();
-     
-    private static AttributeType build_MULTICURVETYPE_TYPE() {
-        AttributeType builtType = new AbstractLazyAttributeTypeImpl(
-                new NameImpl("http://www.opengis.net/gml/3.2","MultiCurveType"),
-                com.vividsolutions.jts.geom.MultiLineString[].class, false, false, null, null) {
-            @Override
-            public AttributeType buildSuper() {
-                return ABSTRACTGEOMETRICAGGREGATETYPE_TYPE;
-            }
-        };
+        AttributeType builtType;
+        builtType = new AttributeTypeImpl(
+            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurvePropertyType"), com.vividsolutions.jts.geom.MultiLineString.class, false,
+            false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
+        );
         return builtType;
     }
 
@@ -19160,6 +19118,37 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
+    }
+
+    /**
+     * <p>
+     *  <pre>
+     *   <code>
+     *  &lt;complexType name="MultiCurveType"&gt;
+     *      &lt;complexContent&gt;
+     *          &lt;extension base="gml:AbstractGeometricAggregateType"&gt;
+     *              &lt;sequence&gt;
+     *                  &lt;element maxOccurs="unbounded" minOccurs="0" ref="gml:curveMember"/&gt;
+     *                  &lt;element minOccurs="0" ref="gml:curveMembers"/&gt;
+     *              &lt;/sequence&gt;
+     *          &lt;/extension&gt;
+     *      &lt;/complexContent&gt;
+     *  &lt;/complexType&gt;
+     *
+     *    </code>
+     *   </pre>
+     * </p>
+     *
+     * @generated
+     */ 
+    public static final AttributeType MULTICURVETYPE_TYPE = build_MULTICURVETYPE_TYPE();
+     
+    private static AttributeType build_MULTICURVETYPE_TYPE() {
+        AttributeType builtType;
+        builtType = new AttributeTypeImpl(
+            new NameImpl("http://www.opengis.net/gml/3.2","MultiCurveType"), com.vividsolutions.jts.geom.MultiLineString.class, false,
+            false, Collections.<Filter>emptyList(), ABSTRACTGEOMETRICAGGREGATETYPE_TYPE, null
+        );
         return builtType;
     }
 
@@ -19204,7 +19193,6 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
-        return builtType;
     }
 
     /**
