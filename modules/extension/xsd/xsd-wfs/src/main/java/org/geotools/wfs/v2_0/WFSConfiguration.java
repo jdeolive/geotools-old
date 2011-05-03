@@ -5,15 +5,18 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import net.opengis.wfs.WfsFactory;
+import net.opengis.wfs20.ResultTypeType;
 import net.opengis.wfs20.Wfs20Factory;
 
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.v3_2.GMLConfiguration;
 import org.geotools.ows.v1_1.OWSConfiguration;
+import org.geotools.wfs.v2_0.bindings.EnvelopePropertyTypeBinding;
 import org.geotools.wfs.v2_0.bindings.QueryTypeBinding;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.EnumSimpleBinding;
 import org.geotools.xs.bindings.XSQNameBinding;
 import org.picocontainer.MutablePicoContainer;
 
@@ -42,6 +45,7 @@ public class WFSConfiguration extends Configuration {
     @Override
     protected void configureContext(MutablePicoContainer container) {
         container.registerComponentInstance(WfsFactory.eINSTANCE);
+        container.registerComponentInstance(Wfs20Factory.eINSTANCE);
         container.registerComponentInstance(new XSDIdRegistry());
     }
     
@@ -62,7 +66,7 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.DescribeStoredQueriesType,DescribeStoredQueriesTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ElementType,ElementTypeBinding.class);
 //        container.registerComponentImplementation(WFS.EmptyType,EmptyTypeBinding.class);
-//        container.registerComponentImplementation(WFS.EnvelopePropertyType,EnvelopePropertyTypeBinding.class);
+        bindings.put(WFS.EnvelopePropertyType,EnvelopePropertyTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ExecutionStatusType,ExecutionStatusTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ExtendedDescriptionType,ExtendedDescriptionTypeBinding.class);
         bindings.put(WFS.FeatureCollectionType,FeatureCollectionTypeBinding.class);
@@ -92,7 +96,7 @@ public class WFSConfiguration extends Configuration {
         bindings.put(WFS.QueryType, QueryTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ReplaceType,ReplaceTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ResolveValueType,ResolveValueTypeBinding.class);
-//        container.registerComponentImplementation(WFS.ResultTypeType,ResultTypeTypeBinding.class);
+        bindings.put(WFS.ResultTypeType, new EnumSimpleBinding(ResultTypeType.class, WFS.ResultTypeType));
 //        container.registerComponentImplementation(WFS.ReturnFeatureTypesListType,ReturnFeatureTypesListTypeBinding.class);
 //        container.registerComponentImplementation(WFS.SimpleFeatureCollectionType,SimpleFeatureCollectionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.StarStringType,StarStringTypeBinding.class);

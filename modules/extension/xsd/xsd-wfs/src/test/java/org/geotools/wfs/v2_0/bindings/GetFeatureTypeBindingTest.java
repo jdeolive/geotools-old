@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 
 import net.opengis.wfs20.GetFeatureType;
 import net.opengis.wfs20.QueryType;
+import net.opengis.wfs20.ResultTypeType;
 
 import org.geotools.wfs.v2_0.WFSTestSupport;
 import org.opengis.filter.Id;
@@ -138,6 +139,7 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
             "   version='2.0.0' " + 
             "   service='WFS' " + 
             "   handle='Query01' " + 
+            "   resultType='hits' " + 
             "   xmlns='http://www.opengis.net/wfs/2.0' " + 
             "   xmlns:fes='http://www.opengis.net/fes/2.0' " + 
             "   xmlns:gml='http://www.opengis.net/gml/3.2' " + 
@@ -180,6 +182,7 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         
         GetFeatureType gf = (GetFeatureType) parse();
         assertNotNull(gf);
+        assertEquals(ResultTypeType.HITS, gf.getResultType());
         
         assertEquals(1, gf.getAbstractQueryExpression().size());
         QueryType q = (QueryType) gf.getAbstractQueryExpression().get(0);
