@@ -1617,7 +1617,7 @@ public interface Wfs20Package extends EPackage {
     int SIMPLE_FEATURE_COLLECTION_TYPE__BOUNDED_BY = 0;
 
     /**
-     * The feature id for the '<em><b>Member</b></em>' containment reference list.
+     * The feature id for the '<em><b>Member</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -1654,7 +1654,7 @@ public interface Wfs20Package extends EPackage {
     int FEATURE_COLLECTION_TYPE__BOUNDED_BY = SIMPLE_FEATURE_COLLECTION_TYPE__BOUNDED_BY;
 
     /**
-     * The feature id for the '<em><b>Member</b></em>' containment reference list.
+     * The feature id for the '<em><b>Member</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3532,13 +3532,40 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__SRS_NAME = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 1;
 
     /**
+     * The feature id for the '<em><b>Filter</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int QUERY_TYPE__FILTER = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 2;
+
+    /**
+     * The feature id for the '<em><b>Property Names</b></em>' attribute list.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int QUERY_TYPE__PROPERTY_NAMES = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 3;
+
+    /**
+     * The feature id for the '<em><b>Sort By</b></em>' attribute list.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int QUERY_TYPE__SORT_BY = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 4;
+
+    /**
      * The number of structural features of the '<em>Query Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int QUERY_TYPE_FEATURE_COUNT = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 2;
+    int QUERY_TYPE_FEATURE_COUNT = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 5;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.ReplaceTypeImpl <em>Replace Type</em>}' class.
@@ -4722,6 +4749,59 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     int MAP = 83;
+
+
+    /**
+     * The meta object id for the '<em>Filter</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see org.opengis.filter.Filter
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFilter()
+     * @generated
+     */
+    int FILTER = 84;
+
+    /**
+     * The meta object id for the '<em>QName</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see javax.xml.namespace.QName
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getQName()
+     * @generated
+     */
+    int QNAME = 85;
+
+    /**
+     * The meta object id for the '<em>Sort By</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see org.opengis.filter.sort.SortBy
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getSortBy()
+     * @generated
+     */
+    int SORT_BY = 86;
+
+
+    /**
+     * The meta object id for the '<em>Calendar</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see java.util.Calendar
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getCalendar()
+     * @generated
+     */
+    int CALENDAR = 87;
+
+
+    /**
+     * The meta object id for the '<em>Feature Collection</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see org.geotools.feature.FeatureCollection
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFeatureCollection()
+     * @generated
+     */
+    int FEATURE_COLLECTION = 88;
 
 
     /**
@@ -7254,6 +7334,39 @@ public interface Wfs20Package extends EPackage {
     EAttribute getQueryType_SrsName();
 
     /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.QueryType#getFilter <em>Filter</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Filter</em>'.
+     * @see net.opengis.wfs20.QueryType#getFilter()
+     * @see #getQueryType()
+     * @generated
+     */
+    EAttribute getQueryType_Filter();
+
+    /**
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.QueryType#getPropertyNames <em>Property Names</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute list '<em>Property Names</em>'.
+     * @see net.opengis.wfs20.QueryType#getPropertyNames()
+     * @see #getQueryType()
+     * @generated
+     */
+    EAttribute getQueryType_PropertyNames();
+
+    /**
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.QueryType#getSortBy <em>Sort By</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute list '<em>Sort By</em>'.
+     * @see net.opengis.wfs20.QueryType#getSortBy()
+     * @see #getQueryType()
+     * @generated
+     */
+    EAttribute getQueryType_SortBy();
+
+    /**
      * Returns the meta object for class '{@link net.opengis.wfs20.ReplaceType <em>Replace Type</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -7329,15 +7442,15 @@ public interface Wfs20Package extends EPackage {
     EReference getSimpleFeatureCollectionType_BoundedBy();
 
     /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wfs20.SimpleFeatureCollectionType#getMember <em>Member</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.SimpleFeatureCollectionType#getMember <em>Member</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Member</em>'.
+     * @return the meta object for the attribute list '<em>Member</em>'.
      * @see net.opengis.wfs20.SimpleFeatureCollectionType#getMember()
      * @see #getSimpleFeatureCollectionType()
      * @generated
      */
-    EReference getSimpleFeatureCollectionType_Member();
+    EAttribute getSimpleFeatureCollectionType_Member();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.StoredQueryDescriptionType <em>Stored Query Description Type</em>}'.
@@ -8363,6 +8476,61 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EDataType getMap();
+
+    /**
+     * Returns the meta object for data type '{@link org.opengis.filter.Filter <em>Filter</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Filter</em>'.
+     * @see org.opengis.filter.Filter
+     * @model instanceClass="org.opengis.filter.Filter"
+     * @generated
+     */
+    EDataType getFilter();
+
+    /**
+     * Returns the meta object for data type '{@link javax.xml.namespace.QName <em>QName</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>QName</em>'.
+     * @see javax.xml.namespace.QName
+     * @model instanceClass="javax.xml.namespace.QName"
+     * @generated
+     */
+    EDataType getQName();
+
+    /**
+     * Returns the meta object for data type '{@link org.opengis.filter.sort.SortBy <em>Sort By</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Sort By</em>'.
+     * @see org.opengis.filter.sort.SortBy
+     * @model instanceClass="org.opengis.filter.sort.SortBy"
+     * @generated
+     */
+    EDataType getSortBy();
+
+    /**
+     * Returns the meta object for data type '{@link java.util.Calendar <em>Calendar</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Calendar</em>'.
+     * @see java.util.Calendar
+     * @model instanceClass="java.util.Calendar"
+     * @generated
+     */
+    EDataType getCalendar();
+
+    /**
+     * Returns the meta object for data type '{@link org.geotools.feature.FeatureCollection <em>Feature Collection</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Feature Collection</em>'.
+     * @see org.geotools.feature.FeatureCollection
+     * @model instanceClass="org.geotools.feature.FeatureCollection"
+     * @generated
+     */
+    EDataType getFeatureCollection();
 
     /**
      * Returns the factory that creates the instances of the model.
@@ -10349,6 +10517,30 @@ public interface Wfs20Package extends EPackage {
         EAttribute QUERY_TYPE__SRS_NAME = eINSTANCE.getQueryType_SrsName();
 
         /**
+         * The meta object literal for the '<em><b>Filter</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute QUERY_TYPE__FILTER = eINSTANCE.getQueryType_Filter();
+
+        /**
+         * The meta object literal for the '<em><b>Property Names</b></em>' attribute list feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute QUERY_TYPE__PROPERTY_NAMES = eINSTANCE.getQueryType_PropertyNames();
+
+        /**
+         * The meta object literal for the '<em><b>Sort By</b></em>' attribute list feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute QUERY_TYPE__SORT_BY = eINSTANCE.getQueryType_SortBy();
+
+        /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.ReplaceTypeImpl <em>Replace Type</em>}' class.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
@@ -10409,12 +10601,12 @@ public interface Wfs20Package extends EPackage {
         EReference SIMPLE_FEATURE_COLLECTION_TYPE__BOUNDED_BY = eINSTANCE.getSimpleFeatureCollectionType_BoundedBy();
 
         /**
-         * The meta object literal for the '<em><b>Member</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>Member</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER = eINSTANCE.getSimpleFeatureCollectionType_Member();
+        EAttribute SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER = eINSTANCE.getSimpleFeatureCollectionType_Member();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.StoredQueryDescriptionTypeImpl <em>Stored Query Description Type</em>}' class.
@@ -11241,6 +11433,56 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EDataType MAP = eINSTANCE.getMap();
+
+        /**
+         * The meta object literal for the '<em>Filter</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see org.opengis.filter.Filter
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFilter()
+         * @generated
+         */
+        EDataType FILTER = eINSTANCE.getFilter();
+
+        /**
+         * The meta object literal for the '<em>QName</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see javax.xml.namespace.QName
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getQName()
+         * @generated
+         */
+        EDataType QNAME = eINSTANCE.getQName();
+
+        /**
+         * The meta object literal for the '<em>Sort By</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see org.opengis.filter.sort.SortBy
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getSortBy()
+         * @generated
+         */
+        EDataType SORT_BY = eINSTANCE.getSortBy();
+
+        /**
+         * The meta object literal for the '<em>Calendar</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see java.util.Calendar
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getCalendar()
+         * @generated
+         */
+        EDataType CALENDAR = eINSTANCE.getCalendar();
+
+        /**
+         * The meta object literal for the '<em>Feature Collection</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see org.geotools.feature.FeatureCollection
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFeatureCollection()
+         * @generated
+         */
+        EDataType FEATURE_COLLECTION = eINSTANCE.getFeatureCollection();
 
     }
 

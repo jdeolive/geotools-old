@@ -10,6 +10,7 @@ import java.math.BigInteger;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import java.util.Map;
@@ -30,6 +31,9 @@ import org.eclipse.emf.ecore.util.Diagnostician;
 
 import org.eclipse.emf.ecore.xml.type.XMLTypeFactory;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
+import org.geotools.feature.FeatureCollection;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 
 /**
  * <!-- begin-user-doc -->
@@ -192,6 +196,16 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return createURIFromString(eDataType, initialValue);
             case Wfs20Package.MAP:
                 return createMapFromString(eDataType, initialValue);
+            case Wfs20Package.FILTER:
+                return createFilterFromString(eDataType, initialValue);
+            case Wfs20Package.QNAME:
+                return createQNameFromString(eDataType, initialValue);
+            case Wfs20Package.SORT_BY:
+                return createSortByFromString(eDataType, initialValue);
+            case Wfs20Package.CALENDAR:
+                return createCalendarFromString(eDataType, initialValue);
+            case Wfs20Package.FEATURE_COLLECTION:
+                return createFeatureCollectionFromString(eDataType, initialValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -249,6 +263,16 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return convertURIToString(eDataType, instanceValue);
             case Wfs20Package.MAP:
                 return convertMapToString(eDataType, instanceValue);
+            case Wfs20Package.FILTER:
+                return convertFilterToString(eDataType, instanceValue);
+            case Wfs20Package.QNAME:
+                return convertQNameToString(eDataType, instanceValue);
+            case Wfs20Package.SORT_BY:
+                return convertSortByToString(eDataType, instanceValue);
+            case Wfs20Package.CALENDAR:
+                return convertCalendarToString(eDataType, instanceValue);
+            case Wfs20Package.FEATURE_COLLECTION:
+                return convertFeatureCollectionToString(eDataType, instanceValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -1400,6 +1424,96 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
      * @generated
      */
     public String convertMapToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public Filter createFilterFromString(EDataType eDataType, String initialValue) {
+        return (Filter)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertFilterToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public QName createQNameFromString(EDataType eDataType, String initialValue) {
+        return (QName)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertQNameToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public SortBy createSortByFromString(EDataType eDataType, String initialValue) {
+        return (SortBy)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertSortByToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public Calendar createCalendarFromString(EDataType eDataType, String initialValue) {
+        return (Calendar)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertCalendarToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public FeatureCollection createFeatureCollectionFromString(EDataType eDataType, String initialValue) {
+        return (FeatureCollection)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertFeatureCollectionToString(EDataType eDataType, Object instanceValue) {
         return super.convertToString(eDataType, instanceValue);
     }
 

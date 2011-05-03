@@ -54,6 +54,11 @@
     <genDataTypes ecoreDataType="wfs20.ecore#//UpdateActionTypeObject"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//URI"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//Map"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//Filter"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//QName"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//SortBy"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//Calendar"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//FeatureCollection"/>
     <genClasses image="false" ecoreClass="wfs20.ecore#//AbstractTransactionActionType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//AbstractTransactionActionType/handle"/>
     </genClasses>
@@ -328,6 +333,9 @@
     <genClasses ecoreClass="wfs20.ecore#//QueryType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/featureVersion"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/srsName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/filter"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/propertyNames"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/sortBy"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//ReplaceType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//ReplaceType/any"/>
@@ -337,7 +345,7 @@
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//SimpleFeatureCollectionType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//SimpleFeatureCollectionType/boundedBy"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//SimpleFeatureCollectionType/member"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//SimpleFeatureCollectionType/member"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//StoredQueryDescriptionType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//StoredQueryDescriptionType/title"/>

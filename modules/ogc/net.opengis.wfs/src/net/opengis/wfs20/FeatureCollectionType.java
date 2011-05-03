@@ -7,6 +7,7 @@
 package net.opengis.wfs20;
 
 import java.math.BigInteger;
+import java.util.Calendar;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -234,11 +235,9 @@ public interface FeatureCollectionType extends SimpleFeatureCollectionType {
      * @return the value of the '<em>Time Stamp</em>' attribute.
      * @see #setTimeStamp(XMLGregorianCalendar)
      * @see net.opengis.wfs20.Wfs20Package#getFeatureCollectionType_TimeStamp()
-     * @model dataType="org.eclipse.emf.ecore.xml.type.DateTime" required="true"
-     *        extendedMetaData="kind='attribute' name='timeStamp'"
-     * @generated
+     * @model 
      */
-    XMLGregorianCalendar getTimeStamp();
+    Calendar getTimeStamp();
 
     /**
      * Sets the value of the '{@link net.opengis.wfs20.FeatureCollectionType#getTimeStamp <em>Time Stamp</em>}' attribute.
@@ -248,6 +247,6 @@ public interface FeatureCollectionType extends SimpleFeatureCollectionType {
      * @see #getTimeStamp()
      * @generated
      */
-    void setTimeStamp(XMLGregorianCalendar value);
+    void setTimeStamp(Calendar value);
 
 } // FeatureCollectionType

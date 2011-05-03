@@ -7,6 +7,7 @@
 package net.opengis.wfs20.impl;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +19,14 @@ import net.opengis.wfs20.QueryType;
 import net.opengis.wfs20.Wfs20Package;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.UniqueEList;
 
 import org.eclipse.emf.ecore.EClass;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
@@ -35,6 +39,9 @@ import org.opengis.filter.sort.SortBy;
  * <ul>
  *   <li>{@link net.opengis.wfs20.impl.QueryTypeImpl#getFeatureVersion <em>Feature Version</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.QueryTypeImpl#getSrsName <em>Srs Name</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.QueryTypeImpl#getFilter <em>Filter</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.QueryTypeImpl#getPropertyNames <em>Property Names</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.QueryTypeImpl#getSortBy <em>Sort By</em>}</li>
  * </ul>
  * </p>
  *
@@ -80,6 +87,46 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * @ordered
      */
     protected URI srsName = SRS_NAME_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getFilter() <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFilter()
+     * @generated
+     * @ordered
+     */
+    protected static final Filter FILTER_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getFilter() <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFilter()
+     * @generated
+     * @ordered
+     */
+    protected Filter filter = FILTER_EDEFAULT;
+
+    /**
+     * The cached value of the '{@link #getPropertyNames() <em>Property Names</em>}' attribute list.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getPropertyNames()
+     * @generated
+     * @ordered
+     */
+    protected EList<QName> propertyNames;
+
+    /**
+     * The cached value of the '{@link #getSortBy() <em>Sort By</em>}' attribute list.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getSortBy()
+     * @generated
+     * @ordered
+     */
+    protected EList<SortBy> sortBy;
 
     /**
      * <!-- begin-user-doc -->
@@ -154,6 +201,12 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
                 return getFeatureVersion();
             case Wfs20Package.QUERY_TYPE__SRS_NAME:
                 return getSrsName();
+            case Wfs20Package.QUERY_TYPE__FILTER:
+                return getFilter();
+            case Wfs20Package.QUERY_TYPE__PROPERTY_NAMES:
+                return getPropertyNames();
+            case Wfs20Package.QUERY_TYPE__SORT_BY:
+                return getSortBy();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -163,6 +216,7 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
      * <!-- end-user-doc -->
      * @generated
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
@@ -171,6 +225,17 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
                 return;
             case Wfs20Package.QUERY_TYPE__SRS_NAME:
                 setSrsName((URI)newValue);
+                return;
+            case Wfs20Package.QUERY_TYPE__FILTER:
+                setFilter((Filter)newValue);
+                return;
+            case Wfs20Package.QUERY_TYPE__PROPERTY_NAMES:
+                getPropertyNames().clear();
+                getPropertyNames().addAll((Collection<? extends QName>)newValue);
+                return;
+            case Wfs20Package.QUERY_TYPE__SORT_BY:
+                getSortBy().clear();
+                getSortBy().addAll((Collection<? extends SortBy>)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -190,6 +255,15 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
             case Wfs20Package.QUERY_TYPE__SRS_NAME:
                 setSrsName(SRS_NAME_EDEFAULT);
                 return;
+            case Wfs20Package.QUERY_TYPE__FILTER:
+                setFilter(FILTER_EDEFAULT);
+                return;
+            case Wfs20Package.QUERY_TYPE__PROPERTY_NAMES:
+                getPropertyNames().clear();
+                return;
+            case Wfs20Package.QUERY_TYPE__SORT_BY:
+                getSortBy().clear();
+                return;
         }
         super.eUnset(featureID);
     }
@@ -206,6 +280,12 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
                 return FEATURE_VERSION_EDEFAULT == null ? featureVersion != null : !FEATURE_VERSION_EDEFAULT.equals(featureVersion);
             case Wfs20Package.QUERY_TYPE__SRS_NAME:
                 return SRS_NAME_EDEFAULT == null ? srsName != null : !SRS_NAME_EDEFAULT.equals(srsName);
+            case Wfs20Package.QUERY_TYPE__FILTER:
+                return FILTER_EDEFAULT == null ? filter != null : !FILTER_EDEFAULT.equals(filter);
+            case Wfs20Package.QUERY_TYPE__PROPERTY_NAMES:
+                return propertyNames != null && !propertyNames.isEmpty();
+            case Wfs20Package.QUERY_TYPE__SORT_BY:
+                return sortBy != null && !sortBy.isEmpty();
         }
         return super.eIsSet(featureID);
     }
@@ -234,11 +314,11 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
     /**
      * @generated NOT
      */
-    public List<SortBy> getSortBy() {
+    public EList<SortBy> getSortBy() {
         if (abstractSortingClause == null) {
-            abstractSortingClause = new ArrayList();
+            abstractSortingClause = new UniqueEList<SortBy>();
         }
-        return (List<SortBy>) abstractSortingClause;
+        return (EList<SortBy>) abstractSortingClause;
     }
 
     
@@ -256,6 +336,12 @@ public class QueryTypeImpl extends AbstractAdhocQueryExpressionTypeImpl implemen
         result.append(featureVersion);
         result.append(", srsName: ");
         result.append(srsName);
+        result.append(", filter: ");
+        result.append(filter);
+        result.append(", propertyNames: ");
+        result.append(propertyNames);
+        result.append(", sortBy: ");
+        result.append(sortBy);
         result.append(')');
         return result.toString();
     }

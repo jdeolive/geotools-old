@@ -9,6 +9,7 @@ package net.opengis.wfs20.util;
 import java.math.BigInteger;
 
 import java.net.URI;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 
 import org.eclipse.emf.ecore.xml.type.util.XMLTypeUtil;
 import org.eclipse.emf.ecore.xml.type.util.XMLTypeValidator;
+import org.geotools.feature.FeatureCollection;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 
 /**
  * <!-- begin-user-doc -->
@@ -280,6 +284,16 @@ public class Wfs20Validator extends EObjectValidator {
                 return validateURI((URI)value, diagnostics, context);
             case Wfs20Package.MAP:
                 return validateMap((Map)value, diagnostics, context);
+            case Wfs20Package.FILTER:
+                return validateFilter((Filter)value, diagnostics, context);
+            case Wfs20Package.QNAME:
+                return validateQName((QName)value, diagnostics, context);
+            case Wfs20Package.SORT_BY:
+                return validateSortBy((SortBy)value, diagnostics, context);
+            case Wfs20Package.CALENDAR:
+                return validateCalendar((Calendar)value, diagnostics, context);
+            case Wfs20Package.FEATURE_COLLECTION:
+                return validateFeatureCollection((FeatureCollection)value, diagnostics, context);
             default:
                 return true;
         }
@@ -1178,6 +1192,51 @@ public class Wfs20Validator extends EObjectValidator {
      * @generated
      */
     public boolean validateMap(Map map, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateFilter(Filter filter, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateQName(QName qName, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateSortBy(SortBy sortBy, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateCalendar(Calendar calendar, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateFeatureCollection(FeatureCollection featureCollection, DiagnosticChain diagnostics, Map<Object, Object> context) {
         return true;
     }
 

@@ -8,6 +8,7 @@ package net.opengis.wfs20.impl;
 
 import java.math.BigInteger;
 
+import java.util.Calendar;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import net.opengis.wfs20.AdditionalObjectsType;
@@ -172,7 +173,7 @@ public class FeatureCollectionTypeImpl extends SimpleFeatureCollectionTypeImpl i
      * @generated
      * @ordered
      */
-    protected static final XMLGregorianCalendar TIME_STAMP_EDEFAULT = null;
+    protected static final Calendar TIME_STAMP_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getTimeStamp() <em>Time Stamp</em>}' attribute.
@@ -182,7 +183,7 @@ public class FeatureCollectionTypeImpl extends SimpleFeatureCollectionTypeImpl i
      * @generated
      * @ordered
      */
-    protected XMLGregorianCalendar timeStamp = TIME_STAMP_EDEFAULT;
+    protected Calendar timeStamp = TIME_STAMP_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -399,7 +400,7 @@ public class FeatureCollectionTypeImpl extends SimpleFeatureCollectionTypeImpl i
      * <!-- end-user-doc -->
      * @generated
      */
-    public XMLGregorianCalendar getTimeStamp() {
+    public Calendar getTimeStamp() {
         return timeStamp;
     }
 
@@ -408,8 +409,8 @@ public class FeatureCollectionTypeImpl extends SimpleFeatureCollectionTypeImpl i
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setTimeStamp(XMLGregorianCalendar newTimeStamp) {
-        XMLGregorianCalendar oldTimeStamp = timeStamp;
+    public void setTimeStamp(Calendar newTimeStamp) {
+        Calendar oldTimeStamp = timeStamp;
         timeStamp = newTimeStamp;
         if (eNotificationRequired())
             eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.FEATURE_COLLECTION_TYPE__TIME_STAMP, oldTimeStamp, timeStamp));
@@ -489,7 +490,7 @@ public class FeatureCollectionTypeImpl extends SimpleFeatureCollectionTypeImpl i
                 setPrevious((String)newValue);
                 return;
             case Wfs20Package.FEATURE_COLLECTION_TYPE__TIME_STAMP:
-                setTimeStamp((XMLGregorianCalendar)newValue);
+                setTimeStamp((Calendar)newValue);
                 return;
         }
         super.eSet(featureID, newValue);

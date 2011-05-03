@@ -9,6 +9,7 @@ package net.opengis.wfs20;
 import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EObject;
+import org.geotools.feature.FeatureCollection;
 
 /**
  * <!-- begin-user-doc -->
@@ -66,10 +67,8 @@ public interface SimpleFeatureCollectionType extends EObject {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Member</em>' containment reference list.
      * @see net.opengis.wfs20.Wfs20Package#getSimpleFeatureCollectionType_Member()
-     * @model containment="true"
-     *        extendedMetaData="kind='element' name='member' namespace='##targetNamespace'"
-     * @generated
+     * @model 
      */
-    EList<MemberPropertyType> getMember();
+    EList<FeatureCollection> getMember();
 
 } // SimpleFeatureCollectionType

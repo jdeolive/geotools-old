@@ -28,6 +28,9 @@ import net.opengis.fes20.AbstractAdhocQueryExpressionType;
  * <ul>
  *   <li>{@link net.opengis.wfs20.QueryType#getFeatureVersion <em>Feature Version</em>}</li>
  *   <li>{@link net.opengis.wfs20.QueryType#getSrsName <em>Srs Name</em>}</li>
+ *   <li>{@link net.opengis.wfs20.QueryType#getFilter <em>Filter</em>}</li>
+ *   <li>{@link net.opengis.wfs20.QueryType#getPropertyNames <em>Property Names</em>}</li>
+ *   <li>{@link net.opengis.wfs20.QueryType#getSortBy <em>Sort By</em>}</li>
  * </ul>
  * </p>
  *
@@ -92,29 +95,32 @@ public interface QueryType extends AbstractAdhocQueryExpressionType {
     /**
      * Convenience method to cast {@link #getAbstractSelectionClause()} to a filter object.
      *  
-     * @generated NOT
+     * @model
      */
     Filter getFilter();
     
     /**
-     * Convenience method to set {{@link #getAbstractSelectionClause()} from a filter object.
-     *  
-     * @generated NOT
+     * Sets the value of the '{@link net.opengis.wfs20.QueryType#getFilter <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Filter</em>' attribute.
+     * @see #getFilter()
+     * @generated
      */
-    void setFilter(Filter filter);
-    
+    void setFilter(Filter value);
+
     /**
      * Convenience method to cast {@link #getAbstractProjectionClause()} to list of QName.
      * 
-     * @generated NOT
+     * @model
      */
     EList<QName> getPropertyNames();
     
     /**
      * Convenience method to cast {@link #getAbstractSortingClause()} to a list of SortBy.
      * 
-     * @generated NOT
+     * @model
      */
-    List<SortBy> getSortBy();
+    EList<SortBy> getSortBy();
 
 } // QueryType

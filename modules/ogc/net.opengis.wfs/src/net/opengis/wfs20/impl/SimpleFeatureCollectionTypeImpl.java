@@ -24,6 +24,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
+import org.geotools.feature.FeatureCollection;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -53,14 +55,14 @@ public class SimpleFeatureCollectionTypeImpl extends EObjectImpl implements Simp
     protected EnvelopePropertyType boundedBy;
 
     /**
-     * The cached value of the '{@link #getMember() <em>Member</em>}' containment reference list.
+     * The cached value of the '{@link #getMember() <em>Member</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getMember()
      * @generated
      * @ordered
      */
-    protected EList<MemberPropertyType> member;
+    protected EList<FeatureCollection> member;
 
     /**
      * <!-- begin-user-doc -->
@@ -129,9 +131,9 @@ public class SimpleFeatureCollectionTypeImpl extends EObjectImpl implements Simp
      * <!-- end-user-doc -->
      * @generated
      */
-    public EList<MemberPropertyType> getMember() {
+    public EList<FeatureCollection> getMember() {
         if (member == null) {
-            member = new EObjectContainmentEList<MemberPropertyType>(MemberPropertyType.class, this, Wfs20Package.SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER);
+            member = new EDataTypeUniqueEList<FeatureCollection>(FeatureCollection.class, this, Wfs20Package.SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER);
         }
         return member;
     }
@@ -146,8 +148,6 @@ public class SimpleFeatureCollectionTypeImpl extends EObjectImpl implements Simp
         switch (featureID) {
             case Wfs20Package.SIMPLE_FEATURE_COLLECTION_TYPE__BOUNDED_BY:
                 return basicSetBoundedBy(null, msgs);
-            case Wfs20Package.SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER:
-                return ((InternalEList<?>)getMember()).basicRemove(otherEnd, msgs);
         }
         return super.eInverseRemove(otherEnd, featureID, msgs);
     }
@@ -182,7 +182,7 @@ public class SimpleFeatureCollectionTypeImpl extends EObjectImpl implements Simp
                 return;
             case Wfs20Package.SIMPLE_FEATURE_COLLECTION_TYPE__MEMBER:
                 getMember().clear();
-                getMember().addAll((Collection<? extends MemberPropertyType>)newValue);
+                getMember().addAll((Collection<? extends FeatureCollection>)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -220,6 +220,22 @@ public class SimpleFeatureCollectionTypeImpl extends EObjectImpl implements Simp
                 return member != null && !member.isEmpty();
         }
         return super.eIsSet(featureID);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    @Override
+    public String toString() {
+        if (eIsProxy()) return super.toString();
+
+        StringBuffer result = new StringBuffer(super.toString());
+        result.append(" (member: ");
+        result.append(member);
+        result.append(')');
+        return result.toString();
     }
 
 } //SimpleFeatureCollectionTypeImpl
