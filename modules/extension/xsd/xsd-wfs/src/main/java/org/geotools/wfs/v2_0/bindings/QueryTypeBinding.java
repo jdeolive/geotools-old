@@ -45,17 +45,6 @@ public class QueryTypeBinding extends ComplexEMFBinding {
                 }
                 q.setTypeNames(qNames);
             }
-            else if ("filter".equalsIgnoreCase(property)) {
-                ((QueryType)eObject).setFilter((Filter)value);
-            }
-            else if ("propertyName".equalsIgnoreCase(property)) {
-                super.setProperty(eObject, "abstractProjectionClause", value, lax);
-            }
-            else if ("sortBy".equalsIgnoreCase(property)) {
-                SortBy[] sort = (SortBy[]) value;
-                super.setProperty(eObject, "abstractSortingClause", 
-                    new ArrayList(Arrays.asList(sort)), lax);
-            }
         }
     }
 
