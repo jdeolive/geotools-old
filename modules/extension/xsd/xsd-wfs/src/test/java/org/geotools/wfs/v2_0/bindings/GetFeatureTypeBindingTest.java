@@ -5,7 +5,9 @@ import java.net.URI;
 
 import javax.xml.namespace.QName;
 
+import net.opengis.wfs20.AllSomeType;
 import net.opengis.wfs20.GetFeatureType;
+import net.opengis.wfs20.GetFeatureWithLockType;
 import net.opengis.wfs20.QueryType;
 import net.opengis.wfs20.ResultTypeType;
 
@@ -195,5 +197,47 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         assertNotNull(d);
         
         assertEquals(2, q.getSortBy().size());
+    }
+    
+    public void testGetFeatureWithLock() throws Exception {
+        String xml = 
+            "<wfs:GetFeatureWithLock " + 
+            "   service='WFS' expiry='124' lockAction='all'" + 
+            "   version='2.0.0' " + 
+            "   outputFormat='application/gml+xml; version=3.2' " + 
+            "   xmlns:myns='http://www.someserver.com/myns' " + 
+            "   xmlns:wfs='http://www.opengis.net/wfs/2.0' " + 
+            "   xmlns:fes='http://www.opengis.net/fes/2.0' " + 
+            "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " + 
+            "   xsi:schemaLocation='http://www.opengis.net/wfs/2.0 " + 
+            "                       http://schemas.opengis.net/wfs/2.0/wfs.xsd'> " + 
+            "   <wfs:Query typeNames='myns:InWaterA_1M' srsName='epsg:4326'> " + 
+            "      <fes:Filter> " + 
+            "         <fes:ResourceId rid='InWaterA_1M.1234'/> " + 
+            "      </fes:Filter> " + 
+            "   </wfs:Query> " + 
+            "</wfs:GetFeatureWithLock> ";
+        buildDocument(xml);
+        
+        GetFeatureWithLockType gf = (GetFeatureWithLockType) parse();
+        assertNotNull(gf);
+        
+        assertEquals(BigInteger.valueOf(124), gf.getExpiry());
+        assertEquals(AllSomeType.ALL, gf.getLockAction());
+        
+        assertEquals(1, gf.getAbstractQueryExpression().size());
+        QueryType q = (QueryType) gf.getAbstractQueryExpression().get(0);
+        assertNotNull(q);
+        
+        assertEquals(new URI("epsg:4326"), q.getSrsName());
+        assertEquals(1, q.getTypeNames().size());
+        assertEquals(
+            new QName("http://www.someserver.com/myns", "InWaterA_1M"), q.getTypeNames().get(0));
+        
+        Id f = (Id) q.getFilter();
+        assertNotNull(f);
+        
+        assertEquals(1, f.getIdentifiers().size());
+        assertEquals("InWaterA_1M.1234", f.getIdentifiers().iterator().next().getID());
     }
 }
