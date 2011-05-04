@@ -74,8 +74,8 @@ public class WFSConfiguration extends Configuration {
 //        container.registerComponentImplementation(WFS.ExecutionStatusType,ExecutionStatusTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ExtendedDescriptionType,ExtendedDescriptionTypeBinding.class);
         bindings.put(WFS.FeatureCollectionType,FeatureCollectionTypeBinding.class);
-//        container.registerComponentImplementation(WFS.FeaturesLockedType,FeaturesLockedTypeBinding.class);
-//        container.registerComponentImplementation(WFS.FeaturesNotLockedType,FeaturesNotLockedTypeBinding.class);
+        binding(bindings, WFS.FeaturesLockedType);
+        binding(bindings, WFS.FeaturesNotLockedType);
 //        container.registerComponentImplementation(WFS.FeatureTypeListType,FeatureTypeListTypeBinding.class);
 //        container.registerComponentImplementation(WFS.FeatureTypeType,FeatureTypeTypeBinding.class);
         binding(bindings, WFS.GetCapabilitiesType);
@@ -85,8 +85,8 @@ public class WFSConfiguration extends Configuration {
         binding(bindings, WFS.InsertType);
 //        container.registerComponentImplementation(WFS.ListStoredQueriesResponseType,ListStoredQueriesResponseTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ListStoredQueriesType,ListStoredQueriesTypeBinding.class);
-//        container.registerComponentImplementation(WFS.LockFeatureResponseType,LockFeatureResponseTypeBinding.class);
-//        container.registerComponentImplementation(WFS.LockFeatureType,LockFeatureTypeBinding.class);
+        binding(bindings, WFS.LockFeatureResponseType);
+        binding(bindings, WFS.LockFeatureType);
         bindings.put(WFS.MemberPropertyType,MemberPropertyTypeBinding.class);
 //        container.registerComponentImplementation(WFS.MetadataURLType,MetadataURLTypeBinding.class);
         binding(bindings, WFS.NativeType);
