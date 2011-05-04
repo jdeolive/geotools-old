@@ -6,6 +6,7 @@
  */
 package net.opengis.wfs20.impl;
 
+import javax.xml.namespace.QName;
 import net.opengis.wfs20.UpdateActionType;
 import net.opengis.wfs20.ValueReferenceType;
 import net.opengis.wfs20.Wfs20Package;
@@ -40,7 +41,7 @@ public class ValueReferenceTypeImpl extends EObjectImpl implements ValueReferenc
      * @generated
      * @ordered
      */
-    protected static final String VALUE_EDEFAULT = null;
+    protected static final QName VALUE_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
@@ -50,7 +51,7 @@ public class ValueReferenceTypeImpl extends EObjectImpl implements ValueReferenc
      * @generated
      * @ordered
      */
-    protected String value = VALUE_EDEFAULT;
+    protected QName value = VALUE_EDEFAULT;
 
     /**
      * The default value of the '{@link #getAction() <em>Action</em>}' attribute.
@@ -105,7 +106,7 @@ public class ValueReferenceTypeImpl extends EObjectImpl implements ValueReferenc
      * <!-- end-user-doc -->
      * @generated
      */
-    public String getValue() {
+    public QName getValue() {
         return value;
     }
 
@@ -114,8 +115,8 @@ public class ValueReferenceTypeImpl extends EObjectImpl implements ValueReferenc
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setValue(String newValue) {
-        String oldValue = value;
+    public void setValue(QName newValue) {
+        QName oldValue = value;
         value = newValue;
         if (eNotificationRequired())
             eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.VALUE_REFERENCE_TYPE__VALUE, oldValue, value));
@@ -192,7 +193,7 @@ public class ValueReferenceTypeImpl extends EObjectImpl implements ValueReferenc
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wfs20Package.VALUE_REFERENCE_TYPE__VALUE:
-                setValue((String)newValue);
+                setValue((QName)newValue);
                 return;
             case Wfs20Package.VALUE_REFERENCE_TYPE__ACTION:
                 setAction((UpdateActionType)newValue);

@@ -157,23 +157,8 @@
       <details key="name" value="CreatedOrModifiedFeatureType"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="group" unique="false" upperBound="-1"
-        eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EFeatureMapEntry">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="group"/>
-        <details key="name" value="group:0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceId" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//ResourceIdType"
-        volatile="true" transient="true" derived="true" containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="ResourceId"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-        <details key="group" value="#group:0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="resourceId" upperBound="-1"
+        eType="#//FeatureId"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="handle" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="attribute"/>
@@ -206,15 +191,7 @@
       <details key="name" value="DeleteType"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="filter" lowerBound="1"
-        eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//FilterType" containment="true"
-        resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="Filter"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filter" eType="#//Filter"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="typeName" lowerBound="1"
         eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//QName">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1199,15 +1176,7 @@
       <details key="name" value="InsertType"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="any" unique="false" lowerBound="1"
-        upperBound="-1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EFeatureMapEntry">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="elementWildcard"/>
-        <details key="wildcards" value="##other"/>
-        <details key="name" value=":1"/>
-        <details key="processing" value="strict"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="any" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inputFormat" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="application/gml+xml; version=3.2" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1679,22 +1648,8 @@
       <details key="name" value="PropertyType"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="valueReference" lowerBound="1"
-        eType="#//ValueReferenceType" containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="ValueReference"/>
-        <details key="namespace" value="##targetNamespace"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="ecore:EClass platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EObject"
-        containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="Value"/>
-        <details key="namespace" value="##targetNamespace"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="valueReference" eType="#//ValueReferenceType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="QueryExpressionTextType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -1773,23 +1728,8 @@
       <details key="name" value="ReplaceType"/>
       <details key="kind" value="elementOnly"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="any" lowerBound="1" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EFeatureMapEntry">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="elementWildcard"/>
-        <details key="wildcards" value="##other"/>
-        <details key="name" value=":1"/>
-        <details key="processing" value="strict"/>
-      </eAnnotations>
-    </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="filter" lowerBound="1"
-        eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//FilterType" containment="true"
-        resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="Filter"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="any" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EJavaObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filter" eType="#//Filter"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inputFormat" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="application/gml+xml; version=3.2" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -2121,14 +2061,7 @@
         <details key="namespace" value="##targetNamespace"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="filter" eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//FilterType"
-        containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="Filter"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filter" eType="#//Filter"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inputFormat" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String"
         defaultValueLiteral="application/gml+xml; version=3.2" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -2241,12 +2174,7 @@
       <details key="name" value="ValueReference_._type"/>
       <details key="kind" value="simple"/>
     </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType platform:/plugin/org.eclipse.emf.ecore/model/XMLType.ecore#//String">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="name" value=":0"/>
-        <details key="kind" value="simple"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="#//QName"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="action" eType="#//UpdateActionType"
         defaultValueLiteral="replace" unsettable="true">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -2490,4 +2418,6 @@
   <eClassifiers xsi:type="ecore:EDataType" name="SortBy" instanceClassName="org.opengis.filter.sort.SortBy"/>
   <eClassifiers xsi:type="ecore:EDataType" name="Calendar" instanceClassName="java.util.Calendar"/>
   <eClassifiers xsi:type="ecore:EDataType" name="FeatureCollection" instanceClassName="org.geotools.feature.FeatureCollection"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="PropertyName" instanceClassName="org.opengis.filter.expression.PropertyName"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="FeatureId" instanceClassName="org.opengis.filter.identity.FeatureId"/>
 </ecore:EPackage>

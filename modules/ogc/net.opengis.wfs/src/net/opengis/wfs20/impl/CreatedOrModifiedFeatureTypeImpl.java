@@ -24,6 +24,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
+import org.opengis.filter.identity.FeatureId;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.InternalEList;
@@ -35,7 +37,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl#getGroup <em>Group</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl#getResourceId <em>Resource Id</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl#getHandle <em>Handle</em>}</li>
  * </ul>
@@ -45,14 +46,14 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements CreatedOrModifiedFeatureType {
     /**
-     * The cached value of the '{@link #getGroup() <em>Group</em>}' attribute list.
+     * The cached value of the '{@link #getResourceId() <em>Resource Id</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getGroup()
+     * @see #getResourceId()
      * @generated
      * @ordered
      */
-    protected FeatureMap group;
+    protected EList<FeatureId> resourceId;
 
     /**
      * The default value of the '{@link #getHandle() <em>Handle</em>}' attribute.
@@ -98,20 +99,11 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
      * <!-- end-user-doc -->
      * @generated
      */
-    public FeatureMap getGroup() {
-        if (group == null) {
-            group = new BasicFeatureMap(this, Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP);
+    public EList<FeatureId> getResourceId() {
+        if (resourceId == null) {
+            resourceId = new EDataTypeUniqueEList<FeatureId>(FeatureId.class, this, Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID);
         }
-        return group;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EList<ResourceIdType> getResourceId() {
-        return getGroup().list(Wfs20Package.Literals.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID);
+        return resourceId;
     }
 
     /**
@@ -141,27 +133,8 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
      * @generated
      */
     @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP:
-                return ((InternalEList<?>)getGroup()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID:
-                return ((InternalEList<?>)getResourceId()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP:
-                if (coreType) return getGroup();
-                return ((FeatureMap.Internal)getGroup()).getWrapper();
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID:
                 return getResourceId();
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__HANDLE:
@@ -179,12 +152,9 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP:
-                ((FeatureMap.Internal)getGroup()).set(newValue);
-                return;
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID:
                 getResourceId().clear();
-                getResourceId().addAll((Collection<? extends ResourceIdType>)newValue);
+                getResourceId().addAll((Collection<? extends FeatureId>)newValue);
                 return;
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__HANDLE:
                 setHandle((String)newValue);
@@ -201,9 +171,6 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
     @Override
     public void eUnset(int featureID) {
         switch (featureID) {
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP:
-                getGroup().clear();
-                return;
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID:
                 getResourceId().clear();
                 return;
@@ -222,10 +189,8 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
     @Override
     public boolean eIsSet(int featureID) {
         switch (featureID) {
-            case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP:
-                return group != null && !group.isEmpty();
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID:
-                return !getResourceId().isEmpty();
+                return resourceId != null && !resourceId.isEmpty();
             case Wfs20Package.CREATED_OR_MODIFIED_FEATURE_TYPE__HANDLE:
                 return HANDLE_EDEFAULT == null ? handle != null : !HANDLE_EDEFAULT.equals(handle);
         }
@@ -242,8 +207,8 @@ public class CreatedOrModifiedFeatureTypeImpl extends EObjectImpl implements Cre
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (group: ");
-        result.append(group);
+        result.append(" (resourceId: ");
+        result.append(resourceId);
         result.append(", handle: ");
         result.append(handle);
         result.append(')');

@@ -3,7 +3,7 @@
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/net.opengis.wfs/src"
     modelPluginID="net.opengis.wfs" modelName="Wfs20" importerID="org.eclipse.emf.importer.java"
-    complianceLevel="5.0" copyrightFields="false" usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore ../net.opengis.ows/ows10.genmodel#//ows10 platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace ../net.opengis.fes/fes20.genmodel#//fes20 ../net.opengis.ows/ows11.genmodel#//ows11 ../org.w3.xlink/xlink.genmodel#//xlink">
+    complianceLevel="5.0" copyrightFields="false" usedGenPackages="platform:/plugin/org.eclipse.emf.ecore/model/XMLType.genmodel#//type platform:/plugin/org.eclipse.emf.ecore/model/Ecore.genmodel#//ecore ../net.opengis.ows/ows10.genmodel#//ows10 platform:/plugin/org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace ../net.opengis.ows/ows11.genmodel#//ows11 ../net.opengis.fes/fes20.genmodel#//fes20 ../org.w3.xlink/xlink.genmodel#//xlink">
   <foreignModel>@model</foreignModel>
   <genPackages prefix="Wfs20" basePackage="net.opengis" disposableProviderFactory="true"
       ecorePackage="wfs20.ecore#/">
@@ -59,6 +59,8 @@
     <genDataTypes ecoreDataType="wfs20.ecore#//SortBy"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//Calendar"/>
     <genDataTypes ecoreDataType="wfs20.ecore#//FeatureCollection"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//PropertyName"/>
+    <genDataTypes ecoreDataType="wfs20.ecore#//FeatureId"/>
     <genClasses image="false" ecoreClass="wfs20.ecore#//AbstractTransactionActionType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//AbstractTransactionActionType/handle"/>
     </genClasses>
@@ -86,8 +88,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/baseUrl"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//CreatedOrModifiedFeatureType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//CreatedOrModifiedFeatureType/group"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wfs20.ecore#//CreatedOrModifiedFeatureType/resourceId"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//CreatedOrModifiedFeatureType/resourceId"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//CreatedOrModifiedFeatureType/handle"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//CreateStoredQueryResponseType"/>
@@ -95,7 +96,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//CreateStoredQueryType/storedQueryDefinition"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//DeleteType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//DeleteType/filter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//DeleteType/filter"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//DeleteType/typeName"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//DescribeFeatureTypeType">
@@ -320,7 +321,7 @@
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//PropertyType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//PropertyType/valueReference"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//PropertyType/value"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//PropertyType/value"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//QueryExpressionTextType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/mixed"/>
@@ -339,7 +340,7 @@
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//ReplaceType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//ReplaceType/any"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//ReplaceType/filter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//ReplaceType/filter"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ReplaceType/inputFormat"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ReplaceType/srsName"/>
     </genClasses>
@@ -397,7 +398,7 @@
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//UpdateType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//UpdateType/property"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//UpdateType/filter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//UpdateType/filter"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//UpdateType/inputFormat"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//UpdateType/srsName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//UpdateType/typeName"/>

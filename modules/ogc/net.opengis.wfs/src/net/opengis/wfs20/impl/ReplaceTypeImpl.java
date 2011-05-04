@@ -6,6 +6,8 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.util.Collection;
+
 import net.opengis.fes20.FilterType;
 
 import net.opengis.wfs20.ReplaceType;
@@ -13,6 +15,7 @@ import net.opengis.wfs20.Wfs20Package;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -20,8 +23,10 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.InternalEList;
+import org.opengis.filter.Filter;
 
 /**
  * <!-- begin-user-doc -->
@@ -48,17 +53,27 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * @generated
      * @ordered
      */
-    protected FeatureMap any;
+    protected EList<Object> any;
 
     /**
-     * The cached value of the '{@link #getFilter() <em>Filter</em>}' containment reference.
+     * The default value of the '{@link #getFilter() <em>Filter</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getFilter()
      * @generated
      * @ordered
      */
-    protected FilterType filter;
+    protected static final Filter FILTER_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getFilter() <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFilter()
+     * @generated
+     * @ordered
+     */
+    protected Filter filter = FILTER_EDEFAULT;
 
     /**
      * The default value of the '{@link #getInputFormat() <em>Input Format</em>}' attribute.
@@ -133,9 +148,9 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * <!-- end-user-doc -->
      * @generated
      */
-    public FeatureMap getAny() {
+    public EList<Object> getAny() {
         if (any == null) {
-            any = new BasicFeatureMap(this, Wfs20Package.REPLACE_TYPE__ANY);
+            any = new EDataTypeUniqueEList<Object>(Object.class, this, Wfs20Package.REPLACE_TYPE__ANY);
         }
         return any;
     }
@@ -145,7 +160,7 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * <!-- end-user-doc -->
      * @generated
      */
-    public FilterType getFilter() {
+    public Filter getFilter() {
         return filter;
     }
 
@@ -154,33 +169,11 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetFilter(FilterType newFilter, NotificationChain msgs) {
-        FilterType oldFilter = filter;
+    public void setFilter(Filter newFilter) {
+        Filter oldFilter = filter;
         filter = newFilter;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wfs20Package.REPLACE_TYPE__FILTER, oldFilter, newFilter);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setFilter(FilterType newFilter) {
-        if (newFilter != filter) {
-            NotificationChain msgs = null;
-            if (filter != null)
-                msgs = ((InternalEObject)filter).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.REPLACE_TYPE__FILTER, null, msgs);
-            if (newFilter != null)
-                msgs = ((InternalEObject)newFilter).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.REPLACE_TYPE__FILTER, null, msgs);
-            msgs = basicSetFilter(newFilter, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.REPLACE_TYPE__FILTER, newFilter, newFilter));
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.REPLACE_TYPE__FILTER, oldFilter, filter));
     }
 
     /**
@@ -256,27 +249,10 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * @generated
      */
     @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.REPLACE_TYPE__ANY:
-                return ((InternalEList<?>)getAny()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.REPLACE_TYPE__FILTER:
-                return basicSetFilter(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
             case Wfs20Package.REPLACE_TYPE__ANY:
-                if (coreType) return getAny();
-                return ((FeatureMap.Internal)getAny()).getWrapper();
+                return getAny();
             case Wfs20Package.REPLACE_TYPE__FILTER:
                 return getFilter();
             case Wfs20Package.REPLACE_TYPE__INPUT_FORMAT:
@@ -292,14 +268,16 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
      * <!-- end-user-doc -->
      * @generated
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wfs20Package.REPLACE_TYPE__ANY:
-                ((FeatureMap.Internal)getAny()).set(newValue);
+                getAny().clear();
+                getAny().addAll((Collection<? extends Object>)newValue);
                 return;
             case Wfs20Package.REPLACE_TYPE__FILTER:
-                setFilter((FilterType)newValue);
+                setFilter((Filter)newValue);
                 return;
             case Wfs20Package.REPLACE_TYPE__INPUT_FORMAT:
                 setInputFormat((String)newValue);
@@ -323,7 +301,7 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
                 getAny().clear();
                 return;
             case Wfs20Package.REPLACE_TYPE__FILTER:
-                setFilter((FilterType)null);
+                setFilter(FILTER_EDEFAULT);
                 return;
             case Wfs20Package.REPLACE_TYPE__INPUT_FORMAT:
                 unsetInputFormat();
@@ -346,7 +324,7 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
             case Wfs20Package.REPLACE_TYPE__ANY:
                 return any != null && !any.isEmpty();
             case Wfs20Package.REPLACE_TYPE__FILTER:
-                return filter != null;
+                return FILTER_EDEFAULT == null ? filter != null : !FILTER_EDEFAULT.equals(filter);
             case Wfs20Package.REPLACE_TYPE__INPUT_FORMAT:
                 return isSetInputFormat();
             case Wfs20Package.REPLACE_TYPE__SRS_NAME:
@@ -367,6 +345,8 @@ public class ReplaceTypeImpl extends AbstractTransactionActionTypeImpl implement
         StringBuffer result = new StringBuffer(super.toString());
         result.append(" (any: ");
         result.append(any);
+        result.append(", filter: ");
+        result.append(filter);
         result.append(", inputFormat: ");
         if (inputFormatESet) result.append(inputFormat); else result.append("<unset>");
         result.append(", srsName: ");

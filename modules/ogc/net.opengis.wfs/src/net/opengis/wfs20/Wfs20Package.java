@@ -604,22 +604,13 @@ public interface Wfs20Package extends EPackage {
     int CREATED_OR_MODIFIED_FEATURE_TYPE = 6;
 
     /**
-     * The feature id for the '<em><b>Group</b></em>' attribute list.
+     * The feature id for the '<em><b>Resource Id</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP = 0;
-
-    /**
-     * The feature id for the '<em><b>Resource Id</b></em>' containment reference list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID = 1;
+    int CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID = 0;
 
     /**
      * The feature id for the '<em><b>Handle</b></em>' attribute.
@@ -628,7 +619,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int CREATED_OR_MODIFIED_FEATURE_TYPE__HANDLE = 2;
+    int CREATED_OR_MODIFIED_FEATURE_TYPE__HANDLE = 1;
 
     /**
      * The number of structural features of the '<em>Created Or Modified Feature Type</em>' class.
@@ -637,7 +628,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int CREATED_OR_MODIFIED_FEATURE_TYPE_FEATURE_COUNT = 3;
+    int CREATED_OR_MODIFIED_FEATURE_TYPE_FEATURE_COUNT = 2;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.ExecutionStatusTypeImpl <em>Execution Status Type</em>}' class.
@@ -779,7 +770,7 @@ public interface Wfs20Package extends EPackage {
     int DELETE_TYPE__HANDLE = ABSTRACT_TRANSACTION_ACTION_TYPE__HANDLE;
 
     /**
-     * The feature id for the '<em><b>Filter</b></em>' containment reference.
+     * The feature id for the '<em><b>Filter</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3350,7 +3341,7 @@ public interface Wfs20Package extends EPackage {
     int PROPERTY_TYPE = 42;
 
     /**
-     * The feature id for the '<em><b>Value Reference</b></em>' containment reference.
+     * The feature id for the '<em><b>Value Reference</b></em>' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3359,7 +3350,7 @@ public interface Wfs20Package extends EPackage {
     int PROPERTY_TYPE__VALUE_REFERENCE = 0;
 
     /**
-     * The feature id for the '<em><b>Value</b></em>' containment reference.
+     * The feature id for the '<em><b>Value</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3596,7 +3587,7 @@ public interface Wfs20Package extends EPackage {
     int REPLACE_TYPE__ANY = ABSTRACT_TRANSACTION_ACTION_TYPE_FEATURE_COUNT + 0;
 
     /**
-     * The feature id for the '<em><b>Filter</b></em>' containment reference.
+     * The feature id for the '<em><b>Filter</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -4146,7 +4137,7 @@ public interface Wfs20Package extends EPackage {
     int UPDATE_TYPE__PROPERTY = ABSTRACT_TRANSACTION_ACTION_TYPE_FEATURE_COUNT + 0;
 
     /**
-     * The feature id for the '<em><b>Filter</b></em>' containment reference.
+     * The feature id for the '<em><b>Filter</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -4805,6 +4796,28 @@ public interface Wfs20Package extends EPackage {
 
 
     /**
+     * The meta object id for the '<em>Property Name</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see org.opengis.filter.expression.PropertyName
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getPropertyName()
+     * @generated
+     */
+    int PROPERTY_NAME = 89;
+
+
+    /**
+     * The meta object id for the '<em>Feature Id</em>' data type.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see org.opengis.filter.identity.FeatureId
+     * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFeatureId()
+     * @generated
+     */
+    int FEATURE_ID = 90;
+
+
+    /**
      * Returns the meta object for class '{@link net.opengis.wfs20.AbstractTransactionActionType <em>Abstract Transaction Action Type</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -5029,26 +5042,15 @@ public interface Wfs20Package extends EPackage {
     EClass getCreatedOrModifiedFeatureType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType#getGroup <em>Group</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType#getResourceId <em>Resource Id</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Group</em>'.
-     * @see net.opengis.wfs20.CreatedOrModifiedFeatureType#getGroup()
-     * @see #getCreatedOrModifiedFeatureType()
-     * @generated
-     */
-    EAttribute getCreatedOrModifiedFeatureType_Group();
-
-    /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType#getResourceId <em>Resource Id</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Resource Id</em>'.
+     * @return the meta object for the attribute list '<em>Resource Id</em>'.
      * @see net.opengis.wfs20.CreatedOrModifiedFeatureType#getResourceId()
      * @see #getCreatedOrModifiedFeatureType()
      * @generated
      */
-    EReference getCreatedOrModifiedFeatureType_ResourceId();
+    EAttribute getCreatedOrModifiedFeatureType_ResourceId();
 
     /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType#getHandle <em>Handle</em>}'.
@@ -5103,15 +5105,15 @@ public interface Wfs20Package extends EPackage {
     EClass getDeleteType();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.DeleteType#getFilter <em>Filter</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.DeleteType#getFilter <em>Filter</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Filter</em>'.
+     * @return the meta object for the attribute '<em>Filter</em>'.
      * @see net.opengis.wfs20.DeleteType#getFilter()
      * @see #getDeleteType()
      * @generated
      */
-    EReference getDeleteType_Filter();
+    EAttribute getDeleteType_Filter();
 
     /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.DeleteType#getTypeName <em>Type Name</em>}'.
@@ -7204,10 +7206,10 @@ public interface Wfs20Package extends EPackage {
     EClass getPropertyType();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.PropertyType#getValueReference <em>Value Reference</em>}'.
+     * Returns the meta object for the reference '{@link net.opengis.wfs20.PropertyType#getValueReference <em>Value Reference</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Value Reference</em>'.
+     * @return the meta object for the reference '<em>Value Reference</em>'.
      * @see net.opengis.wfs20.PropertyType#getValueReference()
      * @see #getPropertyType()
      * @generated
@@ -7215,15 +7217,15 @@ public interface Wfs20Package extends EPackage {
     EReference getPropertyType_ValueReference();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.PropertyType#getValue <em>Value</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.PropertyType#getValue <em>Value</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Value</em>'.
+     * @return the meta object for the attribute '<em>Value</em>'.
      * @see net.opengis.wfs20.PropertyType#getValue()
      * @see #getPropertyType()
      * @generated
      */
-    EReference getPropertyType_Value();
+    EAttribute getPropertyType_Value();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.QueryExpressionTextType <em>Query Expression Text Type</em>}'.
@@ -7388,15 +7390,15 @@ public interface Wfs20Package extends EPackage {
     EAttribute getReplaceType_Any();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.ReplaceType#getFilter <em>Filter</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.ReplaceType#getFilter <em>Filter</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Filter</em>'.
+     * @return the meta object for the attribute '<em>Filter</em>'.
      * @see net.opengis.wfs20.ReplaceType#getFilter()
      * @see #getReplaceType()
      * @generated
      */
-    EReference getReplaceType_Filter();
+    EAttribute getReplaceType_Filter();
 
     /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.ReplaceType#getInputFormat <em>Input Format</em>}'.
@@ -7894,15 +7896,15 @@ public interface Wfs20Package extends EPackage {
     EReference getUpdateType_Property();
 
     /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.UpdateType#getFilter <em>Filter</em>}'.
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.UpdateType#getFilter <em>Filter</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Filter</em>'.
+     * @return the meta object for the attribute '<em>Filter</em>'.
      * @see net.opengis.wfs20.UpdateType#getFilter()
      * @see #getUpdateType()
      * @generated
      */
-    EReference getUpdateType_Filter();
+    EAttribute getUpdateType_Filter();
 
     /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.UpdateType#getInputFormat <em>Input Format</em>}'.
@@ -8533,6 +8535,28 @@ public interface Wfs20Package extends EPackage {
     EDataType getFeatureCollection();
 
     /**
+     * Returns the meta object for data type '{@link org.opengis.filter.expression.PropertyName <em>Property Name</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Property Name</em>'.
+     * @see org.opengis.filter.expression.PropertyName
+     * @model instanceClass="org.opengis.filter.expression.PropertyName"
+     * @generated
+     */
+    EDataType getPropertyName();
+
+    /**
+     * Returns the meta object for data type '{@link org.opengis.filter.identity.FeatureId <em>Feature Id</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for data type '<em>Feature Id</em>'.
+     * @see org.opengis.filter.identity.FeatureId
+     * @model instanceClass="org.opengis.filter.identity.FeatureId"
+     * @generated
+     */
+    EDataType getFeatureId();
+
+    /**
      * Returns the factory that creates the instances of the model.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -8737,20 +8761,12 @@ public interface Wfs20Package extends EPackage {
         EClass CREATED_OR_MODIFIED_FEATURE_TYPE = eINSTANCE.getCreatedOrModifiedFeatureType();
 
         /**
-         * The meta object literal for the '<em><b>Group</b></em>' attribute list feature.
+         * The meta object literal for the '<em><b>Resource Id</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EAttribute CREATED_OR_MODIFIED_FEATURE_TYPE__GROUP = eINSTANCE.getCreatedOrModifiedFeatureType_Group();
-
-        /**
-         * The meta object literal for the '<em><b>Resource Id</b></em>' containment reference list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EReference CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID = eINSTANCE.getCreatedOrModifiedFeatureType_ResourceId();
+        EAttribute CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID = eINSTANCE.getCreatedOrModifiedFeatureType_ResourceId();
 
         /**
          * The meta object literal for the '<em><b>Handle</b></em>' attribute feature.
@@ -8799,12 +8815,12 @@ public interface Wfs20Package extends EPackage {
         EClass DELETE_TYPE = eINSTANCE.getDeleteType();
 
         /**
-         * The meta object literal for the '<em><b>Filter</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Filter</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference DELETE_TYPE__FILTER = eINSTANCE.getDeleteType_Filter();
+        EAttribute DELETE_TYPE__FILTER = eINSTANCE.getDeleteType_Filter();
 
         /**
          * The meta object literal for the '<em><b>Type Name</b></em>' attribute feature.
@@ -10417,7 +10433,7 @@ public interface Wfs20Package extends EPackage {
         EClass PROPERTY_TYPE = eINSTANCE.getPropertyType();
 
         /**
-         * The meta object literal for the '<em><b>Value Reference</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Value Reference</b></em>' reference feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -10425,12 +10441,12 @@ public interface Wfs20Package extends EPackage {
         EReference PROPERTY_TYPE__VALUE_REFERENCE = eINSTANCE.getPropertyType_ValueReference();
 
         /**
-         * The meta object literal for the '<em><b>Value</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Value</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference PROPERTY_TYPE__VALUE = eINSTANCE.getPropertyType_Value();
+        EAttribute PROPERTY_TYPE__VALUE = eINSTANCE.getPropertyType_Value();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl <em>Query Expression Text Type</em>}' class.
@@ -10559,12 +10575,12 @@ public interface Wfs20Package extends EPackage {
         EAttribute REPLACE_TYPE__ANY = eINSTANCE.getReplaceType_Any();
 
         /**
-         * The meta object literal for the '<em><b>Filter</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Filter</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference REPLACE_TYPE__FILTER = eINSTANCE.getReplaceType_Filter();
+        EAttribute REPLACE_TYPE__FILTER = eINSTANCE.getReplaceType_Filter();
 
         /**
          * The meta object literal for the '<em><b>Input Format</b></em>' attribute feature.
@@ -10957,12 +10973,12 @@ public interface Wfs20Package extends EPackage {
         EReference UPDATE_TYPE__PROPERTY = eINSTANCE.getUpdateType_Property();
 
         /**
-         * The meta object literal for the '<em><b>Filter</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Filter</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference UPDATE_TYPE__FILTER = eINSTANCE.getUpdateType_Filter();
+        EAttribute UPDATE_TYPE__FILTER = eINSTANCE.getUpdateType_Filter();
 
         /**
          * The meta object literal for the '<em><b>Input Format</b></em>' attribute feature.
@@ -11483,6 +11499,26 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EDataType FEATURE_COLLECTION = eINSTANCE.getFeatureCollection();
+
+        /**
+         * The meta object literal for the '<em>Property Name</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see org.opengis.filter.expression.PropertyName
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getPropertyName()
+         * @generated
+         */
+        EDataType PROPERTY_NAME = eINSTANCE.getPropertyName();
+
+        /**
+         * The meta object literal for the '<em>Feature Id</em>' data type.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @see org.opengis.filter.identity.FeatureId
+         * @see net.opengis.wfs20.impl.Wfs20PackageImpl#getFeatureId()
+         * @generated
+         */
+        EDataType FEATURE_ID = eINSTANCE.getFeatureId();
 
     }
 

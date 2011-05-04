@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * <!-- begin-user-doc -->
@@ -36,7 +37,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
     /**
-     * The cached value of the '{@link #getValueReference() <em>Value Reference</em>}' containment reference.
+     * The cached value of the '{@link #getValueReference() <em>Value Reference</em>}' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getValueReference()
@@ -46,14 +47,24 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
     protected ValueReferenceType valueReference;
 
     /**
-     * The cached value of the '{@link #getValue() <em>Value</em>}' containment reference.
+     * The default value of the '{@link #getValue() <em>Value</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getValue()
      * @generated
      * @ordered
      */
-    protected EObject value;
+    protected static final Object VALUE_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getValue()
+     * @generated
+     * @ordered
+     */
+    protected Object value = VALUE_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -80,6 +91,14 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
      * @generated
      */
     public ValueReferenceType getValueReference() {
+        if (valueReference != null && valueReference.eIsProxy()) {
+            InternalEObject oldValueReference = (InternalEObject)valueReference;
+            valueReference = (ValueReferenceType)eResolveProxy(oldValueReference);
+            if (valueReference != oldValueReference) {
+                if (eNotificationRequired())
+                    eNotify(new ENotificationImpl(this, Notification.RESOLVE, Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, oldValueReference, valueReference));
+            }
+        }
         return valueReference;
     }
 
@@ -88,14 +107,8 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetValueReference(ValueReferenceType newValueReference, NotificationChain msgs) {
-        ValueReferenceType oldValueReference = valueReference;
-        valueReference = newValueReference;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, oldValueReference, newValueReference);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
+    public ValueReferenceType basicGetValueReference() {
+        return valueReference;
     }
 
     /**
@@ -104,17 +117,10 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
      * @generated
      */
     public void setValueReference(ValueReferenceType newValueReference) {
-        if (newValueReference != valueReference) {
-            NotificationChain msgs = null;
-            if (valueReference != null)
-                msgs = ((InternalEObject)valueReference).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, null, msgs);
-            if (newValueReference != null)
-                msgs = ((InternalEObject)newValueReference).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, null, msgs);
-            msgs = basicSetValueReference(newValueReference, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, newValueReference, newValueReference));
+        ValueReferenceType oldValueReference = valueReference;
+        valueReference = newValueReference;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE, oldValueReference, valueReference));
     }
 
     /**
@@ -122,7 +128,7 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EObject getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -131,49 +137,11 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetValue(EObject newValue, NotificationChain msgs) {
-        EObject oldValue = value;
+    public void setValue(Object newValue) {
+        Object oldValue = value;
         value = newValue;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE, oldValue, newValue);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setValue(EObject newValue) {
-        if (newValue != value) {
-            NotificationChain msgs = null;
-            if (value != null)
-                msgs = ((InternalEObject)value).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.PROPERTY_TYPE__VALUE, null, msgs);
-            if (newValue != null)
-                msgs = ((InternalEObject)newValue).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.PROPERTY_TYPE__VALUE, null, msgs);
-            msgs = basicSetValue(newValue, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE, newValue, newValue));
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE:
-                return basicSetValueReference(null, msgs);
-            case Wfs20Package.PROPERTY_TYPE__VALUE:
-                return basicSetValue(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.PROPERTY_TYPE__VALUE, oldValue, value));
     }
 
     /**
@@ -185,7 +153,8 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
             case Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE:
-                return getValueReference();
+                if (resolve) return getValueReference();
+                return basicGetValueReference();
             case Wfs20Package.PROPERTY_TYPE__VALUE:
                 return getValue();
         }
@@ -204,7 +173,7 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
                 setValueReference((ValueReferenceType)newValue);
                 return;
             case Wfs20Package.PROPERTY_TYPE__VALUE:
-                setValue((EObject)newValue);
+                setValue(newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -222,7 +191,7 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
                 setValueReference((ValueReferenceType)null);
                 return;
             case Wfs20Package.PROPERTY_TYPE__VALUE:
-                setValue((EObject)null);
+                setValue(VALUE_EDEFAULT);
                 return;
         }
         super.eUnset(featureID);
@@ -239,9 +208,25 @@ public class PropertyTypeImpl extends EObjectImpl implements PropertyType {
             case Wfs20Package.PROPERTY_TYPE__VALUE_REFERENCE:
                 return valueReference != null;
             case Wfs20Package.PROPERTY_TYPE__VALUE:
-                return value != null;
+                return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
         }
         return super.eIsSet(featureID);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    @Override
+    public String toString() {
+        if (eIsProxy()) return super.toString();
+
+        StringBuffer result = new StringBuffer(super.toString());
+        result.append(" (value: ");
+        result.append(value);
+        result.append(')');
+        return result.toString();
     }
 
 } //PropertyTypeImpl

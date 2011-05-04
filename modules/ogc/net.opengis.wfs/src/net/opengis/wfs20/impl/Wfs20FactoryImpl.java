@@ -33,6 +33,8 @@ import org.eclipse.emf.ecore.xml.type.XMLTypeFactory;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 
 /**
@@ -206,6 +208,10 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return createCalendarFromString(eDataType, initialValue);
             case Wfs20Package.FEATURE_COLLECTION:
                 return createFeatureCollectionFromString(eDataType, initialValue);
+            case Wfs20Package.PROPERTY_NAME:
+                return createPropertyNameFromString(eDataType, initialValue);
+            case Wfs20Package.FEATURE_ID:
+                return createFeatureIdFromString(eDataType, initialValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -273,6 +279,10 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
                 return convertCalendarToString(eDataType, instanceValue);
             case Wfs20Package.FEATURE_COLLECTION:
                 return convertFeatureCollectionToString(eDataType, instanceValue);
+            case Wfs20Package.PROPERTY_NAME:
+                return convertPropertyNameToString(eDataType, instanceValue);
+            case Wfs20Package.FEATURE_ID:
+                return convertFeatureIdToString(eDataType, instanceValue);
             default:
                 throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
         }
@@ -1514,6 +1524,42 @@ public class Wfs20FactoryImpl extends EFactoryImpl implements Wfs20Factory {
      * @generated
      */
     public String convertFeatureCollectionToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public PropertyName createPropertyNameFromString(EDataType eDataType, String initialValue) {
+        return (PropertyName)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertPropertyNameToString(EDataType eDataType, Object instanceValue) {
+        return super.convertToString(eDataType, instanceValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public FeatureId createFeatureIdFromString(EDataType eDataType, String initialValue) {
+        return (FeatureId)super.createFromString(eDataType, initialValue);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public String convertFeatureIdToString(EDataType eDataType, Object instanceValue) {
         return super.convertToString(eDataType, instanceValue);
     }
 

@@ -7,6 +7,7 @@
 package net.opengis.wfs20;
 
 import org.eclipse.emf.ecore.EObject;
+import org.opengis.filter.expression.PropertyName;
 
 /**
  * <!-- begin-user-doc -->
@@ -37,17 +38,15 @@ public interface PropertyType extends EObject {
      * @return the value of the '<em>Value Reference</em>' containment reference.
      * @see #setValueReference(ValueReferenceType)
      * @see net.opengis.wfs20.Wfs20Package#getPropertyType_ValueReference()
-     * @model containment="true" required="true"
-     *        extendedMetaData="kind='element' name='ValueReference' namespace='##targetNamespace'"
-     * @generated
+     * @model 
      */
     ValueReferenceType getValueReference();
 
     /**
-     * Sets the value of the '{@link net.opengis.wfs20.PropertyType#getValueReference <em>Value Reference</em>}' containment reference.
+     * Sets the value of the '{@link net.opengis.wfs20.PropertyType#getValueReference <em>Value Reference</em>}' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Value Reference</em>' containment reference.
+     * @param value the new value of the '<em>Value Reference</em>' reference.
      * @see #getValueReference()
      * @generated
      */
@@ -64,20 +63,18 @@ public interface PropertyType extends EObject {
      * @return the value of the '<em>Value</em>' containment reference.
      * @see #setValue(EObject)
      * @see net.opengis.wfs20.Wfs20Package#getPropertyType_Value()
-     * @model containment="true"
-     *        extendedMetaData="kind='element' name='Value' namespace='##targetNamespace'"
-     * @generated
+     * @model 
      */
-    EObject getValue();
+    Object getValue();
 
     /**
-     * Sets the value of the '{@link net.opengis.wfs20.PropertyType#getValue <em>Value</em>}' containment reference.
+     * Sets the value of the '{@link net.opengis.wfs20.PropertyType#getValue <em>Value</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Value</em>' containment reference.
+     * @param value the new value of the '<em>Value</em>' attribute.
      * @see #getValue()
      * @generated
      */
-    void setValue(EObject value);
+    void setValue(Object value);
 
 } // PropertyType

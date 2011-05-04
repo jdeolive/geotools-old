@@ -6,6 +6,8 @@
  */
 package net.opengis.wfs20;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -37,11 +39,9 @@ public interface ValueReferenceType extends EObject {
      * @return the value of the '<em>Value</em>' attribute.
      * @see #setValue(String)
      * @see net.opengis.wfs20.Wfs20Package#getValueReferenceType_Value()
-     * @model dataType="org.eclipse.emf.ecore.xml.type.String"
-     *        extendedMetaData="name=':0' kind='simple'"
-     * @generated
+     * @model 
      */
-    String getValue();
+    QName getValue();
 
     /**
      * Sets the value of the '{@link net.opengis.wfs20.ValueReferenceType#getValue <em>Value</em>}' attribute.
@@ -51,7 +51,7 @@ public interface ValueReferenceType extends EObject {
      * @see #getValue()
      * @generated
      */
-    void setValue(String value);
+    void setValue(QName value);
 
     /**
      * Returns the value of the '<em><b>Action</b></em>' attribute.

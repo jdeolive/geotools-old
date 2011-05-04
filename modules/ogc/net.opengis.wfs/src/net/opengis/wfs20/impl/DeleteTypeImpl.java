@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.opengis.filter.Filter;
 
 /**
  * <!-- begin-user-doc -->
@@ -37,14 +38,24 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements DeleteType {
     /**
-     * The cached value of the '{@link #getFilter() <em>Filter</em>}' containment reference.
+     * The default value of the '{@link #getFilter() <em>Filter</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getFilter()
      * @generated
      * @ordered
      */
-    protected FilterType filter;
+    protected static final Filter FILTER_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getFilter() <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFilter()
+     * @generated
+     * @ordered
+     */
+    protected Filter filter = FILTER_EDEFAULT;
 
     /**
      * The default value of the '{@link #getTypeName() <em>Type Name</em>}' attribute.
@@ -90,7 +101,7 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
-    public FilterType getFilter() {
+    public Filter getFilter() {
         return filter;
     }
 
@@ -99,33 +110,11 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetFilter(FilterType newFilter, NotificationChain msgs) {
-        FilterType oldFilter = filter;
+    public void setFilter(Filter newFilter) {
+        Filter oldFilter = filter;
         filter = newFilter;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wfs20Package.DELETE_TYPE__FILTER, oldFilter, newFilter);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setFilter(FilterType newFilter) {
-        if (newFilter != filter) {
-            NotificationChain msgs = null;
-            if (filter != null)
-                msgs = ((InternalEObject)filter).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.DELETE_TYPE__FILTER, null, msgs);
-            if (newFilter != null)
-                msgs = ((InternalEObject)newFilter).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.DELETE_TYPE__FILTER, null, msgs);
-            msgs = basicSetFilter(newFilter, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.DELETE_TYPE__FILTER, newFilter, newFilter));
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.DELETE_TYPE__FILTER, oldFilter, filter));
     }
 
     /**
@@ -155,20 +144,6 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
      * @generated
      */
     @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.DELETE_TYPE__FILTER:
-                return basicSetFilter(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
             case Wfs20Package.DELETE_TYPE__FILTER:
@@ -188,7 +163,7 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wfs20Package.DELETE_TYPE__FILTER:
-                setFilter((FilterType)newValue);
+                setFilter((Filter)newValue);
                 return;
             case Wfs20Package.DELETE_TYPE__TYPE_NAME:
                 setTypeName((QName)newValue);
@@ -206,7 +181,7 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
     public void eUnset(int featureID) {
         switch (featureID) {
             case Wfs20Package.DELETE_TYPE__FILTER:
-                setFilter((FilterType)null);
+                setFilter(FILTER_EDEFAULT);
                 return;
             case Wfs20Package.DELETE_TYPE__TYPE_NAME:
                 setTypeName(TYPE_NAME_EDEFAULT);
@@ -224,7 +199,7 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
     public boolean eIsSet(int featureID) {
         switch (featureID) {
             case Wfs20Package.DELETE_TYPE__FILTER:
-                return filter != null;
+                return FILTER_EDEFAULT == null ? filter != null : !FILTER_EDEFAULT.equals(filter);
             case Wfs20Package.DELETE_TYPE__TYPE_NAME:
                 return TYPE_NAME_EDEFAULT == null ? typeName != null : !TYPE_NAME_EDEFAULT.equals(typeName);
         }
@@ -241,7 +216,9 @@ public class DeleteTypeImpl extends AbstractTransactionActionTypeImpl implements
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (typeName: ");
+        result.append(" (filter: ");
+        result.append(filter);
+        result.append(", typeName: ");
         result.append(typeName);
         result.append(')');
         return result.toString();

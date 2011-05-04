@@ -6,6 +6,7 @@
  */
 package net.opengis.wfs20;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.FeatureMap;
 
 /**
@@ -38,11 +39,9 @@ public interface InsertType extends AbstractTransactionActionType {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Any</em>' attribute list.
      * @see net.opengis.wfs20.Wfs20Package#getInsertType_Any()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" required="true" many="true"
-     *        extendedMetaData="kind='elementWildcard' wildcards='##other' name=':1' processing='strict'"
-     * @generated
+     * @model 
      */
-    FeatureMap getAny();
+    EList<Object> getAny();
 
     /**
      * Returns the value of the '<em><b>Input Format</b></em>' attribute.

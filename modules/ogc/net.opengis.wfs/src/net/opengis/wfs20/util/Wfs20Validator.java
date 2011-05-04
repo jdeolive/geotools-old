@@ -33,6 +33,8 @@ import org.eclipse.emf.ecore.xml.type.util.XMLTypeUtil;
 import org.eclipse.emf.ecore.xml.type.util.XMLTypeValidator;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.filter.Filter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.sort.SortBy;
 
 /**
@@ -294,6 +296,10 @@ public class Wfs20Validator extends EObjectValidator {
                 return validateCalendar((Calendar)value, diagnostics, context);
             case Wfs20Package.FEATURE_COLLECTION:
                 return validateFeatureCollection((FeatureCollection)value, diagnostics, context);
+            case Wfs20Package.PROPERTY_NAME:
+                return validatePropertyName((PropertyName)value, diagnostics, context);
+            case Wfs20Package.FEATURE_ID:
+                return validateFeatureId((FeatureId)value, diagnostics, context);
             default:
                 return true;
         }
@@ -1237,6 +1243,24 @@ public class Wfs20Validator extends EObjectValidator {
      * @generated
      */
     public boolean validateFeatureCollection(FeatureCollection featureCollection, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validatePropertyName(PropertyName propertyName, DiagnosticChain diagnostics, Map<Object, Object> context) {
+        return true;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public boolean validateFeatureId(FeatureId featureId, DiagnosticChain diagnostics, Map<Object, Object> context) {
         return true;
     }
 

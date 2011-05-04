@@ -8,6 +8,8 @@ package net.opengis.wfs20;
 
 import javax.xml.namespace.QName;
 
+import org.opengis.filter.Filter;
+
 import net.opengis.fes20.FilterType;
 
 /**
@@ -39,21 +41,19 @@ public interface DeleteType extends AbstractTransactionActionType {
      * @return the value of the '<em>Filter</em>' containment reference.
      * @see #setFilter(FilterType)
      * @see net.opengis.wfs20.Wfs20Package#getDeleteType_Filter()
-     * @model containment="true" required="true"
-     *        extendedMetaData="kind='element' name='Filter' namespace='http://www.opengis.net/fes/2.0'"
-     * @generated
+     * @model 
      */
-    FilterType getFilter();
+    Filter getFilter();
 
     /**
-     * Sets the value of the '{@link net.opengis.wfs20.DeleteType#getFilter <em>Filter</em>}' containment reference.
+     * Sets the value of the '{@link net.opengis.wfs20.DeleteType#getFilter <em>Filter</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Filter</em>' containment reference.
+     * @param value the new value of the '<em>Filter</em>' attribute.
      * @see #getFilter()
      * @generated
      */
-    void setFilter(FilterType value);
+    void setFilter(Filter value);
 
     /**
      * Returns the value of the '<em><b>Type Name</b></em>' attribute.

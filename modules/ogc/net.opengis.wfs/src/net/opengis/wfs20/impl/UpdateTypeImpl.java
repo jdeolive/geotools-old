@@ -28,6 +28,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
+import org.opengis.filter.Filter;
 
 /**
  * <!-- begin-user-doc -->
@@ -58,14 +59,24 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
     protected EList<PropertyType> property;
 
     /**
-     * The cached value of the '{@link #getFilter() <em>Filter</em>}' containment reference.
+     * The default value of the '{@link #getFilter() <em>Filter</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getFilter()
      * @generated
      * @ordered
      */
-    protected FilterType filter;
+    protected static final Filter FILTER_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getFilter() <em>Filter</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getFilter()
+     * @generated
+     * @ordered
+     */
+    protected Filter filter = FILTER_EDEFAULT;
 
     /**
      * The default value of the '{@link #getInputFormat() <em>Input Format</em>}' attribute.
@@ -172,7 +183,7 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
-    public FilterType getFilter() {
+    public Filter getFilter() {
         return filter;
     }
 
@@ -181,33 +192,11 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetFilter(FilterType newFilter, NotificationChain msgs) {
-        FilterType oldFilter = filter;
+    public void setFilter(Filter newFilter) {
+        Filter oldFilter = filter;
         filter = newFilter;
-        if (eNotificationRequired()) {
-            ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, Wfs20Package.UPDATE_TYPE__FILTER, oldFilter, newFilter);
-            if (msgs == null) msgs = notification; else msgs.add(notification);
-        }
-        return msgs;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setFilter(FilterType newFilter) {
-        if (newFilter != filter) {
-            NotificationChain msgs = null;
-            if (filter != null)
-                msgs = ((InternalEObject)filter).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.UPDATE_TYPE__FILTER, null, msgs);
-            if (newFilter != null)
-                msgs = ((InternalEObject)newFilter).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - Wfs20Package.UPDATE_TYPE__FILTER, null, msgs);
-            msgs = basicSetFilter(newFilter, msgs);
-            if (msgs != null) msgs.dispatch();
-        }
-        else if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.UPDATE_TYPE__FILTER, newFilter, newFilter));
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.UPDATE_TYPE__FILTER, oldFilter, filter));
     }
 
     /**
@@ -308,8 +297,6 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
         switch (featureID) {
             case Wfs20Package.UPDATE_TYPE__PROPERTY:
                 return ((InternalEList<?>)getProperty()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.UPDATE_TYPE__FILTER:
-                return basicSetFilter(null, msgs);
         }
         return super.eInverseRemove(otherEnd, featureID, msgs);
     }
@@ -350,7 +337,7 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
                 getProperty().addAll((Collection<? extends PropertyType>)newValue);
                 return;
             case Wfs20Package.UPDATE_TYPE__FILTER:
-                setFilter((FilterType)newValue);
+                setFilter((Filter)newValue);
                 return;
             case Wfs20Package.UPDATE_TYPE__INPUT_FORMAT:
                 setInputFormat((String)newValue);
@@ -359,7 +346,7 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
                 setSrsName((String)newValue);
                 return;
             case Wfs20Package.UPDATE_TYPE__TYPE_NAME:
-                setTypeName((QName)newValue);
+                setTypeName((QName) newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -377,7 +364,7 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
                 getProperty().clear();
                 return;
             case Wfs20Package.UPDATE_TYPE__FILTER:
-                setFilter((FilterType)null);
+                setFilter(FILTER_EDEFAULT);
                 return;
             case Wfs20Package.UPDATE_TYPE__INPUT_FORMAT:
                 unsetInputFormat();
@@ -403,7 +390,7 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
             case Wfs20Package.UPDATE_TYPE__PROPERTY:
                 return property != null && !property.isEmpty();
             case Wfs20Package.UPDATE_TYPE__FILTER:
-                return filter != null;
+                return FILTER_EDEFAULT == null ? filter != null : !FILTER_EDEFAULT.equals(filter);
             case Wfs20Package.UPDATE_TYPE__INPUT_FORMAT:
                 return isSetInputFormat();
             case Wfs20Package.UPDATE_TYPE__SRS_NAME:
@@ -424,7 +411,9 @@ public class UpdateTypeImpl extends AbstractTransactionActionTypeImpl implements
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (inputFormat: ");
+        result.append(" (filter: ");
+        result.append(filter);
+        result.append(", inputFormat: ");
         if (inputFormatESet) result.append(inputFormat); else result.append("<unset>");
         result.append(", srsName: ");
         result.append(srsName);

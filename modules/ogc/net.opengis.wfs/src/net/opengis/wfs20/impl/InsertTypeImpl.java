@@ -6,10 +6,12 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.util.Collection;
 import net.opengis.wfs20.InsertType;
 import net.opengis.wfs20.Wfs20Package;
 
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.notify.NotificationChain;
 
 import org.eclipse.emf.ecore.EClass;
@@ -17,6 +19,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.InternalEList;
@@ -45,7 +48,7 @@ public class InsertTypeImpl extends AbstractTransactionActionTypeImpl implements
      * @generated
      * @ordered
      */
-    protected FeatureMap any;
+    protected EList<Object> any;
 
     /**
      * The default value of the '{@link #getInputFormat() <em>Input Format</em>}' attribute.
@@ -120,9 +123,9 @@ public class InsertTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
-    public FeatureMap getAny() {
+    public EList<Object> getAny() {
         if (any == null) {
-            any = new BasicFeatureMap(this, Wfs20Package.INSERT_TYPE__ANY);
+            any = new EDataTypeUniqueEList<Object>(Object.class, this, Wfs20Package.INSERT_TYPE__ANY);
         }
         return any;
     }
@@ -200,25 +203,10 @@ public class InsertTypeImpl extends AbstractTransactionActionTypeImpl implements
      * @generated
      */
     @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.INSERT_TYPE__ANY:
-                return ((InternalEList<?>)getAny()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
             case Wfs20Package.INSERT_TYPE__ANY:
-                if (coreType) return getAny();
-                return ((FeatureMap.Internal)getAny()).getWrapper();
+                return getAny();
             case Wfs20Package.INSERT_TYPE__INPUT_FORMAT:
                 return getInputFormat();
             case Wfs20Package.INSERT_TYPE__SRS_NAME:
@@ -232,11 +220,13 @@ public class InsertTypeImpl extends AbstractTransactionActionTypeImpl implements
      * <!-- end-user-doc -->
      * @generated
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
             case Wfs20Package.INSERT_TYPE__ANY:
-                ((FeatureMap.Internal)getAny()).set(newValue);
+                getAny().clear();
+                getAny().addAll((Collection<? extends Object>)newValue);
                 return;
             case Wfs20Package.INSERT_TYPE__INPUT_FORMAT:
                 setInputFormat((String)newValue);
