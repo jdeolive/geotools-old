@@ -1754,7 +1754,7 @@ public interface Wfs20Package extends EPackage {
     int FEATURES_LOCKED_TYPE__GROUP = 0;
 
     /**
-     * The feature id for the '<em><b>Resource Id</b></em>' containment reference list.
+     * The feature id for the '<em><b>Resource Id</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -1791,7 +1791,7 @@ public interface Wfs20Package extends EPackage {
     int FEATURES_NOT_LOCKED_TYPE__GROUP = 0;
 
     /**
-     * The feature id for the '<em><b>Resource Id</b></em>' containment reference list.
+     * The feature id for the '<em><b>Resource Id</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -5984,15 +5984,15 @@ public interface Wfs20Package extends EPackage {
     EAttribute getFeaturesLockedType_Group();
 
     /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wfs20.FeaturesLockedType#getResourceId <em>Resource Id</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.FeaturesLockedType#getResourceId <em>Resource Id</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Resource Id</em>'.
+     * @return the meta object for the attribute list '<em>Resource Id</em>'.
      * @see net.opengis.wfs20.FeaturesLockedType#getResourceId()
      * @see #getFeaturesLockedType()
      * @generated
      */
-    EReference getFeaturesLockedType_ResourceId();
+    EAttribute getFeaturesLockedType_ResourceId();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.FeaturesNotLockedType <em>Features Not Locked Type</em>}'.
@@ -6016,15 +6016,15 @@ public interface Wfs20Package extends EPackage {
     EAttribute getFeaturesNotLockedType_Group();
 
     /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wfs20.FeaturesNotLockedType#getResourceId <em>Resource Id</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.FeaturesNotLockedType#getResourceId <em>Resource Id</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Resource Id</em>'.
+     * @return the meta object for the attribute list '<em>Resource Id</em>'.
      * @see net.opengis.wfs20.FeaturesNotLockedType#getResourceId()
      * @see #getFeaturesNotLockedType()
      * @generated
      */
-    EReference getFeaturesNotLockedType_ResourceId();
+    EAttribute getFeaturesNotLockedType_ResourceId();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.FeatureTypeListType <em>Feature Type List Type</em>}'.
@@ -9487,12 +9487,12 @@ public interface Wfs20Package extends EPackage {
         EAttribute FEATURES_LOCKED_TYPE__GROUP = eINSTANCE.getFeaturesLockedType_Group();
 
         /**
-         * The meta object literal for the '<em><b>Resource Id</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>Resource Id</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference FEATURES_LOCKED_TYPE__RESOURCE_ID = eINSTANCE.getFeaturesLockedType_ResourceId();
+        EAttribute FEATURES_LOCKED_TYPE__RESOURCE_ID = eINSTANCE.getFeaturesLockedType_ResourceId();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.FeaturesNotLockedTypeImpl <em>Features Not Locked Type</em>}' class.
@@ -9513,12 +9513,12 @@ public interface Wfs20Package extends EPackage {
         EAttribute FEATURES_NOT_LOCKED_TYPE__GROUP = eINSTANCE.getFeaturesNotLockedType_Group();
 
         /**
-         * The meta object literal for the '<em><b>Resource Id</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>Resource Id</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference FEATURES_NOT_LOCKED_TYPE__RESOURCE_ID = eINSTANCE.getFeaturesNotLockedType_ResourceId();
+        EAttribute FEATURES_NOT_LOCKED_TYPE__RESOURCE_ID = eINSTANCE.getFeaturesNotLockedType_ResourceId();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.FeatureTypeListTypeImpl <em>Feature Type List Type</em>}' class.

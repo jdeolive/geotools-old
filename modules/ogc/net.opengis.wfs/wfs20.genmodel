@@ -188,11 +188,11 @@
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//FeaturesLockedType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//FeaturesLockedType/group"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wfs20.ecore#//FeaturesLockedType/resourceId"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//FeaturesLockedType/resourceId"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//FeaturesNotLockedType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//FeaturesNotLockedType/group"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wfs20.ecore#//FeaturesNotLockedType/resourceId"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//FeaturesNotLockedType/resourceId"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//FeatureTypeListType">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//FeatureTypeListType/featureType"/>

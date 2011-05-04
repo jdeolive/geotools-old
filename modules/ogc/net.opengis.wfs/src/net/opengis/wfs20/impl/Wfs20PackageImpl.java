@@ -1810,8 +1810,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EReference getFeaturesLockedType_ResourceId() {
-        return (EReference)featuresLockedTypeEClass.getEStructuralFeatures().get(1);
+    public EAttribute getFeaturesLockedType_ResourceId() {
+        return (EAttribute)featuresLockedTypeEClass.getEStructuralFeatures().get(1);
     }
 
     /**
@@ -1837,8 +1837,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EReference getFeaturesNotLockedType_ResourceId() {
-        return (EReference)featuresNotLockedTypeEClass.getEStructuralFeatures().get(1);
+    public EAttribute getFeaturesNotLockedType_ResourceId() {
+        return (EAttribute)featuresNotLockedTypeEClass.getEStructuralFeatures().get(1);
     }
 
     /**
@@ -4095,11 +4095,11 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
 
         featuresLockedTypeEClass = createEClass(FEATURES_LOCKED_TYPE);
         createEAttribute(featuresLockedTypeEClass, FEATURES_LOCKED_TYPE__GROUP);
-        createEReference(featuresLockedTypeEClass, FEATURES_LOCKED_TYPE__RESOURCE_ID);
+        createEAttribute(featuresLockedTypeEClass, FEATURES_LOCKED_TYPE__RESOURCE_ID);
 
         featuresNotLockedTypeEClass = createEClass(FEATURES_NOT_LOCKED_TYPE);
         createEAttribute(featuresNotLockedTypeEClass, FEATURES_NOT_LOCKED_TYPE__GROUP);
-        createEReference(featuresNotLockedTypeEClass, FEATURES_NOT_LOCKED_TYPE__RESOURCE_ID);
+        createEAttribute(featuresNotLockedTypeEClass, FEATURES_NOT_LOCKED_TYPE__RESOURCE_ID);
 
         featureTypeListTypeEClass = createEClass(FEATURE_TYPE_LIST_TYPE);
         createEReference(featureTypeListTypeEClass, FEATURE_TYPE_LIST_TYPE__FEATURE_TYPE);
@@ -4566,11 +4566,11 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
 
         initEClass(featuresLockedTypeEClass, FeaturesLockedType.class, "FeaturesLockedType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getFeaturesLockedType_Group(), theEcorePackage.getEFeatureMapEntry(), "group", null, 0, -1, FeaturesLockedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getFeaturesLockedType_ResourceId(), theFes20Package.getResourceIdType(), null, "resourceId", null, 1, -1, FeaturesLockedType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFeaturesLockedType_ResourceId(), this.getFeatureId(), "resourceId", null, 0, -1, FeaturesLockedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(featuresNotLockedTypeEClass, FeaturesNotLockedType.class, "FeaturesNotLockedType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getFeaturesNotLockedType_Group(), theEcorePackage.getEFeatureMapEntry(), "group", null, 0, -1, FeaturesNotLockedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEReference(getFeaturesNotLockedType_ResourceId(), theFes20Package.getResourceIdType(), null, "resourceId", null, 1, -1, FeaturesNotLockedType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+        initEAttribute(getFeaturesNotLockedType_ResourceId(), this.getFeatureId(), "resourceId", null, 0, -1, FeaturesNotLockedType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(featureTypeListTypeEClass, FeatureTypeListType.class, "FeatureTypeListType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEReference(getFeatureTypeListType_FeatureType(), this.getFeatureTypeType(), null, "featureType", null, 1, -1, FeatureTypeListType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4895,7 +4895,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																																																								
+           });																																																																																																																																																																																																																																																																																																																																						
     }
 
     /**
@@ -5708,15 +5708,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
              "name", "group:0"
            });		
         addAnnotation
-          (getFeaturesLockedType_ResourceId(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "ResourceId",
-             "namespace", "http://www.opengis.net/fes/2.0",
-             "group", "#group:0"
-           });		
-        addAnnotation
           (featuresNotLockedTypeEClass, 
            source, 
            new String[] {
@@ -5729,15 +5720,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            new String[] {
              "kind", "group",
              "name", "group:0"
-           });		
-        addAnnotation
-          (getFeaturesNotLockedType_ResourceId(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "ResourceId",
-             "namespace", "http://www.opengis.net/fes/2.0",
-             "group", "#group:0"
            });		
         addAnnotation
           (featureTypeListTypeEClass, 

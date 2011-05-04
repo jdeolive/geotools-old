@@ -13,6 +13,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 import org.eclipse.emf.ecore.util.FeatureMap;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * <!-- begin-user-doc -->
@@ -60,10 +61,8 @@ public interface FeaturesNotLockedType extends EObject {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Resource Id</em>' containment reference list.
      * @see net.opengis.wfs20.Wfs20Package#getFeaturesNotLockedType_ResourceId()
-     * @model containment="true" required="true" transient="true" volatile="true" derived="true"
-     *        extendedMetaData="kind='element' name='ResourceId' namespace='http://www.opengis.net/fes/2.0' group='#group:0'"
-     * @generated
+     * @model 
      */
-    EList<ResourceIdType> getResourceId();
+    EList<FeatureId> getResourceId();
 
 } // FeaturesNotLockedType

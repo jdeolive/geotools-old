@@ -835,16 +835,8 @@
         <details key="name" value="group:0"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceId" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//ResourceIdType"
-        volatile="true" transient="true" derived="true" containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="ResourceId"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-        <details key="group" value="#group:0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="resourceId" upperBound="-1"
+        eType="#//FeatureId"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FeaturesNotLockedType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
@@ -858,16 +850,8 @@
         <details key="name" value="group:0"/>
       </eAnnotations>
     </eStructuralFeatures>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceId" lowerBound="1"
-        upperBound="-1" eType="ecore:EClass ../net.opengis.fes/fes20.ecore#//ResourceIdType"
-        volatile="true" transient="true" derived="true" containment="true" resolveProxies="false">
-      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
-        <details key="kind" value="element"/>
-        <details key="name" value="ResourceId"/>
-        <details key="namespace" value="http://www.opengis.net/fes/2.0"/>
-        <details key="group" value="#group:0"/>
-      </eAnnotations>
-    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="resourceId" upperBound="-1"
+        eType="#//FeatureId"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FeatureTypeListType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

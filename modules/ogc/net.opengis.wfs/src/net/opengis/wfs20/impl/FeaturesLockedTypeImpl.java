@@ -23,8 +23,10 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.BasicFeatureMap;
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.InternalEList;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * <!-- begin-user-doc -->
@@ -50,6 +52,16 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
      * @ordered
      */
     protected FeatureMap group;
+
+    /**
+     * The cached value of the '{@link #getResourceId() <em>Resource Id</em>}' attribute list.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getResourceId()
+     * @generated
+     * @ordered
+     */
+    protected EList<FeatureId> resourceId;
 
     /**
      * <!-- begin-user-doc -->
@@ -87,8 +99,11 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
      * <!-- end-user-doc -->
      * @generated
      */
-    public EList<ResourceIdType> getResourceId() {
-        return getGroup().list(Wfs20Package.Literals.FEATURES_LOCKED_TYPE__RESOURCE_ID);
+    public EList<FeatureId> getResourceId() {
+        if (resourceId == null) {
+            resourceId = new EDataTypeUniqueEList<FeatureId>(FeatureId.class, this, Wfs20Package.FEATURES_LOCKED_TYPE__RESOURCE_ID);
+        }
+        return resourceId;
     }
 
     /**
@@ -101,8 +116,6 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
         switch (featureID) {
             case Wfs20Package.FEATURES_LOCKED_TYPE__GROUP:
                 return ((InternalEList<?>)getGroup()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.FEATURES_LOCKED_TYPE__RESOURCE_ID:
-                return ((InternalEList<?>)getResourceId()).basicRemove(otherEnd, msgs);
         }
         return super.eInverseRemove(otherEnd, featureID, msgs);
     }
@@ -138,7 +151,7 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
                 return;
             case Wfs20Package.FEATURES_LOCKED_TYPE__RESOURCE_ID:
                 getResourceId().clear();
-                getResourceId().addAll((Collection<? extends ResourceIdType>)newValue);
+                getResourceId().addAll((Collection<? extends FeatureId>)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -173,7 +186,7 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
             case Wfs20Package.FEATURES_LOCKED_TYPE__GROUP:
                 return group != null && !group.isEmpty();
             case Wfs20Package.FEATURES_LOCKED_TYPE__RESOURCE_ID:
-                return !getResourceId().isEmpty();
+                return resourceId != null && !resourceId.isEmpty();
         }
         return super.eIsSet(featureID);
     }
@@ -190,6 +203,8 @@ public class FeaturesLockedTypeImpl extends EObjectImpl implements FeaturesLocke
         StringBuffer result = new StringBuffer(super.toString());
         result.append(" (group: ");
         result.append(group);
+        result.append(", resourceId: ");
+        result.append(resourceId);
         result.append(')');
         return result.toString();
     }
