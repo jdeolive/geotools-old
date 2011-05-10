@@ -308,9 +308,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ParameterExpressionType/type"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//ParameterType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//ParameterType/mixed"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ParameterType/any"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ParameterType/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ParameterType/value"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//PropertyNameType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//PropertyNameType/value"/>
@@ -324,12 +323,10 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//PropertyType/value"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//QueryExpressionTextType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/mixed"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/any"/>
-      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/any1"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/isPrivate"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/language"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/returnFeatureTypes"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryExpressionTextType/value"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//QueryType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//QueryType/featureVersion"/>

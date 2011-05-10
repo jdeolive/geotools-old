@@ -2737,7 +2737,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getParameterType_Mixed() {
+    public EAttribute getParameterType_Name() {
         return (EAttribute)parameterTypeEClass.getEStructuralFeatures().get(0);
     }
 
@@ -2746,17 +2746,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getParameterType_Any() {
+    public EAttribute getParameterType_Value() {
         return (EAttribute)parameterTypeEClass.getEStructuralFeatures().get(1);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EAttribute getParameterType_Name() {
-        return (EAttribute)parameterTypeEClass.getEStructuralFeatures().get(2);
     }
 
     /**
@@ -2854,7 +2845,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getQueryExpressionTextType_Mixed() {
+    public EAttribute getQueryExpressionTextType_IsPrivate() {
         return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(0);
     }
 
@@ -2863,7 +2854,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getQueryExpressionTextType_Any() {
+    public EAttribute getQueryExpressionTextType_Language() {
         return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(1);
     }
 
@@ -2872,7 +2863,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getQueryExpressionTextType_Any1() {
+    public EAttribute getQueryExpressionTextType_ReturnFeatureTypes() {
         return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(2);
     }
 
@@ -2881,26 +2872,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getQueryExpressionTextType_IsPrivate() {
+    public EAttribute getQueryExpressionTextType_Value() {
         return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(3);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EAttribute getQueryExpressionTextType_Language() {
-        return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(4);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public EAttribute getQueryExpressionTextType_ReturnFeatureTypes() {
-        return (EAttribute)queryExpressionTextTypeEClass.getEStructuralFeatures().get(5);
     }
 
     /**
@@ -4217,9 +4190,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         createEAttribute(parameterExpressionTypeEClass, PARAMETER_EXPRESSION_TYPE__TYPE);
 
         parameterTypeEClass = createEClass(PARAMETER_TYPE);
-        createEAttribute(parameterTypeEClass, PARAMETER_TYPE__MIXED);
-        createEAttribute(parameterTypeEClass, PARAMETER_TYPE__ANY);
         createEAttribute(parameterTypeEClass, PARAMETER_TYPE__NAME);
+        createEAttribute(parameterTypeEClass, PARAMETER_TYPE__VALUE);
 
         propertyNameTypeEClass = createEClass(PROPERTY_NAME_TYPE);
         createEAttribute(propertyNameTypeEClass, PROPERTY_NAME_TYPE__VALUE);
@@ -4233,12 +4205,10 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         createEAttribute(propertyTypeEClass, PROPERTY_TYPE__VALUE);
 
         queryExpressionTextTypeEClass = createEClass(QUERY_EXPRESSION_TEXT_TYPE);
-        createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__MIXED);
-        createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__ANY);
-        createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__ANY1);
         createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE);
         createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__LANGUAGE);
         createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES);
+        createEAttribute(queryExpressionTextTypeEClass, QUERY_EXPRESSION_TEXT_TYPE__VALUE);
 
         queryTypeEClass = createEClass(QUERY_TYPE);
         createEAttribute(queryTypeEClass, QUERY_TYPE__FEATURE_VERSION);
@@ -4688,9 +4658,8 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEAttribute(getParameterExpressionType_Type(), theXMLTypePackage.getQName(), "type", null, 1, 1, ParameterExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(parameterTypeEClass, ParameterType.class, "ParameterType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getParameterType_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, ParameterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getParameterType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 0, 1, ParameterType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getParameterType_Name(), theXMLTypePackage.getString(), "name", null, 1, 1, ParameterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getParameterType_Value(), ecorePackage.getEString(), "value", null, 0, 1, ParameterType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(propertyNameTypeEClass, PropertyNameType.class, "PropertyNameType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getPropertyNameType_Value(), theXMLTypePackage.getQName(), "value", null, 0, 1, PropertyNameType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4704,12 +4673,10 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEAttribute(getPropertyType_Value(), ecorePackage.getEJavaObject(), "value", null, 0, 1, PropertyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(queryExpressionTextTypeEClass, QueryExpressionTextType.class, "QueryExpressionTextType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getQueryExpressionTextType_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, QueryExpressionTextType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getQueryExpressionTextType_Any(), theEcorePackage.getEFeatureMapEntry(), "any", null, 0, -1, QueryExpressionTextType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
-        initEAttribute(getQueryExpressionTextType_Any1(), theEcorePackage.getEFeatureMapEntry(), "any1", null, 0, -1, QueryExpressionTextType.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, IS_DERIVED, IS_ORDERED);
         initEAttribute(getQueryExpressionTextType_IsPrivate(), theXMLTypePackage.getBoolean(), "isPrivate", "false", 0, 1, QueryExpressionTextType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getQueryExpressionTextType_Language(), theXMLTypePackage.getAnyURI(), "language", null, 1, 1, QueryExpressionTextType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getQueryExpressionTextType_ReturnFeatureTypes(), this.getReturnFeatureTypesListType(), "returnFeatureTypes", null, 1, 1, QueryExpressionTextType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getQueryExpressionTextType_Value(), ecorePackage.getEString(), "value", null, 0, 1, QueryExpressionTextType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(queryTypeEClass, QueryType.class, "QueryType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getQueryType_FeatureVersion(), theXMLTypePackage.getString(), "featureVersion", null, 0, 1, QueryType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4895,7 +4862,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																																																						
+           });																																																																																																																																																																																																																																																																																																																																	
     }
 
     /**
@@ -6445,22 +6412,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
              "kind", "mixed"
            });		
         addAnnotation
-          (getParameterType_Mixed(), 
-           source, 
-           new String[] {
-             "kind", "elementWildcard",
-             "name", ":mixed"
-           });		
-        addAnnotation
-          (getParameterType_Any(), 
-           source, 
-           new String[] {
-             "kind", "elementWildcard",
-             "wildcards", "##other",
-             "name", ":1",
-             "processing", "lax"
-           });		
-        addAnnotation
           (getParameterType_Name(), 
            source, 
            new String[] {
@@ -6522,31 +6473,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            new String[] {
              "name", "QueryExpressionTextType",
              "kind", "mixed"
-           });		
-        addAnnotation
-          (getQueryExpressionTextType_Mixed(), 
-           source, 
-           new String[] {
-             "kind", "elementWildcard",
-             "name", ":mixed"
-           });		
-        addAnnotation
-          (getQueryExpressionTextType_Any(), 
-           source, 
-           new String[] {
-             "kind", "elementWildcard",
-             "wildcards", "##other",
-             "name", ":1",
-             "processing", "skip"
-           });		
-        addAnnotation
-          (getQueryExpressionTextType_Any1(), 
-           source, 
-           new String[] {
-             "kind", "elementWildcard",
-             "wildcards", "##targetNamespace",
-             "name", ":2",
-             "processing", "skip"
            });		
         addAnnotation
           (getQueryExpressionTextType_IsPrivate(), 

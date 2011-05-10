@@ -29,25 +29,14 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link net.opengis.wfs20.impl.ParameterTypeImpl#getMixed <em>Mixed</em>}</li>
- *   <li>{@link net.opengis.wfs20.impl.ParameterTypeImpl#getAny <em>Any</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.ParameterTypeImpl#getName <em>Name</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.ParameterTypeImpl#getValue <em>Value</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
-    /**
-     * The cached value of the '{@link #getMixed() <em>Mixed</em>}' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @see #getMixed()
-     * @generated
-     * @ordered
-     */
-    protected FeatureMap mixed;
-
     /**
      * The default value of the '{@link #getName() <em>Name</em>}' attribute.
      * <!-- begin-user-doc -->
@@ -69,6 +58,26 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     protected String name = NAME_EDEFAULT;
 
     /**
+     * The default value of the '{@link #getValue() <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getValue()
+     * @generated
+     * @ordered
+     */
+    protected static final String VALUE_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getValue()
+     * @generated
+     * @ordered
+     */
+    protected String value = VALUE_EDEFAULT;
+
+    /**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -85,27 +94,6 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     @Override
     protected EClass eStaticClass() {
         return Wfs20Package.Literals.PARAMETER_TYPE;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public FeatureMap getMixed() {
-        if (mixed == null) {
-            mixed = new BasicFeatureMap(this, Wfs20Package.PARAMETER_TYPE__MIXED);
-        }
-        return mixed;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public FeatureMap getAny() {
-        return (FeatureMap)getMixed().<FeatureMap.Entry>list(Wfs20Package.Literals.PARAMETER_TYPE__ANY);
     }
 
     /**
@@ -134,15 +122,20 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
      * <!-- end-user-doc -->
      * @generated
      */
-    @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.PARAMETER_TYPE__MIXED:
-                return ((InternalEList<?>)getMixed()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.PARAMETER_TYPE__ANY:
-                return ((InternalEList<?>)getAny()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setValue(String newValue) {
+        String oldValue = value;
+        value = newValue;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.PARAMETER_TYPE__VALUE, oldValue, value));
     }
 
     /**
@@ -153,14 +146,10 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
-            case Wfs20Package.PARAMETER_TYPE__MIXED:
-                if (coreType) return getMixed();
-                return ((FeatureMap.Internal)getMixed()).getWrapper();
-            case Wfs20Package.PARAMETER_TYPE__ANY:
-                if (coreType) return getAny();
-                return ((FeatureMap.Internal)getAny()).getWrapper();
             case Wfs20Package.PARAMETER_TYPE__NAME:
                 return getName();
+            case Wfs20Package.PARAMETER_TYPE__VALUE:
+                return getValue();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -173,14 +162,11 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
-            case Wfs20Package.PARAMETER_TYPE__MIXED:
-                ((FeatureMap.Internal)getMixed()).set(newValue);
-                return;
-            case Wfs20Package.PARAMETER_TYPE__ANY:
-                ((FeatureMap.Internal)getAny()).set(newValue);
-                return;
             case Wfs20Package.PARAMETER_TYPE__NAME:
                 setName((String)newValue);
+                return;
+            case Wfs20Package.PARAMETER_TYPE__VALUE:
+                setValue((String)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -194,14 +180,11 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     @Override
     public void eUnset(int featureID) {
         switch (featureID) {
-            case Wfs20Package.PARAMETER_TYPE__MIXED:
-                getMixed().clear();
-                return;
-            case Wfs20Package.PARAMETER_TYPE__ANY:
-                getAny().clear();
-                return;
             case Wfs20Package.PARAMETER_TYPE__NAME:
                 setName(NAME_EDEFAULT);
+                return;
+            case Wfs20Package.PARAMETER_TYPE__VALUE:
+                setValue(VALUE_EDEFAULT);
                 return;
         }
         super.eUnset(featureID);
@@ -215,12 +198,10 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
     @Override
     public boolean eIsSet(int featureID) {
         switch (featureID) {
-            case Wfs20Package.PARAMETER_TYPE__MIXED:
-                return mixed != null && !mixed.isEmpty();
-            case Wfs20Package.PARAMETER_TYPE__ANY:
-                return !getAny().isEmpty();
             case Wfs20Package.PARAMETER_TYPE__NAME:
                 return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+            case Wfs20Package.PARAMETER_TYPE__VALUE:
+                return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
         }
         return super.eIsSet(featureID);
     }
@@ -235,10 +216,10 @@ public class ParameterTypeImpl extends EObjectImpl implements ParameterType {
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (mixed: ");
-        result.append(mixed);
-        result.append(", name: ");
+        result.append(" (name: ");
         result.append(name);
+        result.append(", value: ");
+        result.append(value);
         result.append(')');
         return result.toString();
     }

@@ -3231,31 +3231,22 @@ public interface Wfs20Package extends EPackage {
     int PARAMETER_TYPE = 40;
 
     /**
-     * The feature id for the '<em><b>Mixed</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int PARAMETER_TYPE__MIXED = 0;
-
-    /**
-     * The feature id for the '<em><b>Any</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int PARAMETER_TYPE__ANY = 1;
-
-    /**
      * The feature id for the '<em><b>Name</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int PARAMETER_TYPE__NAME = 2;
+    int PARAMETER_TYPE__NAME = 0;
+
+    /**
+     * The feature id for the '<em><b>Value</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int PARAMETER_TYPE__VALUE = 1;
 
     /**
      * The number of structural features of the '<em>Parameter Type</em>' class.
@@ -3264,7 +3255,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int PARAMETER_TYPE_FEATURE_COUNT = 3;
+    int PARAMETER_TYPE_FEATURE_COUNT = 2;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.PropertyNameTypeImpl <em>Property Name Type</em>}' class.
@@ -3378,40 +3369,13 @@ public interface Wfs20Package extends EPackage {
     int QUERY_EXPRESSION_TEXT_TYPE = 43;
 
     /**
-     * The feature id for the '<em><b>Mixed</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_EXPRESSION_TEXT_TYPE__MIXED = 0;
-
-    /**
-     * The feature id for the '<em><b>Any</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_EXPRESSION_TEXT_TYPE__ANY = 1;
-
-    /**
-     * The feature id for the '<em><b>Any1</b></em>' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int QUERY_EXPRESSION_TEXT_TYPE__ANY1 = 2;
-
-    /**
      * The feature id for the '<em><b>Is Private</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE = 3;
+    int QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE = 0;
 
     /**
      * The feature id for the '<em><b>Language</b></em>' attribute.
@@ -3420,7 +3384,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int QUERY_EXPRESSION_TEXT_TYPE__LANGUAGE = 4;
+    int QUERY_EXPRESSION_TEXT_TYPE__LANGUAGE = 1;
 
     /**
      * The feature id for the '<em><b>Return Feature Types</b></em>' attribute.
@@ -3429,7 +3393,16 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES = 5;
+    int QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES = 2;
+
+    /**
+     * The feature id for the '<em><b>Value</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int QUERY_EXPRESSION_TEXT_TYPE__VALUE = 3;
 
     /**
      * The number of structural features of the '<em>Query Expression Text Type</em>' class.
@@ -3438,7 +3411,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int QUERY_EXPRESSION_TEXT_TYPE_FEATURE_COUNT = 6;
+    int QUERY_EXPRESSION_TEXT_TYPE_FEATURE_COUNT = 4;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.QueryTypeImpl <em>Query Type</em>}' class.
@@ -7098,28 +7071,6 @@ public interface Wfs20Package extends EPackage {
     EClass getParameterType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.ParameterType#getMixed <em>Mixed</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Mixed</em>'.
-     * @see net.opengis.wfs20.ParameterType#getMixed()
-     * @see #getParameterType()
-     * @generated
-     */
-    EAttribute getParameterType_Mixed();
-
-    /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.ParameterType#getAny <em>Any</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Any</em>'.
-     * @see net.opengis.wfs20.ParameterType#getAny()
-     * @see #getParameterType()
-     * @generated
-     */
-    EAttribute getParameterType_Any();
-
-    /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.ParameterType#getName <em>Name</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -7129,6 +7080,17 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EAttribute getParameterType_Name();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.ParameterType#getValue <em>Value</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Value</em>'.
+     * @see net.opengis.wfs20.ParameterType#getValue()
+     * @see #getParameterType()
+     * @generated
+     */
+    EAttribute getParameterType_Value();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.PropertyNameType <em>Property Name Type</em>}'.
@@ -7238,39 +7200,6 @@ public interface Wfs20Package extends EPackage {
     EClass getQueryExpressionTextType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.QueryExpressionTextType#getMixed <em>Mixed</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Mixed</em>'.
-     * @see net.opengis.wfs20.QueryExpressionTextType#getMixed()
-     * @see #getQueryExpressionTextType()
-     * @generated
-     */
-    EAttribute getQueryExpressionTextType_Mixed();
-
-    /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.QueryExpressionTextType#getAny <em>Any</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Any</em>'.
-     * @see net.opengis.wfs20.QueryExpressionTextType#getAny()
-     * @see #getQueryExpressionTextType()
-     * @generated
-     */
-    EAttribute getQueryExpressionTextType_Any();
-
-    /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.QueryExpressionTextType#getAny1 <em>Any1</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Any1</em>'.
-     * @see net.opengis.wfs20.QueryExpressionTextType#getAny1()
-     * @see #getQueryExpressionTextType()
-     * @generated
-     */
-    EAttribute getQueryExpressionTextType_Any1();
-
-    /**
      * Returns the meta object for the attribute '{@link net.opengis.wfs20.QueryExpressionTextType#isIsPrivate <em>Is Private</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -7302,6 +7231,17 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EAttribute getQueryExpressionTextType_ReturnFeatureTypes();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.QueryExpressionTextType#getValue <em>Value</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Value</em>'.
+     * @see net.opengis.wfs20.QueryExpressionTextType#getValue()
+     * @see #getQueryExpressionTextType()
+     * @generated
+     */
+    EAttribute getQueryExpressionTextType_Value();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.QueryType <em>Query Type</em>}'.
@@ -10349,28 +10289,20 @@ public interface Wfs20Package extends EPackage {
         EClass PARAMETER_TYPE = eINSTANCE.getParameterType();
 
         /**
-         * The meta object literal for the '<em><b>Mixed</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute PARAMETER_TYPE__MIXED = eINSTANCE.getParameterType_Mixed();
-
-        /**
-         * The meta object literal for the '<em><b>Any</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute PARAMETER_TYPE__ANY = eINSTANCE.getParameterType_Any();
-
-        /**
          * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
         EAttribute PARAMETER_TYPE__NAME = eINSTANCE.getParameterType_Name();
+
+        /**
+         * The meta object literal for the '<em><b>Value</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute PARAMETER_TYPE__VALUE = eINSTANCE.getParameterType_Value();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.PropertyNameTypeImpl <em>Property Name Type</em>}' class.
@@ -10459,30 +10391,6 @@ public interface Wfs20Package extends EPackage {
         EClass QUERY_EXPRESSION_TEXT_TYPE = eINSTANCE.getQueryExpressionTextType();
 
         /**
-         * The meta object literal for the '<em><b>Mixed</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute QUERY_EXPRESSION_TEXT_TYPE__MIXED = eINSTANCE.getQueryExpressionTextType_Mixed();
-
-        /**
-         * The meta object literal for the '<em><b>Any</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute QUERY_EXPRESSION_TEXT_TYPE__ANY = eINSTANCE.getQueryExpressionTextType_Any();
-
-        /**
-         * The meta object literal for the '<em><b>Any1</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute QUERY_EXPRESSION_TEXT_TYPE__ANY1 = eINSTANCE.getQueryExpressionTextType_Any1();
-
-        /**
          * The meta object literal for the '<em><b>Is Private</b></em>' attribute feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
@@ -10505,6 +10413,14 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EAttribute QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES = eINSTANCE.getQueryExpressionTextType_ReturnFeatureTypes();
+
+        /**
+         * The meta object literal for the '<em><b>Value</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute QUERY_EXPRESSION_TEXT_TYPE__VALUE = eINSTANCE.getQueryExpressionTextType_Value();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.QueryTypeImpl <em>Query Type</em>}' class.

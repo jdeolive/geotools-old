@@ -33,28 +33,16 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getMixed <em>Mixed</em>}</li>
- *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getAny <em>Any</em>}</li>
- *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getAny1 <em>Any1</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#isIsPrivate <em>Is Private</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getLanguage <em>Language</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getReturnFeatureTypes <em>Return Feature Types</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.QueryExpressionTextTypeImpl#getValue <em>Value</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExpressionTextType {
-    /**
-     * The cached value of the '{@link #getMixed() <em>Mixed</em>}' attribute list.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @see #getMixed()
-     * @generated
-     * @ordered
-     */
-    protected FeatureMap mixed;
-
     /**
      * The default value of the '{@link #isIsPrivate() <em>Is Private</em>}' attribute.
      * <!-- begin-user-doc -->
@@ -125,6 +113,26 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     protected List<QName> returnFeatureTypes = RETURN_FEATURE_TYPES_EDEFAULT;
 
     /**
+     * The default value of the '{@link #getValue() <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getValue()
+     * @generated
+     * @ordered
+     */
+    protected static final String VALUE_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getValue()
+     * @generated
+     * @ordered
+     */
+    protected String value = VALUE_EDEFAULT;
+
+    /**
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -141,36 +149,6 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     @Override
     protected EClass eStaticClass() {
         return Wfs20Package.Literals.QUERY_EXPRESSION_TEXT_TYPE;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public FeatureMap getMixed() {
-        if (mixed == null) {
-            mixed = new BasicFeatureMap(this, Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED);
-        }
-        return mixed;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public FeatureMap getAny() {
-        return (FeatureMap)getMixed().<FeatureMap.Entry>list(Wfs20Package.Literals.QUERY_EXPRESSION_TEXT_TYPE__ANY);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public FeatureMap getAny1() {
-        return (FeatureMap)getMixed().<FeatureMap.Entry>list(Wfs20Package.Literals.QUERY_EXPRESSION_TEXT_TYPE__ANY1);
     }
 
     /**
@@ -266,17 +244,20 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
      * <!-- end-user-doc -->
      * @generated
      */
-    @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED:
-                return ((InternalEList<?>)getMixed()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY:
-                return ((InternalEList<?>)getAny()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY1:
-                return ((InternalEList<?>)getAny1()).basicRemove(otherEnd, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setValue(String newValue) {
+        String oldValue = value;
+        value = newValue;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__VALUE, oldValue, value));
     }
 
     /**
@@ -287,21 +268,14 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED:
-                if (coreType) return getMixed();
-                return ((FeatureMap.Internal)getMixed()).getWrapper();
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY:
-                if (coreType) return getAny();
-                return ((FeatureMap.Internal)getAny()).getWrapper();
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY1:
-                if (coreType) return getAny1();
-                return ((FeatureMap.Internal)getAny1()).getWrapper();
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE:
                 return isIsPrivate();
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__LANGUAGE:
                 return getLanguage();
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES:
                 return getReturnFeatureTypes();
+            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__VALUE:
+                return getValue();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -315,15 +289,6 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED:
-                ((FeatureMap.Internal)getMixed()).set(newValue);
-                return;
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY:
-                ((FeatureMap.Internal)getAny()).set(newValue);
-                return;
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY1:
-                ((FeatureMap.Internal)getAny1()).set(newValue);
-                return;
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE:
                 setIsPrivate((Boolean)newValue);
                 return;
@@ -332,6 +297,9 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
                 return;
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES:
                 setReturnFeatureTypes((List<QName>)newValue);
+                return;
+            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__VALUE:
+                setValue((String)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -345,15 +313,6 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     @Override
     public void eUnset(int featureID) {
         switch (featureID) {
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED:
-                getMixed().clear();
-                return;
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY:
-                getAny().clear();
-                return;
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY1:
-                getAny1().clear();
-                return;
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE:
                 unsetIsPrivate();
                 return;
@@ -362,6 +321,9 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
                 return;
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES:
                 setReturnFeatureTypes(RETURN_FEATURE_TYPES_EDEFAULT);
+                return;
+            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__VALUE:
+                setValue(VALUE_EDEFAULT);
                 return;
         }
         super.eUnset(featureID);
@@ -375,18 +337,14 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
     @Override
     public boolean eIsSet(int featureID) {
         switch (featureID) {
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__MIXED:
-                return mixed != null && !mixed.isEmpty();
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY:
-                return !getAny().isEmpty();
-            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__ANY1:
-                return !getAny1().isEmpty();
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__IS_PRIVATE:
                 return isSetIsPrivate();
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__LANGUAGE:
                 return LANGUAGE_EDEFAULT == null ? language != null : !LANGUAGE_EDEFAULT.equals(language);
             case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__RETURN_FEATURE_TYPES:
                 return RETURN_FEATURE_TYPES_EDEFAULT == null ? returnFeatureTypes != null : !RETURN_FEATURE_TYPES_EDEFAULT.equals(returnFeatureTypes);
+            case Wfs20Package.QUERY_EXPRESSION_TEXT_TYPE__VALUE:
+                return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
         }
         return super.eIsSet(featureID);
     }
@@ -401,14 +359,14 @@ public class QueryExpressionTextTypeImpl extends EObjectImpl implements QueryExp
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (mixed: ");
-        result.append(mixed);
-        result.append(", isPrivate: ");
+        result.append(" (isPrivate: ");
         if (isPrivateESet) result.append(isPrivate); else result.append("<unset>");
         result.append(", language: ");
         result.append(language);
         result.append(", returnFeatureTypes: ");
         result.append(returnFeatureTypes);
+        result.append(", value: ");
+        result.append(value);
         result.append(')');
         return result.toString();
     }

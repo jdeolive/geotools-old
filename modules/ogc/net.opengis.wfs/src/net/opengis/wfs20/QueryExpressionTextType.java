@@ -22,12 +22,10 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getMixed <em>Mixed</em>}</li>
- *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getAny <em>Any</em>}</li>
- *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getAny1 <em>Any1</em>}</li>
  *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#isIsPrivate <em>Is Private</em>}</li>
  *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getLanguage <em>Language</em>}</li>
  *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getReturnFeatureTypes <em>Return Feature Types</em>}</li>
+ *   <li>{@link net.opengis.wfs20.QueryExpressionTextType#getValue <em>Value</em>}</li>
  * </ul>
  * </p>
  *
@@ -36,56 +34,6 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @generated
  */
 public interface QueryExpressionTextType extends EObject {
-    /**
-     * Returns the value of the '<em><b>Mixed</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Mixed</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Mixed</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getQueryExpressionTextType_Mixed()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true"
-     *        extendedMetaData="kind='elementWildcard' name=':mixed'"
-     * @generated
-     */
-    FeatureMap getMixed();
-
-    /**
-     * Returns the value of the '<em><b>Any</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Any</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Any</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getQueryExpressionTextType_Any()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true" transient="true" volatile="true" derived="true"
-     *        extendedMetaData="kind='elementWildcard' wildcards='##other' name=':1' processing='skip'"
-     * @generated
-     */
-    FeatureMap getAny();
-
-    /**
-     * Returns the value of the '<em><b>Any1</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Any1</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Any1</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getQueryExpressionTextType_Any1()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true" transient="true" volatile="true" derived="true"
-     *        extendedMetaData="kind='elementWildcard' wildcards='##targetNamespace' name=':2' processing='skip'"
-     * @generated
-     */
-    FeatureMap getAny1();
 
     /**
      * Returns the value of the '<em><b>Is Private</b></em>' attribute.
@@ -195,5 +143,21 @@ public interface QueryExpressionTextType extends EObject {
      * @generated
      */
     void setReturnFeatureTypes(List<QName> value);
+    
+    /**
+     * The query expression text content.
+     * @model
+     */
+    String getValue();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.QueryExpressionTextType#getValue <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Value</em>' attribute.
+     * @see #getValue()
+     * @generated
+     */
+    void setValue(String value);
 
 } // QueryExpressionTextType

@@ -18,9 +18,8 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link net.opengis.wfs20.ParameterType#getMixed <em>Mixed</em>}</li>
- *   <li>{@link net.opengis.wfs20.ParameterType#getAny <em>Any</em>}</li>
  *   <li>{@link net.opengis.wfs20.ParameterType#getName <em>Name</em>}</li>
+ *   <li>{@link net.opengis.wfs20.ParameterType#getValue <em>Value</em>}</li>
  * </ul>
  * </p>
  *
@@ -29,40 +28,6 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @generated
  */
 public interface ParameterType extends EObject {
-    /**
-     * Returns the value of the '<em><b>Mixed</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Mixed</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Mixed</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getParameterType_Mixed()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true"
-     *        extendedMetaData="kind='elementWildcard' name=':mixed'"
-     * @generated
-     */
-    FeatureMap getMixed();
-
-    /**
-     * Returns the value of the '<em><b>Any</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Any</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Any</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getParameterType_Any()
-     * @model dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="false" transient="true" volatile="true" derived="true"
-     *        extendedMetaData="kind='elementWildcard' wildcards='##other' name=':1' processing='lax'"
-     * @generated
-     */
-    FeatureMap getAny();
-
     /**
      * Returns the value of the '<em><b>Name</b></em>' attribute.
      * <!-- begin-user-doc -->
@@ -89,5 +54,21 @@ public interface ParameterType extends EObject {
      * @generated
      */
     void setName(String value);
+    
+    /**
+     * The parameter value.
+     * @model
+     */
+    String getValue();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.ParameterType#getValue <em>Value</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Value</em>' attribute.
+     * @see #getValue()
+     * @generated
+     */
+    void setValue(String value);
 
 } // ParameterType
