@@ -8,8 +8,10 @@ import javax.xml.namespace.QName;
 import net.opengis.wfs20.AllSomeType;
 import net.opengis.wfs20.GetFeatureType;
 import net.opengis.wfs20.GetFeatureWithLockType;
+import net.opengis.wfs20.ParameterType;
 import net.opengis.wfs20.QueryType;
 import net.opengis.wfs20.ResultTypeType;
+import net.opengis.wfs20.StoredQueryType;
 
 import org.geotools.wfs.v2_0.WFSTestSupport;
 import org.opengis.filter.Id;
@@ -199,7 +201,7 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         assertEquals(2, q.getSortBy().size());
     }
     
-    public void testGetFeatureWithLock() throws Exception {
+    public void testParseGetFeatureWithLock() throws Exception {
         String xml = 
             "<wfs:GetFeatureWithLock " + 
             "   service='WFS' expiry='124' lockAction='all'" + 
@@ -239,5 +241,44 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         
         assertEquals(1, f.getIdentifiers().size());
         assertEquals("InWaterA_1M.1234", f.getIdentifiers().iterator().next().getID());
+    }
+    
+    public void testParseStoredQuery() throws Exception {
+        String xml = 
+        "<wfs:GetFeature " + 
+        "   xmlns:wfs='http://www.opengis.net/wfs/2.0' " + 
+        "   xmlns:fes='http://www.opengis.org/fes/2.0' " + 
+        "   xmlns:gml='http://www.opengis.net/gml/3.2' " + 
+        "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " + 
+        "   xsi:schemaLocation='http://www.opengis.net/wfs/2.0 ../../wfs.xsd' " + 
+        "   resolve='all' " + 
+        "   resolveDepth='2' " + 
+        "   service='WFS' " + 
+        "   version='2.0.0'> " + 
+        "   <wfs:StoredQuery id='urn:CubeWerx:StoredQueries:FeaturesInPolygon'> " + 
+        "      <wfs:Parameter name='AreaOfInterest'> " + 
+        "        <gml:Polygon gml:id='P1'> " + 
+        "          <gml:exterior> " + 
+        "            <gml:LinearRing> " + 
+        "              <gml:posList>10 10 10 20 20 20 20 10 10 10</gml:posList> " + 
+        "            </gml:LinearRing> " + 
+        "          </gml:exterior> " + 
+        "        </gml:Polygon> " + 
+        "      </wfs:Parameter> " + 
+        "   </wfs:StoredQuery>" +
+        " </wfs:GetFeature>"; 
+        buildDocument(xml);
+        
+        GetFeatureType gf = (GetFeatureType) parse();
+        assertNotNull(gf);
+        
+        assertEquals(1, gf.getAbstractQueryExpression().size());
+        
+        StoredQueryType sq = (StoredQueryType) gf.getAbstractQueryExpression().get(0);
+        assertEquals(1, sq.getParameter().size());
+        ParameterType p = sq.getParameter().get(0);
+        assertEquals("AreaOfInterest", p.getName());
+        assertNotNull(p.getValue());
+        assertTrue(p.getValue().contains("gml:Polygon"));
     }
 }
