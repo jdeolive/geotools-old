@@ -35,7 +35,7 @@ public class StoredQueryDescriptionTypeBindingTest extends WFSTestSupport {
     public void testParse() throws Exception {
         String xml = 
         "   <wfs:StoredQueryDefinition id='myStoredQuery' xmlns:wfs='http://www.opengis.net/wfs/2.0' " +
-        "       xmlns:fes='http://www.opengis.net/fes/2.0'>" + 
+        "       xmlns:fes='http://www.opengis.net/fes/2.0' xmlns:gml='http://www.opengis.net/gml/3.2'>" + 
         "      <wfs:Parameter name='AreaOfInterest' type='gml:Polygon'/> " + 
         "      <wfs:QueryExpressionText " + 
         "           returnFeatureTypes='sf:PrimitiveGeoFeature' " + 
@@ -57,6 +57,11 @@ public class StoredQueryDescriptionTypeBindingTest extends WFSTestSupport {
         assertNotNull(sqd);
         
         assertEquals(1, sqd.getParameter().size());
+        
+        ParameterExpressionType p = sqd.getParameter().get(0);
+        assertEquals("AreaOfInterest", p.getName());
+        assertEquals(GML.Polygon, p.getType());
+        
         assertEquals(1, sqd.getQueryExpressionText().size());
     }
 

@@ -17,6 +17,7 @@
 package org.geotools.wfs.v2_0.bindings;
 
 import java.io.ByteArrayInputStream;
+import java.util.Enumeration;
 
 import net.opengis.wfs20.QueryExpressionTextType;
 import net.opengis.wfs20.Wfs20Factory;
@@ -25,7 +26,9 @@ import org.geotools.wfs.v2_0.WFS;
 import org.geotools.xml.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.helpers.NamespaceSupport;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -58,8 +61,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class QueryExpressionTextTypeBinding extends AbstractComplexEMFBinding {
 
-    public QueryExpressionTextTypeBinding(Wfs20Factory factory) {
+    NamespaceSupport namespaceContext;
+    
+    public QueryExpressionTextTypeBinding(Wfs20Factory factory, NamespaceSupport namespaceContext) {
         super(factory, QueryExpressionTextType.class);
+        this.namespaceContext = namespaceContext;
     }
     /**
      * @generated
@@ -87,6 +93,17 @@ public class QueryExpressionTextTypeBinding extends AbstractComplexEMFBinding {
         DocumentBuilder db = dbf.newDocumentBuilder();
         
         Document d = db.parse(new ByteArrayInputStream(qe.getValue().getBytes()));
+        
+        //register all the namespaces from this context with the root element of the parsed
+        // content
+        for (Enumeration en = namespaceContext.getPrefixes(); en.hasMoreElements(); ) {
+            String prefix = (String) en.nextElement();
+            if (prefix == null) {
+                continue;
+            }
+            String uri = namespaceContext.getURI(prefix);
+            d.getDocumentElement().setAttribute("xmlns:" + prefix, uri);
+        }
         e.appendChild(document.importNode(d.getDocumentElement(), true));
         return e;
     }

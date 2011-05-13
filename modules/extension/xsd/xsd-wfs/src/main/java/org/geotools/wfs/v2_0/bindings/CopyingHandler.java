@@ -16,19 +16,34 @@
  */
 package org.geotools.wfs.v2_0.bindings;
 
+import java.util.Enumeration;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.NamespaceSupport;
 
 public class CopyingHandler extends DefaultHandler {
 
     protected StringBuffer buffer;
+    protected NamespaceSupport namespaceContext;
+
+    public CopyingHandler() {
+        this(null);
+    }
+    
+    public CopyingHandler(NamespaceSupport namespaceContext) {
+        this.namespaceContext = namespaceContext;
+    }
     
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
+        
+        boolean root = false;
         if (buffer == null) {
             buffer = new StringBuffer();
+            root = true;
         }
         
         buffer.append("<").append(qName);
@@ -36,6 +51,20 @@ public class CopyingHandler extends DefaultHandler {
             for (int i = 0; i < attributes.getLength(); i++) {
                 buffer.append(" ").append(attributes.getQName(i)).append("=\"")
                     .append(attributes.getValue(i)).append("\"");
+            }
+        }
+        
+        if (root && namespaceContext != null) {
+            //dump out namespace context
+            for (Enumeration e = namespaceContext.getPrefixes(); e.hasMoreElements(); ) {
+                String prefix = (String) e.nextElement();
+                if ("".equals(prefix)) {
+                    buffer.append(" xmlns");    
+                }
+                else {
+                    buffer.append(" xmlns:").append(prefix);
+                }
+                buffer.append("='").append(namespaceContext.getURI(prefix)).append("'");
             }
         }
         buffer.append(">");

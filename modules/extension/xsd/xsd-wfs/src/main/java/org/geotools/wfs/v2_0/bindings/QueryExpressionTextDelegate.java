@@ -18,7 +18,6 @@ package org.geotools.wfs.v2_0.bindings;
 
 import java.util.ArrayList;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import net.opengis.wfs20.QueryExpressionTextType;
@@ -28,16 +27,16 @@ import org.geotools.wfs.v2_0.WFS;
 import org.geotools.xml.ParserDelegate;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.NamespaceSupport;
 
 public class QueryExpressionTextDelegate extends CopyingHandler implements ParserDelegate {
 
     static QName QueryExpressionText = new QName(WFS.NAMESPACE, "QueryExpressionText");
     
-    NamespaceContext namespaceContext;
     QueryExpressionTextType result;
 
-    public QueryExpressionTextDelegate(NamespaceContext context) {
-        this.namespaceContext = context;
+    public QueryExpressionTextDelegate(NamespaceSupport context) {
+        super(context);
     }
     
     @Override
@@ -62,7 +61,7 @@ public class QueryExpressionTextDelegate extends CopyingHandler implements Parse
                 }
                 else {
                     String prefix = split[0];
-                    typeName = new QName(namespaceContext.getNamespaceURI(prefix), split[1], prefix);
+                    typeName = new QName(namespaceContext.getURI(prefix), split[1], prefix);
                 }
                 result.getReturnFeatureTypes().add(typeName);
             }
