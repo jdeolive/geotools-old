@@ -944,7 +944,7 @@ public interface Wfs20Package extends EPackage {
     int DESCRIBE_STORED_QUERIES_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
-     * The feature id for the '<em><b>Stored Query Id</b></em>' attribute.
+     * The feature id for the '<em><b>Stored Query Id</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -5163,10 +5163,10 @@ public interface Wfs20Package extends EPackage {
     EClass getDescribeStoredQueriesType();
 
     /**
-     * Returns the meta object for the attribute '{@link net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId <em>Stored Query Id</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId <em>Stored Query Id</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute '<em>Stored Query Id</em>'.
+     * @return the meta object for the attribute list '<em>Stored Query Id</em>'.
      * @see net.opengis.wfs20.DescribeStoredQueriesType#getStoredQueryId()
      * @see #getDescribeStoredQueriesType()
      * @generated
@@ -8825,7 +8825,7 @@ public interface Wfs20Package extends EPackage {
         EClass DESCRIBE_STORED_QUERIES_TYPE = eINSTANCE.getDescribeStoredQueriesType();
 
         /**
-         * The meta object literal for the '<em><b>Stored Query Id</b></em>' attribute feature.
+         * The meta object literal for the '<em><b>Stored Query Id</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated

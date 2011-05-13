@@ -6,6 +6,7 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.net.URI;
 import java.util.Collection;
 
 import net.opengis.wfs20.DescribeStoredQueriesType;
@@ -15,6 +16,7 @@ import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EClass;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
 import org.eclipse.emf.ecore.util.EDataTypeEList;
 
 /**
@@ -39,7 +41,7 @@ public class DescribeStoredQueriesTypeImpl extends BaseRequestTypeImpl implement
      * @generated
      * @ordered
      */
-    protected EList<String> storedQueryId;
+    protected EList<URI> storedQueryId;
 
     /**
      * <!-- begin-user-doc -->
@@ -65,9 +67,9 @@ public class DescribeStoredQueriesTypeImpl extends BaseRequestTypeImpl implement
      * <!-- end-user-doc -->
      * @generated
      */
-    public EList<String> getStoredQueryId() {
+    public EList<URI> getStoredQueryId() {
         if (storedQueryId == null) {
-            storedQueryId = new EDataTypeEList<String>(String.class, this, Wfs20Package.DESCRIBE_STORED_QUERIES_TYPE__STORED_QUERY_ID);
+            storedQueryId = new EDataTypeUniqueEList<URI>(URI.class, this, Wfs20Package.DESCRIBE_STORED_QUERIES_TYPE__STORED_QUERY_ID);
         }
         return storedQueryId;
     }
@@ -97,7 +99,7 @@ public class DescribeStoredQueriesTypeImpl extends BaseRequestTypeImpl implement
         switch (featureID) {
             case Wfs20Package.DESCRIBE_STORED_QUERIES_TYPE__STORED_QUERY_ID:
                 getStoredQueryId().clear();
-                getStoredQueryId().addAll((Collection<? extends String>)newValue);
+                getStoredQueryId().addAll((Collection<? extends URI>)newValue);
                 return;
         }
         super.eSet(featureID, newValue);

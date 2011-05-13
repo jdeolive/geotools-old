@@ -6,6 +6,8 @@
  */
 package net.opengis.wfs20;
 
+import java.net.URI;
+
 import org.eclipse.emf.common.util.EList;
 
 /**
@@ -36,10 +38,8 @@ public interface DescribeStoredQueriesType extends BaseRequestType {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Stored Query Id</em>' attribute list.
      * @see net.opengis.wfs20.Wfs20Package#getDescribeStoredQueriesType_StoredQueryId()
-     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.AnyURI"
-     *        extendedMetaData="kind='element' name='StoredQueryId' namespace='##targetNamespace'"
-     * @generated
+     * @model 
      */
-    EList<String> getStoredQueryId();
+    EList<URI> getStoredQueryId();
 
 } // DescribeStoredQueriesType

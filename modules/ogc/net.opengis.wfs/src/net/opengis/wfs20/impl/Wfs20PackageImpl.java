@@ -4454,7 +4454,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEReference(getDescribeStoredQueriesResponseType_StoredQueryDescription(), this.getStoredQueryDescriptionType(), null, "storedQueryDescription", null, 0, -1, DescribeStoredQueriesResponseType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(describeStoredQueriesTypeEClass, DescribeStoredQueriesType.class, "DescribeStoredQueriesType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-        initEAttribute(getDescribeStoredQueriesType_StoredQueryId(), theXMLTypePackage.getAnyURI(), "storedQueryId", null, 0, 1, DescribeStoredQueriesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getDescribeStoredQueriesType_StoredQueryId(), this.getURI(), "storedQueryId", null, 0, -1, DescribeStoredQueriesType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(documentRootEClass, DocumentRoot.class, "DocumentRoot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getDocumentRoot_Mixed(), theEcorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -4862,7 +4862,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																																																																	
+           });																																																																																																																																																																																																																																																																																																																																
     }
 
     /**
@@ -5109,14 +5109,6 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
            new String[] {
              "name", "DescribeStoredQueriesType",
              "kind", "elementOnly"
-           });		
-        addAnnotation
-          (getDescribeStoredQueriesType_StoredQueryId(), 
-           source, 
-           new String[] {
-             "kind", "element",
-             "name", "StoredQueryId",
-             "namespace", "##targetNamespace"
            });		
         addAnnotation
           (documentRootEClass, 
