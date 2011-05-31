@@ -11,19 +11,31 @@ import org.geotools.filter.v1_1.OGC;
 import org.geotools.filter.v1_1.SortByTypeBinding;
 import org.geotools.filter.v1_1.SortOrderTypeBinding;
 import org.geotools.filter.v1_1.SortPropertyTypeBinding;
+import org.geotools.filter.v2_0.bindings.AfterBinding;
 import org.geotools.filter.v2_0.bindings.AndBinding;
+import org.geotools.filter.v2_0.bindings.AnyInteractsBinding;
 import org.geotools.filter.v2_0.bindings.BBOXTypeBinding;
+import org.geotools.filter.v2_0.bindings.BeforeBinding;
+import org.geotools.filter.v2_0.bindings.BeginsBinding;
+import org.geotools.filter.v2_0.bindings.BegunByBinding;
 import org.geotools.filter.v2_0.bindings.BeyondBinding;
+import org.geotools.filter.v2_0.bindings.BinaryTemporalOpTypeBinding;
 import org.geotools.filter.v2_0.bindings.ContainsBinding;
 import org.geotools.filter.v2_0.bindings.CrossesBinding;
 import org.geotools.filter.v2_0.bindings.DWithinBinding;
 import org.geotools.filter.v2_0.bindings.DisjointBinding;
+import org.geotools.filter.v2_0.bindings.DuringBinding;
+import org.geotools.filter.v2_0.bindings.EndedByBinding;
+import org.geotools.filter.v2_0.bindings.EndsBinding;
 import org.geotools.filter.v2_0.bindings.EqualsBinding;
 import org.geotools.filter.v2_0.bindings.FilterTypeBinding;
 import org.geotools.filter.v2_0.bindings.IntersectsBinding;
 import org.geotools.filter.v2_0.bindings.LiteralBinding;
+import org.geotools.filter.v2_0.bindings.MeetsBinding;
+import org.geotools.filter.v2_0.bindings.MetByBinding;
 import org.geotools.filter.v2_0.bindings.NotBinding;
 import org.geotools.filter.v2_0.bindings.OrBinding;
+import org.geotools.filter.v2_0.bindings.OverlappedByBinding;
 import org.geotools.filter.v2_0.bindings.OverlapsBinding;
 import org.geotools.filter.v2_0.bindings.PropertyIsBetweenTypeBinding;
 import org.geotools.filter.v2_0.bindings.PropertyIsEqualToBinding;
@@ -35,6 +47,9 @@ import org.geotools.filter.v2_0.bindings.PropertyIsLikeTypeBinding;
 import org.geotools.filter.v2_0.bindings.PropertyIsNotEqualToBinding;
 import org.geotools.filter.v2_0.bindings.PropertyIsNullTypeBinding;
 import org.geotools.filter.v2_0.bindings.ResourceIdTypeBinding;
+import org.geotools.filter.v2_0.bindings.TContainsBinding;
+import org.geotools.filter.v2_0.bindings.TEqualsBinding;
+import org.geotools.filter.v2_0.bindings.TOverlapsBinding;
 import org.geotools.filter.v2_0.bindings.TouchesBinding;
 import org.geotools.filter.v2_0.bindings.ValueReferenceBinding;
 import org.geotools.filter.v2_0.bindings.WithinBinding;
@@ -42,6 +57,12 @@ import org.geotools.gml3.v3_2.GMLConfiguration;
 import org.geotools.ows.v1_1.OWSConfiguration;
 import org.geotools.xml.Configuration;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.temporal.BegunBy;
+import org.opengis.filter.temporal.EndedBy;
+import org.opengis.filter.temporal.Ends;
+import org.opengis.filter.temporal.OverlappedBy;
+import org.opengis.filter.temporal.TContains;
+import org.opengis.filter.temporal.TOverlaps;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -87,7 +108,7 @@ public class FESConfiguration extends Configuration {
 //        container.registerComponentImplementation(FES.BinaryComparisonOpType,BinaryComparisonOpTypeBinding.class);
 //        container.registerComponentImplementation(FES.BinaryLogicOpType,BinaryLogicOpTypeBinding.class);
 //        container.registerComponentImplementation(FES.BinarySpatialOpType,BinarySpatialOpTypeBinding.class);
-//        container.registerComponentImplementation(FES.BinaryTemporalOpType,BinaryTemporalOpTypeBinding.class);
+        container.registerComponentImplementation(FES.BinaryTemporalOpType,BinaryTemporalOpTypeBinding.class);
 //        container.registerComponentImplementation(FES.ComparisonOperatorNameType,ComparisonOperatorNameTypeBinding.class);
 //        container.registerComponentImplementation(FES.ComparisonOperatorsType,ComparisonOperatorsTypeBinding.class);
 //        container.registerComponentImplementation(FES.ComparisonOperatorType,ComparisonOperatorTypeBinding.class);
@@ -147,6 +168,22 @@ public class FESConfiguration extends Configuration {
         container.registerComponentImplementation(FES.Touches, TouchesBinding.class);
         container.registerComponentImplementation(FES.Within, WithinBinding.class);
         
+        //temporal
+        container.registerComponentImplementation(FES.After, AfterBinding.class);
+        container.registerComponentImplementation(FES.AnyInteracts, AnyInteractsBinding.class);
+        container.registerComponentImplementation(FES.Before, BeforeBinding.class);
+        container.registerComponentImplementation(FES.Begins, BeginsBinding.class);
+        container.registerComponentImplementation(FES.BegunBy, BegunByBinding.class);
+        container.registerComponentImplementation(FES.During, DuringBinding.class);
+        container.registerComponentImplementation(FES.EndedBy, EndedByBinding.class);
+        container.registerComponentImplementation(FES.Ends, EndsBinding.class);
+        container.registerComponentImplementation(FES.Meets, MeetsBinding.class);
+        container.registerComponentImplementation(FES.MetBy, MetByBinding.class);
+        container.registerComponentImplementation(FES.OverlappedBy, OverlappedByBinding.class);
+        container.registerComponentImplementation(FES.TContains, TContainsBinding.class);
+        container.registerComponentImplementation(FES.TEquals, TEqualsBinding.class);
+        container.registerComponentImplementation(FES.TOverlaps, TOverlapsBinding.class);
+
         //comparison
         container.registerComponentImplementation(FES.PropertyIsEqualTo, PropertyIsEqualToBinding.class);
         container.registerComponentImplementation(FES.PropertyIsGreaterThan, PropertyIsGreaterThanBinding.class);
