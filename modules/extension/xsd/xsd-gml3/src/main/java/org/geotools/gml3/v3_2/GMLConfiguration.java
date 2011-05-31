@@ -58,6 +58,11 @@ import org.geotools.gml3.bindings.SurfaceArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePatchArrayPropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfacePropertyTypeBinding;
 import org.geotools.gml3.bindings.SurfaceTypeBinding;
+import org.geotools.gml3.bindings.TimeInstantPropertyTypeBinding;
+import org.geotools.gml3.bindings.TimeInstantTypeBinding;
+import org.geotools.gml3.bindings.TimePeriodTypeBinding;
+import org.geotools.gml3.bindings.TimePositionTypeBinding;
+import org.geotools.gml3.bindings.TimePositionUnionBinding;
 import org.geotools.gml3.v3_2.bindings.AbstractRingTypeBinding;
 import org.geotools.gml3.v3_2.bindings.DoubleListBinding;
 import org.geotools.gml3.v3_2.bindings.EnvelopeTypeBinding;
@@ -190,6 +195,12 @@ public class GMLConfiguration extends Configuration {
             SurfacePropertyTypeBinding.class);
         container.registerComponentImplementation(XS.ANYTYPE, ComplexSupportXSAnyTypeBinding.class);
        
+        container.registerComponentImplementation(GML.TimeInstantType, TimeInstantTypeBinding.class);
+        container.registerComponentImplementation(GML.TimeInstantPropertyType, TimeInstantPropertyTypeBinding.class);
+        container.registerComponentImplementation(GML.TimePeriodType, TimePeriodTypeBinding.class);
+        container.registerComponentImplementation(GML.TimePositionType, TimePositionTypeBinding.class);
+        container.registerComponentImplementation(GML.TimePositionUnion, TimePositionUnionBinding.class);
+        
         //extended bindings for arc/surface support
         if (isExtendedArcSurfaceSupport()) {
             container.registerComponentImplementation(GML.ArcType,
