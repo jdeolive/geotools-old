@@ -41,6 +41,7 @@ public class AnyInteractsBindingTest extends FESTestSupport {
         assertEquals("timeInstanceAttribute", ((PropertyName)anyInteracts.getExpression1()).getPropertyName());
 
         assertTrue(anyInteracts.getExpression2() instanceof Literal);
+        System.out.println(anyInteracts.getExpression2().evaluate(null));
         assertTrue(anyInteracts.getExpression2().evaluate(null) instanceof Period);
     }
 }
