@@ -193,7 +193,10 @@ public class Query {
     
     /** The hints to be used during query execution */
     protected Hints hints;
-    
+
+    /** join clauses for this query */
+    protected List<Join> joins = new ArrayList();
+
     /**
      * Default constructor. Use setter methods to configure the Query
      * before use (the default Query will retrieve all features).
@@ -902,5 +905,9 @@ public class Query {
         }
         
         return returnString.toString();
+    }
+
+    public List<Join> getJoins() {
+        return joins;
     }
 }
