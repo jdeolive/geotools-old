@@ -36,6 +36,7 @@ import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.function.FilterFunction_strConcat;
 import org.geotools.filter.function.FilterFunction_strEndsWith;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.JoinPropertyName;
 import org.geotools.jdbc.PrimaryKey;
 import org.geotools.util.ConverterFactory;
 import org.geotools.util.Converters;
@@ -187,7 +188,10 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     
     /** the srid corresponding to the current binary spatial filter being encoded */
     protected Integer currentSRID;
-     
+
+    /** inline flag, controlling whether "WHERE" will prefix the SQL encoded filter */
+    protected boolean inline = false;
+
     /**
      * Default constructor
      */
@@ -205,7 +209,11 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     public void setWriter(Writer out) {
         this.out = out;
     }
-    
+
+    public void setInline(boolean inline) {
+        this.inline = inline;
+    }
+
     /**
      * Performs the encoding, sends the encoded sql to the writer passed in.
      *
@@ -219,7 +227,10 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         if (getCapabilities().fullySupports(filter)) {
 
             try {
-                out.write("WHERE ");
+                if (!inline) {
+                    out.write("WHERE ");
+                }
+
                 filter.accept(this, null);
 
                 //out.write(";");
@@ -853,51 +864,68 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
                             + "can't do SDO relate against it: "
                             + filter.getClass());
 
+        
         // extract the property name and the geometry literal
-        PropertyName property;
-        Literal geometry;
         BinaryComparisonOperator op = (BinaryComparisonOperator) filter;
-        if (op.getExpression1() instanceof PropertyName
-                && op.getExpression2() instanceof Literal) {
-            property = (PropertyName) op.getExpression1();
-            geometry = (Literal) op.getExpression2();
-        } else if (op.getExpression2() instanceof PropertyName
-                && op.getExpression1() instanceof Literal) {
-            property = (PropertyName) op.getExpression2();
-            geometry = (Literal) op.getExpression1();
-        } else {
-            throw new IllegalArgumentException(
-                    "Can only encode spatial filters that do "
-                            + "compare a property name and a geometry");
+        Expression e1 = op.getExpression1();
+        Expression e2 = op.getExpression2();
+
+        if (e1 instanceof Literal && e2 instanceof PropertyName) {
+            e1 = (PropertyName) op.getExpression2();
+            e2 = (Literal) op.getExpression1();
         }
 
-        // handle native srid
-        currentGeometry = null;
-        currentSRID = null;
-        if (featureType != null) {
-            // going thru evaluate ensures we get the proper result even if the
-            // name has
-            // not been specified (convention -> the default geometry)
-            AttributeDescriptor descriptor = (AttributeDescriptor) property
-                    .evaluate(featureType);
-            if (descriptor instanceof GeometryDescriptor) {
-                currentGeometry = (GeometryDescriptor) descriptor;
-                currentSRID = (Integer) descriptor.getUserData().get(
-                        JDBCDataStore.JDBC_NATIVE_SRID);
+        if (e1 instanceof PropertyName) {
+            // handle native srid
+            currentGeometry = null;
+            currentSRID = null;
+            if (featureType != null) {
+                // going thru evaluate ensures we get the proper result even if the
+                // name has
+                // not been specified (convention -> the default geometry)
+                AttributeDescriptor descriptor = (AttributeDescriptor) e1.evaluate(featureType);
+                if (descriptor instanceof GeometryDescriptor) {
+                    currentGeometry = (GeometryDescriptor) descriptor;
+                    currentSRID = (Integer) descriptor.getUserData().get(
+                            JDBCDataStore.JDBC_NATIVE_SRID);
+                }
             }
         }
 
-        return visitBinarySpatialOperator(filter, property, geometry, filter
-                .getExpression1() instanceof Literal, extraData);
+        if (e1 instanceof PropertyName && e2 instanceof Literal) {
+            //call the "regular" method
+            return visitBinarySpatialOperator(filter, (PropertyName)e1, (Literal)e2, filter
+                    .getExpression1() instanceof Literal, extraData);
+        }
+        else {
+            //call the join version
+            return visitBinarySpatialOperator(filter, e1, e2, extraData);
+        }
+        
     }
 
+    /**
+     * Handles the common case of a PropertyName,Literal geometry binary spatial operator.
+     */
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
             PropertyName property, Literal geometry, boolean swapped,
             Object extraData) {
         throw new RuntimeException(
             "Subclasses must implement this method in order to handle geometries");
     }
-    
+
+    /**
+     * Handles the more general case of two generic expressions.
+     * <p>
+     * The most common case is two PropertyName expressions, which happens during a spatial join.
+     * </p>
+     */
+    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, 
+        Expression e2, Object extraData) {
+        throw new RuntimeException(
+            "Subclasses must implement this method in order to handle geometries");
+    }
+
     /**
      * Encodes a null filter value.  The current implementation
      * does exactly nothing.
@@ -927,7 +955,17 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         if(extraData instanceof Class) {
             target = (Class) extraData;
         }
+
         try {
+            SimpleFeatureType featureType = this.featureType;
+
+            //check for join
+            if (expression instanceof JoinPropertyName) {
+                //encode the prefix
+                out.write(escapeName(((JoinPropertyName)expression).getAlias()));
+                out.write(".");
+            }
+
             //first evaluate expression against feautre type get the attribute, 
             //  this handles xpath
             AttributeDescriptor attribute = null;
@@ -1320,7 +1358,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             return s;
         }
     }
-        
+
     /**
      * Current field encoder
      */

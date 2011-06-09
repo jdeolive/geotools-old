@@ -293,7 +293,7 @@ public class H2Dialect extends SQLDialect {
         //try grabbing directly from a geometry
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT ST_SRID(");
-        encodeColumnName(columnName, sql);
+        encodeColumnName(null, columnName, sql);
         sql.append(") ");
         sql.append("FROM ");
 
@@ -304,7 +304,7 @@ public class H2Dialect extends SQLDialect {
 
         encodeSchemaName(tableName, sql);
         sql.append(" WHERE ");
-        encodeColumnName(columnName, sql);
+        encodeColumnName(null, columnName, sql);
         sql.append(" is not null LIMIT 1");
 
         dataStore.getLogger().fine(sql.toString());
@@ -331,7 +331,7 @@ public class H2Dialect extends SQLDialect {
     public void encodeGeometryEnvelope(String tableName, String geometryColumn, StringBuffer sql) {
         //TODO: change spatialdbbox to use envelope
         sql.append("ST_Envelope(");
-        encodeColumnName(geometryColumn, sql);
+        encodeColumnName(null, geometryColumn, sql);
         sql.append(")");
     }
 
@@ -372,7 +372,7 @@ public class H2Dialect extends SQLDialect {
     }
 
     public void encodePrimaryKey(String column, StringBuffer sql) {
-        encodeColumnName(column, sql);
+        encodeColumnName(null, column, sql);
         sql.append(" int AUTO_INCREMENT(1) PRIMARY KEY");
     }
 
