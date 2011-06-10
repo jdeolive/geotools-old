@@ -544,6 +544,10 @@ public class AttributeTypeBuilder {
 	    return buildDescriptor( new NameImpl(name), type );
 	}
 	
+	public AttributeDescriptor buildDescriptor(Name name) {
+	    return buildDescriptor(name, buildType());
+	}
+	
 	public AttributeDescriptor buildDescriptor(Name name, AttributeType type ) {
 		
 	    //build the descriptor

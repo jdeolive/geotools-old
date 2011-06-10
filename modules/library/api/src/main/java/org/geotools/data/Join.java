@@ -35,6 +35,11 @@ public class Join {
      */
     Filter filter;
 
+    /**
+     * The alias to be used for the typeName in this join
+     */
+    String alias;
+
     public Join(String typeName, Filter join, Filter filter) {
         this(Type.INNER, typeName, Query.ALL_PROPERTIES, join, filter);
     }
@@ -69,12 +74,24 @@ public class Join {
         }
         return Collections.unmodifiableList(properties);
     }
-    
+
+    public String[] getPropertyNames() {
+        if (properties == Query.ALL_PROPERTIES) {
+            return Query.ALL_NAMES;
+        }
+        
+        String[] names = new String[properties.size()];
+        for (int i = 0; i < names.length; i++) {
+            names[i] = properties.get(i).getPropertyName();
+        }
+        return names;
+    }
+
     public void setJoin(Filter join) {
         this.join = join;
     }
 
-    public Filter getJoin() {
+    public Filter getJoinFilter() {
         return join;
     }
 
@@ -86,4 +103,11 @@ public class Join {
         return filter;
     }
 
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
 }

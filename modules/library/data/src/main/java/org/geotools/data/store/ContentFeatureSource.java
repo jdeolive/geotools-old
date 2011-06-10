@@ -880,7 +880,7 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
         // join the queries
         return DataUtilities.mixQueries(this.query, query, null);
     }
-    
+
     /**
      * This method changes the query object so that all propertyName references are resolved
      * to simple attribute names against the schema of the feature source.

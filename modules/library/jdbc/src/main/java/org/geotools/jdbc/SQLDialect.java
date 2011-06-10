@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.data.Join;
 import org.geotools.data.Query;
 import org.geotools.factory.Hints;
 import org.geotools.feature.visitor.CountVisitor;
@@ -442,6 +443,13 @@ public abstract class SQLDialect {
      * </p>
      */
     public void encodeColumnName(String raw, StringBuffer sql) {
+        encodeColumnName(null, raw, sql);
+    }
+
+    public void encodeColumnName(String prefix, String raw, StringBuffer sql) {
+        if (prefix != null) {
+            sql.append(ne()).append(prefix).append(ne()).append(".");
+        }
         sql.append(ne()).append(raw).append(ne());
     }
 
@@ -471,10 +479,14 @@ public abstract class SQLDialect {
      * </p>
      */
     public void encodeColumnAlias(String raw, StringBuffer sql) {
-        sql.append(" as ");
-        encodeColumnName(raw, sql);
+        encodeColumnAlias(null, raw, sql);
     }
     
+    public void encodeColumnAlias(String prefix, String raw, StringBuffer sql) {
+        sql.append(" as ");
+        encodeColumnName(prefix, raw, sql);
+    }
+
     /**
      * Encodes the alias of a table in an sql query.
      * <p>
@@ -650,6 +662,10 @@ public abstract class SQLDialect {
      */
     public void encodeGeometryColumn(GeometryDescriptor gatt, int srid, StringBuffer sql) {
         encodeColumnName(gatt.getLocalName(), sql);
+    }
+    
+    public void encodeGeometryColumn(GeometryDescriptor gatt, String prefix, int srid, StringBuffer sql) {
+        encodeColumnName(prefix, gatt.getLocalName(), sql);
     }
     
     /**

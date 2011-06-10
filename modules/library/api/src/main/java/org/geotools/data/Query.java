@@ -328,6 +328,7 @@ public class Query {
       this.version = query.getVersion();
       this.hints = query.getHints();
       this.startIndex = query.getStartIndex();
+      this.joins = query.getJoins();
     }
 
     /**

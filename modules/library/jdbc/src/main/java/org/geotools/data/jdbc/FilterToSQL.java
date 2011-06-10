@@ -187,7 +187,13 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     
     /** the srid corresponding to the current binary spatial filter being encoded */
     protected Integer currentSRID;
-     
+
+    /** flag controlling whether the visitor should look for prefixes in property names */
+    protected boolean prefixAware = false;
+    
+    /** inline flag, controlling whether "WHERE" will prefix the SQL encoded filter */
+    protected boolean inline = false;
+
     /**
      * Default constructor
      */
@@ -205,7 +211,15 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     public void setWriter(Writer out) {
         this.out = out;
     }
-    
+
+    public void setInline(boolean inline) {
+        this.inline = inline;
+    }
+
+    public void setPrefixAware(boolean prefixAware) {
+        this.prefixAware = prefixAware;
+    }
+
     /**
      * Performs the encoding, sends the encoded sql to the writer passed in.
      *
@@ -219,7 +233,12 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         if (getCapabilities().fullySupports(filter)) {
 
             try {
-                out.write("WHERE ");
+                if (!inline) {
+                    out.write("WHERE ");
+                }
+                if (prefixAware) {
+                    setFieldEncoder(new PrefixAwareFieldEncoder(sqlNameEscape));
+                }
                 filter.accept(this, null);
 
                 //out.write(";");
@@ -1320,7 +1339,33 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             return s;
         }
     }
+
+    /**
+     * Field encoder used for joins that prefixes a field/property name with a string.
+     */
+    private static class PrefixAwareFieldEncoder implements FieldEncoder {
+
+        String sqlNameEscape;
         
+        PrefixAwareFieldEncoder(String sqlNameEscape) {
+            this.sqlNameEscape = sqlNameEscape;
+        }
+        
+        public String encode(String s) {
+            String string = s;
+            if (!"".equals(sqlNameEscape)) {
+                String[] split = string.split(sqlNameEscape);
+                string = split[split.length/2];
+            }
+            String[] split = string.split("\\.");
+            if (split.length > 1) {
+                return sqlNameEscape + split[0] + sqlNameEscape + "." + sqlNameEscape + split[1] + sqlNameEscape;
+            }
+            
+            return s;
+        }
+    }
+
     /**
      * Current field encoder
      */

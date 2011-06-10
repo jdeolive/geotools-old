@@ -53,6 +53,7 @@ import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.GmlObjectStore;
 import org.geotools.data.InProcessLockingManager;
+import org.geotools.data.Join;
 import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.Transaction.State;
@@ -69,6 +70,7 @@ import org.geotools.data.store.ContentState;
 import org.geotools.factory.Hints;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.visitor.CountVisitor;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -79,6 +81,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
@@ -89,6 +92,8 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.GmlObjectId;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.opengis.filter.temporal.BinaryTemporalOperator;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -1634,10 +1639,14 @@ public final class JDBCDataStore extends ContentDataStore
         }
     }
 
+    protected String encodeFID(PrimaryKey pkey, ResultSet rs) throws SQLException, IOException {
+        return encodeFID(pkey, rs, 0);
+    }
+
     /**
      * Encodes a feature id from a primary key and result set values. 
      */
-    protected String encodeFID( PrimaryKey pkey, ResultSet rs ) throws SQLException, IOException {
+    protected String encodeFID( PrimaryKey pkey, ResultSet rs, int offset ) throws SQLException, IOException {
         // no pk columns
         if(pkey.getColumns().isEmpty()) {
             return SimpleFeatureBuilder.createDefaultFeatureId();
@@ -1650,12 +1659,12 @@ public final class JDBCDataStore extends ContentDataStore
         // more than one
         List<Object> keyValues = new ArrayList<Object>();
         for(int i = 0; i < pkey.getColumns().size(); i++) {
-            String o = rs.getString(i+1);
+            String o = rs.getString(offset+i+1);
             keyValues.add( o );
         }
         return encodeFID( keyValues );
     }
-    
+
     protected String encodeFID( List<Object> keyValues ) {
         StringBuffer fid = new StringBuffer();
         for ( Object o : keyValues ) {
@@ -2808,8 +2817,133 @@ public final class JDBCDataStore extends ContentDataStore
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT ");
 
-        //column names
+        List<SimpleFeatureType> joinedFeatureTypes = new ArrayList();
 
+        //column names
+        selectColumns(featureType, null, query, sql);
+        sql.setLength(sql.length() - 1);
+        dialect.encodePostSelect(featureType, sql);
+
+        //from
+        sql.append(" FROM ");
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
+
+        //filtering
+        Filter filter = query.getFilter();
+        if (filter != null && !Filter.INCLUDE.equals(filter)) {
+            sql.append(" WHERE ");
+            
+            //encode filter
+            filter(featureType, filter, null , sql);
+        }
+
+        //sorting
+        sort(featureType, query.getSortBy(), sql);
+        
+        // finally encode limit/offset, if necessary
+        applyLimitOffset(sql, query);
+
+        return sql.toString();
+    }
+
+    protected String selectJoinSQL(SimpleFeatureType featureType, List<SimpleFeatureType> joinFeatureTypes, 
+        List<Filter> joinFilters, List<Filter> otherFilters, Query query) throws IOException, SQLException {
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT ");
+
+        //column names
+        selectColumns(featureType, "a", query, sql);
+
+        //joined columns
+        for (int i = 0; i < query.getJoins().size(); i++) {
+            selectColumns(joinFeatureTypes.get(i), String.valueOf((char)('b'+i)), query, sql);
+        }
+
+        sql.setLength(sql.length() - 1);
+        dialect.encodePostSelect(featureType, sql);
+
+        //from
+        sql.append(" FROM ");
+        encodeTableName(featureType.getTypeName(), sql, query.getHints());
+        dialect.encodeTableAlias("a", sql);
+
+        //join clauses
+        for (int i = 0; i < query.getJoins().size(); i++) {
+            String alias = String.valueOf(((char)('b' + i)));
+
+            sql.append(" INNER JOIN ");
+            encodeTableName(joinFeatureTypes.get(i).getTypeName(), sql, null);
+            dialect.encodeTableAlias(alias, sql);
+            sql.append(" ON ");
+
+            Filter j = joinFilters.get(i);
+            if (j instanceof BinaryComparisonOperator) {
+                //standard join
+                j = (Filter) j.accept(new JoinPrefixingVisitor("a", alias), null);
+            }
+            else if (j instanceof BinarySpatialOperator) {
+                //spatial join
+                throw new UnsupportedOperationException();
+            }
+            else if (j instanceof BinaryTemporalOperator) {
+                //temporal join
+                throw new UnsupportedEncodingException();
+            }
+
+            FilterToSQL toSQL = createFilterToSQL(null);
+            toSQL.setPrefixAware(true);
+            toSQL.setInline(true);
+            try {
+                sql.append(" ").append(toSQL.encodeToString(j));
+            } 
+            catch (FilterToSQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        //filtering
+        boolean whereEncoded = false;
+        Filter filter = query.getFilter();
+        if (filter != null && !Filter.INCLUDE.equals(filter)) {
+            sql.append(" WHERE ");
+            whereEncoded = true;
+            
+            //encode filter
+            filter(featureType, filter, "a" , sql);
+        }
+
+        //filters for joined feature types
+        for (int i = 0; i < joinFeatureTypes.size(); i++) {
+            filter = otherFilters.get(i); 
+            if (filter != null && !Filter.INCLUDE.equals(filter)) continue;
+            
+            SimpleFeatureType joinFeatureType = joinFeatureTypes.get(i);
+            
+            if (!whereEncoded) {
+                sql.append(" WHERE ");
+                whereEncoded = true;
+            }
+            else {
+                sql.append(" AND ");
+            }
+            
+            filter(joinFeatureType, filter, String.valueOf((char)('b'+i)), sql);
+        }
+        
+        //sorting
+        //sort(featureType, query.getSortBy(), sql);
+        
+        // finally encode limit/offset, if necessary
+        //applyLimitOffset(sql, query);
+
+        return sql.toString();
+    }
+
+
+    void selectColumns(SimpleFeatureType featureType, String prefix, Query query, StringBuffer sql) 
+        throws IOException {
+        
         //primary key
         PrimaryKey key = null;
         try {
@@ -2821,7 +2955,7 @@ public final class JDBCDataStore extends ContentDataStore
         
         // we need to add the primary key columns only if they are not already exposed
         for ( PrimaryKeyColumn col : key.getColumns() ) {
-            dialect.encodeColumnName(col.getName(), sql);
+            dialect.encodeColumnName(prefix, col.getName(), sql);
             sql.append(",");
         }
         
@@ -2832,46 +2966,36 @@ public final class JDBCDataStore extends ContentDataStore
             if(pkColumnNames.contains(columnName))
                 continue;
             if (att instanceof GeometryDescriptor) {
+                int i = sql.length();
+                
                 //encode as geometry
-            	encodeGeometryColumn((GeometryDescriptor) att, sql, query.getHints());
-
+                encodeGeometryColumn((GeometryDescriptor) att, prefix, sql, query.getHints());
+                
                 //alias it to be the name of the original geometry
-                dialect.encodeColumnAlias(columnName, sql);
+                //dialect.encodeColumnAlias(prefix, columnName, sql);
             } else {
-                dialect.encodeColumnName(columnName, sql);
+                dialect.encodeColumnName(prefix, columnName, sql);
             }
 
             sql.append(",");
         }
+    }
 
-        sql.setLength(sql.length() - 1);
-        dialect.encodePostSelect(featureType, sql);
-        
-        sql.append(" FROM ");
-        encodeTableName(featureType.getTypeName(), sql, query.getHints());
-
-        //filtering
-        Filter filter = query.getFilter();
-        if (filter != null && !Filter.INCLUDE.equals(filter)) {
-            //encode filter
-            try {
-                // grab the full feature type, as we might be encoding a filter
-                // that uses attributes that aren't returned in the results
-                SimpleFeatureType fullSchema = getSchema(featureType.getTypeName());
-                FilterToSQL toSQL = createFilterToSQL(fullSchema);
-                sql.append(" ").append(toSQL.encodeToString(filter));
-            } catch (FilterToSQLException e) {
-                throw new RuntimeException(e);
+    void filter(SimpleFeatureType featureType, Filter filter, String prefix, StringBuffer sql) throws IOException {
+        try {
+            // grab the full feature type, as we might be encoding a filter
+            // that uses attributes that aren't returned in the results
+            SimpleFeatureType fullSchema = getSchema(featureType.getTypeName());
+            FilterToSQL toSQL = createFilterToSQL(fullSchema);
+            toSQL.setInline(true);
+            if (prefix != null) {
+                filter = (Filter) filter.accept(new JoinPrefixingVisitor(prefix), null);
+                toSQL.setPrefixAware(true);
             }
+            sql.append(" ").append(toSQL.encodeToString(filter));
+        } catch (FilterToSQLException e) {
+            throw new RuntimeException(e);
         }
-
-        //sorting
-        sort(featureType, query.getSortBy(), key, sql);
-        
-        // finally encode limit/offset, if necessary
-        applyLimitOffset(sql, query);
-
-        return sql.toString();
     }
 
     /**
@@ -2882,9 +3006,9 @@ public final class JDBCDataStore extends ContentDataStore
      * @param sql
      * @throws IOException
      */
-    void sort(SimpleFeatureType featureType, SortBy[] sort,
-            PrimaryKey key, StringBuffer sql) throws IOException {
+    void sort(SimpleFeatureType featureType, SortBy[] sort, StringBuffer sql) throws IOException {
         if ((sort != null) && (sort.length > 0)) {
+            PrimaryKey key = getPrimaryKey(featureType);
             sql.append(" ORDER BY ");
 
             for (int i = 0; i < sort.length; i++) {
@@ -2996,7 +3120,7 @@ public final class JDBCDataStore extends ContentDataStore
         }
 
         //sorting
-        sort(featureType, query.getSortBy(), key, sql);
+        sort(featureType, query.getSortBy(), sql);
         
         // finally encode limit/offset, if necessary
         applyLimitOffset(sql, query);
@@ -4170,6 +4294,9 @@ public final class JDBCDataStore extends ContentDataStore
      * @param hints , may be null 
      */
     protected void encodeGeometryColumn(GeometryDescriptor gatt, StringBuffer sql,Hints hints) {
+        encodeGeometryColumn(gatt, null, sql, hints);
+    }
+    protected void encodeGeometryColumn(GeometryDescriptor gatt, String prefix, StringBuffer sql,Hints hints) {
     	
     	int srid = getDescriptorSRID(gatt);
     	if (isGeneralizationRequired(hints, gatt)==true) {
@@ -4183,8 +4310,12 @@ public final class JDBCDataStore extends ContentDataStore
     		dialect.encodeGeometryColumnSimplified(gatt,srid, sql,distance);
     		return;    		
     	}
-    	   	    	
-    	dialect.encodeGeometryColumn(gatt,srid, sql);        
+        if (prefix == null) {
+            dialect.encodeGeometryColumn(gatt,srid, sql);
+        }
+        else {
+            dialect.encodeGeometryColumn(gatt,prefix,srid, sql);
+        }
     }
     
     /**
