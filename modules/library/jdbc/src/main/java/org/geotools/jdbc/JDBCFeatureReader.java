@@ -168,10 +168,12 @@ public class JDBCFeatureReader implements  FeatureReader<SimpleFeatureType, Simp
         rs = st.executeQuery();
     }
     
-    public JDBCFeatureReader(ResultSet rs, int offset, Connection cx, JDBCFeatureSource featureSource, SimpleFeatureType featureType, Hints hints) {
+    public JDBCFeatureReader(ResultSet rs, Connection cx, int offset, JDBCFeatureSource featureSource, 
+        SimpleFeatureType featureType, Hints hints) throws SQLException {
         init(featureSource, featureType, hints);
         
         this.cx = cx;
+        this.st = rs.getStatement();
         this.rs = rs;
         this.offset = offset;
     }

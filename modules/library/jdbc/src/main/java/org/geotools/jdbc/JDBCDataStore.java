@@ -269,6 +269,14 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected Map<String, VirtualTable> virtualTables = new ConcurrentHashMap<String, VirtualTable>();
 
+    public JDBCFeatureSource getAbsoluteFeatureSource(String typeName) throws IOException {
+        ContentFeatureSource featureSource = getFeatureSource(typeName);
+        if (featureSource instanceof JDBCFeatureSource) {
+            return (JDBCFeatureSource) featureSource;
+        }
+        return ((JDBCFeatureStore)featureSource).getFeatureSource();
+    }
+
     /**
      * Adds a virtual table to the data store. If a virtual table with the same name was registered this
      * method will replace it with the new one.
@@ -2878,13 +2886,9 @@ public final class JDBCDataStore extends ContentDataStore
             sql.append(" ON ");
 
             Filter j = joinFilters.get(i);
-            if (j instanceof BinaryComparisonOperator) {
+            if (j instanceof BinaryComparisonOperator || j instanceof BinarySpatialOperator) {
                 //standard join
                 j = (Filter) j.accept(new JoinPrefixingVisitor("a", alias), null);
-            }
-            else if (j instanceof BinarySpatialOperator) {
-                //spatial join
-                throw new UnsupportedOperationException();
             }
             else if (j instanceof BinaryTemporalOperator) {
                 //temporal join

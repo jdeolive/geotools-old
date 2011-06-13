@@ -4,6 +4,7 @@ import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.Intersects;
 
 
 public class JoinPrefixingVisitor extends DuplicatingFilterVisitor {
@@ -26,6 +27,11 @@ public class JoinPrefixingVisitor extends DuplicatingFilterVisitor {
             filter.isMatchingCase());
     }
 
+    @Override
+    public Object visit(Intersects filter, Object extraData) {
+        return ff.intersects(prefix(filter.getExpression1(), p1), prefix(filter.getExpression2(), p2));
+    }
+    
     Expression prefix(Expression e, String prefix) {
         if (e instanceof PropertyName) {
             return ff.property(prefix + "." + ((PropertyName)e).getPropertyName());

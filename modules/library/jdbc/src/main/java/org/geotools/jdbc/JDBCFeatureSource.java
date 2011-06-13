@@ -587,6 +587,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 }
             }
             else {
+                
                 List<SimpleFeatureType> joinQueryFeatureTypes = new ArrayList();
                 List<SimpleFeatureType> joinReturnFeatureTypes = new ArrayList();
                 List<Filter> joinFilters = new ArrayList();
@@ -617,10 +618,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                         querySchema, joinQueryFeatureTypes, joinFilters, otherPreFilters, preQuery);
                     getDataStore().getLogger().fine(sql);
         
-                    for (SimpleFeatureType ft : joinQueryFeatureTypes) {
-                        querySchema = mergeJoinedFeatureType(querySchema, ft);
-                    }
-                    reader = new JDBCFeatureReader( sql, cx, this, querySchema, query.getHints() );
+                    reader = new JDBCJoiningFeatureReader(
+                        sql, cx, this, querySchema, joinQueryFeatureTypes, query.getHints());
+//                    for (SimpleFeatureType ft : joinQueryFeatureTypes) {
+//                        querySchema = mergeJoinedFeatureType(querySchema, ft);
+//                    }
+//                    
+//                    reader = new JDBCFeatureReader( sql, cx, this, querySchema, query.getHints() );
                 }
             }
         } catch (Throwable e) { // NOSONAR
