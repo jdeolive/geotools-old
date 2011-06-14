@@ -3717,6 +3717,7 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
+        return builtType;
     }
 
     /**
@@ -3744,10 +3745,15 @@ public class GMLSchema extends SchemaImpl {
      
     private static AttributeType build_CURVEPROPERTYTYPE_TYPE() {
         AttributeType builtType;
-        builtType = new AttributeTypeImpl(
+        builtType = new AbstractLazyAttributeTypeImpl(
             new NameImpl("http://www.opengis.net/gml/3.2","CurvePropertyType"), com.vividsolutions.jts.geom.LineString.class, false,
-            false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
-        );
+            false, null, null
+        ) {
+            @Override
+            public AttributeType buildSuper() {
+                 return XSSchema.ANYTYPE_TYPE;
+            }
+        };
         return builtType;
     }
 
@@ -12623,10 +12629,15 @@ public class GMLSchema extends SchemaImpl {
      
     private static AttributeType build_MULTICURVEPROPERTYTYPE_TYPE() {
         AttributeType builtType;
-        builtType = new AttributeTypeImpl(
+        builtType = new AbstractLazyAttributeTypeImpl(
             new NameImpl("http://www.opengis.net/gml/3.2","MultiCurvePropertyType"), com.vividsolutions.jts.geom.MultiLineString.class, false,
-            false, Collections.<Filter>emptyList(), XSSchema.ANYTYPE_TYPE, null
-        );
+            false, null, null
+        ) {
+            @Override
+            public AttributeType buildSuper() {
+                 return XSSchema.ANYTYPE_TYPE;
+            }
+        };
         return builtType;
     }
 
@@ -19118,6 +19129,7 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
+        return builtType;
     }
 
     /**
@@ -19145,10 +19157,14 @@ public class GMLSchema extends SchemaImpl {
      
     private static AttributeType build_MULTICURVETYPE_TYPE() {
         AttributeType builtType;
-        builtType = new AttributeTypeImpl(
+        builtType = new AbstractLazyAttributeTypeImpl(
             new NameImpl("http://www.opengis.net/gml/3.2","MultiCurveType"), com.vividsolutions.jts.geom.MultiLineString.class, false,
-            false, Collections.<Filter>emptyList(), ABSTRACTGEOMETRICAGGREGATETYPE_TYPE, null
-        );
+            false, null, null) {
+            @Override
+            public AttributeType buildSuper() {
+                return ABSTRACTGEOMETRICAGGREGATETYPE_TYPE;
+            }
+        };
         return builtType;
     }
 
@@ -19193,6 +19209,7 @@ public class GMLSchema extends SchemaImpl {
                 return descriptors;
             }
         };
+        return builtType;
     }
 
     /**
