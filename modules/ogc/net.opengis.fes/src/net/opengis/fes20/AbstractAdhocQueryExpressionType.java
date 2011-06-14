@@ -138,20 +138,9 @@ public interface AbstractAdhocQueryExpressionType extends AbstractQueryExpressio
      * @return the value of the '<em>Type Names</em>' attribute.
      * @see #setTypeNames(List)
      * @see net.opengis.fes20.Fes20Package#getAbstractAdhocQueryExpressionType_TypeNames()
-     * @model dataType="net.opengis.fes20.TypeNamesListType" required="true" many="false"
-     *        extendedMetaData="kind='attribute' name='typeNames'"
-     * @generated
+     * @model
+     * @generated NOT
      */
-    List<Object> getTypeNames();
-
-    /**
-     * Sets the value of the '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getTypeNames <em>Type Names</em>}' attribute.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Type Names</em>' attribute.
-     * @see #getTypeNames()
-     * @generated
-     */
-    void setTypeNames(List<Object> value);
+    EList<Object> getTypeNames();
 
 } // AbstractAdhocQueryExpressionType

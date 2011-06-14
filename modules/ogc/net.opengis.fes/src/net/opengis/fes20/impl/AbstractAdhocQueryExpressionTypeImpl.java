@@ -117,24 +117,14 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
     protected List<String> aliases = ALIASES_EDEFAULT;
 
     /**
-     * The default value of the '{@link #getTypeNames() <em>Type Names</em>}' attribute.
+     * The cached value of the '{@link #getTypeNames() <em>Type Names</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getTypeNames()
      * @generated
      * @ordered
      */
-    protected static final List<Object> TYPE_NAMES_EDEFAULT = null;
-
-    /**
-     * The cached value of the '{@link #getTypeNames() <em>Type Names</em>}' attribute.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @see #getTypeNames()
-     * @generated
-     * @ordered
-     */
-    protected List<Object> typeNames = TYPE_NAMES_EDEFAULT;
+    protected EList<Object> typeNames;
 
     /**
      * <!-- begin-user-doc -->
@@ -235,20 +225,11 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
      * <!-- end-user-doc -->
      * @generated
      */
-    public List<Object> getTypeNames() {
+    public EList<Object> getTypeNames() {
+        if (typeNames == null) {
+            typeNames = new EDataTypeUniqueEList<Object>(Object.class, this, Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES);
+        }
         return typeNames;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setTypeNames(List<Object> newTypeNames) {
-        List<Object> oldTypeNames = typeNames;
-        typeNames = newTypeNames;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES, oldTypeNames, typeNames));
     }
 
     /**
@@ -296,7 +277,8 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
                 setAliases((List<String>)newValue);
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
-                setTypeNames((List<Object>)newValue);
+                getTypeNames().clear();
+                getTypeNames().addAll((Collection<? extends Object>)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -323,7 +305,7 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
                 setAliases(ALIASES_EDEFAULT);
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
-                setTypeNames(TYPE_NAMES_EDEFAULT);
+                getTypeNames().clear();
                 return;
         }
         super.eUnset(featureID);
@@ -346,7 +328,7 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES:
                 return ALIASES_EDEFAULT == null ? aliases != null : !ALIASES_EDEFAULT.equals(aliases);
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
-                return TYPE_NAMES_EDEFAULT == null ? typeNames != null : !TYPE_NAMES_EDEFAULT.equals(typeNames);
+                return typeNames != null && !typeNames.isEmpty();
         }
         return super.eIsSet(featureID);
     }

@@ -412,7 +412,7 @@ public interface Fes20Package extends EPackage {
     int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 3;
 
     /**
-     * The feature id for the '<em><b>Type Names</b></em>' attribute.
+     * The feature id for the '<em><b>Type Names</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3554,10 +3554,10 @@ public interface Fes20Package extends EPackage {
     EAttribute getAbstractAdhocQueryExpressionType_Aliases();
 
     /**
-     * Returns the meta object for the attribute '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getTypeNames <em>Type Names</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getTypeNames <em>Type Names</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute '<em>Type Names</em>'.
+     * @return the meta object for the attribute list '<em>Type Names</em>'.
      * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getTypeNames()
      * @see #getAbstractAdhocQueryExpressionType()
      * @generated
@@ -6656,7 +6656,7 @@ public interface Fes20Package extends EPackage {
         EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES = eINSTANCE.getAbstractAdhocQueryExpressionType_Aliases();
 
         /**
-         * The meta object literal for the '<em><b>Type Names</b></em>' attribute feature.
+         * The meta object literal for the '<em><b>Type Names</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated

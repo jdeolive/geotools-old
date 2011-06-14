@@ -3748,7 +3748,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
         initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSelectionClause(), ecorePackage.getEJavaObject(), "abstractSelectionClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getAbstractAdhocQueryExpressionType_AbstractSortingClause(), ecorePackage.getEJavaObject(), "abstractSortingClause", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getAbstractAdhocQueryExpressionType_Aliases(), this.getAliasesType(), "aliases", null, 0, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-        initEAttribute(getAbstractAdhocQueryExpressionType_TypeNames(), this.getTypeNamesListType(), "typeNames", null, 1, 1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getAbstractAdhocQueryExpressionType_TypeNames(), ecorePackage.getEJavaObject(), "typeNames", null, 0, -1, AbstractAdhocQueryExpressionType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(abstractIdTypeEClass, AbstractIdType.class, "AbstractIdType", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
@@ -4161,7 +4161,7 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
            source, 
            new String[] {
              "appinfo", "xlinks.xsd v3.0b2 2001-07"
-           });																																																																																																																																																																																																																																																																																											
+           });																																																																																																																																																																																																																																																																																										
     }
 
     /**
@@ -4185,13 +4185,6 @@ public class Fes20PackageImpl extends EPackageImpl implements Fes20Package {
            new String[] {
              "kind", "attribute",
              "name", "aliases"
-           });		
-        addAnnotation
-          (getAbstractAdhocQueryExpressionType_TypeNames(), 
-           source, 
-           new String[] {
-             "kind", "attribute",
-             "name", "typeNames"
            });		
         addAnnotation
           (abstractIdTypeEClass, 

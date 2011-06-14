@@ -59,7 +59,8 @@ public class QueryTypeBinding extends ComplexEMFBinding {
                         throw new RuntimeException(e);
                     }
                 }
-                q.setTypeNames(qNames);
+                q.getTypeNames().clear();
+                q.getTypeNames().addAll(qNames);
             }
         }
     }
