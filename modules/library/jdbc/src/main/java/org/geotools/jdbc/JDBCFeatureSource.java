@@ -399,8 +399,13 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         Filter preFilter = split[0];
         Filter postFilter = split[1];
         
-        
-            if ((postFilter != null) && (postFilter != Filter.INCLUDE)) {
+        boolean manual = (postFilter != null) && (postFilter != Filter.INCLUDE);
+        if (!manual && !query.getJoins().isEmpty()) {
+            //check any join post filters as well
+            JoinInfo join = JoinInfo.create(query, this);
+            manual = join.hasPostFilters();
+        }
+            if (manual) {
                 try {
                     //calculate manually, dont use datastore optimization
                     getDataStore().getLogger().fine("Calculating size manually");
@@ -537,18 +542,6 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         Filter preFilter = split[0];
         Filter postFilter = split[1];
 
-        //TODO: split any filters that are part of the join and handle the pre part natively
-        /*for (Join join : query.getJoins()) {
-            if (join.getFilter() != null && !Filter.INCLUDE.equals(join.getFilter())) {
-                //split it
-                JDBCFeatureSource featureSource = 
-                    (JDBCFeatureSource) getDataStore().getFeatureSource(join.getTypeName());
-                 split = splitFilter(join.getFilter(), featureSource);
-                 preFilter = joinFilters(preFilter, split[0]);
-                 postFilter = joinFilters(postFilter, split[1]);
-            }
-        }*/
-
         // rebuild a new query with the same params, but just the pre-filter
         DefaultQuery preQuery = new DefaultQuery(query);
         preQuery.setFilter(preFilter);
@@ -575,6 +568,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
             SQLDialect dialect = getDataStore().getSQLDialect();
 
             if (query.getJoins().isEmpty()) {
+                //regular query
                 if ( dialect instanceof PreparedStatementSQLDialect ) {
                     PreparedStatement ps = getDataStore().selectSQLPS(querySchema, preQuery, cx);
                     reader = new JDBCFeatureReader( ps, cx, this, querySchema, query.getHints() );
@@ -587,44 +581,23 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 }
             }
             else {
-                
-                List<SimpleFeatureType> joinQueryFeatureTypes = new ArrayList();
-                List<SimpleFeatureType> joinReturnFeatureTypes = new ArrayList();
-                List<Filter> joinFilters = new ArrayList();
-                List<Filter> otherPreFilters = new ArrayList();
-                List<Filter> otherPostFilters = new ArrayList();
-                
-                for (Join j : query.getJoins()) {
-                    joinFilters.add(j.getJoinFilter());
-                    
-                    FeatureSource joinFeatureSource = getDataStore().getFeatureSource(j.getTypeName());
-                    SimpleFeatureType joinFeatureType = (SimpleFeatureType) joinFeatureSource.getSchema();
-                    
-                    split = splitFilter(query.getFilter(), joinFeatureSource);
-                    otherPreFilters.add(split[0]);
-                    otherPostFilters.add(split[1]);
-                    
-                    types = buildQueryAndReturnFeatureTypes(joinFeatureType, j.getPropertyNames(), split[1]);
-                    joinQueryFeatureTypes.add(types[0]);
-                    joinReturnFeatureTypes.add(types[1]);
-                }
+                JoinInfo join = JoinInfo.create(preQuery, this);
 
                 if ( dialect instanceof PreparedStatementSQLDialect ) {
                     PreparedStatement ps = null;/*getDataStore().selectJoinSQLPS(querySchema, preQuery, cx);*/
                     reader = new JDBCFeatureReader( ps, cx, this, querySchema, query.getHints() );
                 } else {
                     //build up a statement for the content
-                    String sql = getDataStore().selectJoinSQL(
-                        querySchema, joinQueryFeatureTypes, joinFilters, otherPreFilters, preQuery);
+                    String sql = getDataStore().selectJoinSQL(querySchema, join, preQuery);
                     getDataStore().getLogger().fine(sql);
         
-                    reader = new JDBCJoiningFeatureReader(
-                        sql, cx, this, querySchema, joinQueryFeatureTypes, query.getHints());
-//                    for (SimpleFeatureType ft : joinQueryFeatureTypes) {
-//                        querySchema = mergeJoinedFeatureType(querySchema, ft);
-//                    }
-//                    
-//                    reader = new JDBCFeatureReader( sql, cx, this, querySchema, query.getHints() );
+                    reader = new JDBCJoiningFeatureReader(sql, cx, this, querySchema, join, query.getHints());
+                    
+                    //check for post filters
+                    if (join.hasPostFilters()) {
+                        reader = new JDBCJoiningFilteringFeatureReader(reader, join);
+                        //TODO: retyping 
+                    }
                 }
             }
         } catch (Throwable e) { // NOSONAR
@@ -680,27 +653,27 @@ public class JDBCFeatureSource extends ContentFeatureSource {
         return types;
     }
 
-    SimpleFeatureType mergeJoinedFeatureType(SimpleFeatureType t1, SimpleFeatureType t2) {
-        List<AttributeDescriptor> atts = t1.getAttributeDescriptors();
-        AttributeDescriptor last = atts.get(atts.size()-1);
-
-        char prefix = 'a';
-        if (last.getName().getNamespaceURI() != null && !last.getName().getNamespaceURI().isEmpty()) {
-            prefix = last.getName().getNamespaceURI().charAt(0);
-        }
-        prefix++;
-
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.init(t1);
-
-        AttributeTypeBuilder attBuilder = new AttributeTypeBuilder();
-        for (AttributeDescriptor att : t2.getAttributeDescriptors()) {
-            attBuilder.init(att);
-            builder.add(attBuilder.buildDescriptor(new NameImpl(String.valueOf(prefix), att.getLocalName())));
-        }
-
-        return builder.buildFeatureType();
-    }
+//    SimpleFeatureType mergeJoinedFeatureType(SimpleFeatureType t1, SimpleFeatureType t2) {
+//        List<AttributeDescriptor> atts = t1.getAttributeDescriptors();
+//        AttributeDescriptor last = atts.get(atts.size()-1);
+//
+//        char prefix = 'a';
+//        if (last.getName().getNamespaceURI() != null && !last.getName().getNamespaceURI().isEmpty()) {
+//            prefix = last.getName().getNamespaceURI().charAt(0);
+//        }
+//        prefix++;
+//
+//        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+//        builder.init(t1);
+//
+//        AttributeTypeBuilder attBuilder = new AttributeTypeBuilder();
+//        for (AttributeDescriptor att : t2.getAttributeDescriptors()) {
+//            attBuilder.init(att);
+//            builder.add(attBuilder.buildDescriptor(new NameImpl(String.valueOf(prefix), att.getLocalName())));
+//        }
+//
+//        return builder.buildFeatureType();
+//    }
 
     @Override
     protected boolean handleVisitor(Query query, FeatureVisitor visitor) throws IOException {

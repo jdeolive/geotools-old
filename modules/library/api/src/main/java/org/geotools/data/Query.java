@@ -328,7 +328,10 @@ public class Query {
       this.version = query.getVersion();
       this.hints = query.getHints();
       this.startIndex = query.getStartIndex();
-      this.joins = query.getJoins();
+      this.joins = new ArrayList();
+      for (Join j : query.getJoins()) {
+          this.joins.add(new Join(j));
+      }
     }
 
     /**

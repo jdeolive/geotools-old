@@ -168,22 +168,4 @@ public class FilterToSQLTest extends TestCase {
         encoder.encode(equal);
         assertEquals("testAttr = 5", output.toString());
     }
-
-    public void testPrefixAware() throws Exception {
-        Add a = filterFac.add(filterFac.property("b.testAttr"), filterFac.literal(5));
-        PropertyIsEqualTo equal = filterFac.equal(filterFac.property("a.testAttr"), a, false);
-        
-        StringWriter output = new StringWriter();
-        FilterToSQL encoder = new FilterToSQL(output);
-        encoder.setPrefixAware(true);
-        encoder.encode(equal);
-        assertEquals("WHERE a.testAttr = b.testAttr + 5", output.toString());
-        
-        output = new StringWriter();
-        encoder = new FilterToSQL(output);
-        encoder.setSqlNameEscape("\"");
-        encoder.setPrefixAware(true);
-        encoder.encode(equal);
-        assertEquals("WHERE a.\"testAttr\" = b.\"testAttr\" + 5", output.toString());
-    }
 }

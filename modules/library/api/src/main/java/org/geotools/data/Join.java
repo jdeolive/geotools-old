@@ -1,13 +1,24 @@
 package org.geotools.data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.PropertyName;
 
 public class Join {
 
+    /**
+     * filter factory
+     */
+    static final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+
+    /**
+     * type of join
+     */
     public static enum Type {
         INNER, OUTER, LEFT, RIGHT;
     }
@@ -40,18 +51,25 @@ public class Join {
      */
     String alias;
 
-    public Join(String typeName, Filter join, Filter filter) {
-        this(Type.INNER, typeName, Query.ALL_PROPERTIES, join, filter);
+    public Join(String typeName, Filter join) {
+        this.typeName = typeName;
+        this.join = join;
+        this.type = Type.INNER;
+        this.properties = Query.ALL_PROPERTIES;
+        this.filter = Filter.INCLUDE;
+        this.alias = null;
     }
 
-    public Join(Type type, String typeName, List<PropertyName> properties, Filter join, Filter filter) {
-        this.type = type;
-        this.typeName = typeName;
-        this.properties = properties;
-        this.join = join;
-        this.filter = filter;
+    public Join(Join other) {
+        this.typeName = other.getTypeName();
+        this.join = other.getJoinFilter();
+        this.filter = other.getFilter();
+        this.type = other.getType();
+        this.properties = other.getProperties();
+        this.filter = other.getFilter();
+        this.alias = other.getAlias();
     }
-    
+
     public void setType(Type type) {
         this.type = type;
     }
@@ -109,5 +127,28 @@ public class Join {
 
     public String getAlias() {
         return alias;
+    }
+
+    public Join properties(String... properties) {
+        this.properties = new ArrayList();
+        for (String p : properties) {
+            this.properties.add(ff.property(p));
+        }
+        return this;
+    }
+
+    public Join filter(Filter filter) {
+        setFilter(filter);
+        return this;
+    }
+
+    public Join alias(String alias) {
+        setAlias(alias);
+        return this;
+    }
+
+    public Join type(Type type) {
+        setType(type);
+        return this;
     }
 }

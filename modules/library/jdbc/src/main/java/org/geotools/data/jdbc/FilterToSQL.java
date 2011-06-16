@@ -36,6 +36,7 @@ import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.function.FilterFunction_strConcat;
 import org.geotools.filter.function.FilterFunction_strEndsWith;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.JoinPropertyName;
 import org.geotools.jdbc.PrimaryKey;
 import org.geotools.util.ConverterFactory;
 import org.geotools.util.Converters;
@@ -190,9 +191,6 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     /** the srid corresponding to the current binary spatial filter being encoded */
     protected Integer currentSRID, currentJoinSRID;
 
-    /** flag controlling whether the visitor should look for prefixes in property names */
-    protected boolean prefixAware = false;
-    
     /** inline flag, controlling whether "WHERE" will prefix the SQL encoded filter */
     protected boolean inline = false;
 
@@ -218,10 +216,6 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         this.inline = inline;
     }
 
-    public void setPrefixAware(boolean prefixAware) {
-        this.prefixAware = prefixAware;
-    }
-
     /**
      * Performs the encoding, sends the encoded sql to the writer passed in.
      *
@@ -238,9 +232,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
                 if (!inline) {
                     out.write("WHERE ");
                 }
-                if (prefixAware) {
-                    setFieldEncoder(new PrefixAwareFieldEncoder(sqlNameEscape));
-                }
+
                 filter.accept(this, null);
 
                 //out.write(";");
@@ -987,7 +979,14 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
 //                    featureType = joinFeatureType;
 //                }
 //            }
-            
+
+            //check for join
+            if (expression instanceof JoinPropertyName) {
+                //encode the prefix
+                out.write(escapeName(((JoinPropertyName)expression).getAlias()));
+                out.write(".");
+            }
+
             //first evaluate expression against feautre type get the attribute, 
             //  this handles xpath
             AttributeDescriptor attribute = null;
@@ -1377,32 +1376,6 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         private DefaultFieldEncoder() {};
         
         public String encode(String s){
-            return s;
-        }
-    }
-
-    /**
-     * Field encoder used for joins that prefixes a field/property name with a string.
-     */
-    private static class PrefixAwareFieldEncoder implements FieldEncoder {
-
-        String sqlNameEscape;
-        
-        PrefixAwareFieldEncoder(String sqlNameEscape) {
-            this.sqlNameEscape = sqlNameEscape;
-        }
-        
-        public String encode(String s) {
-            String string = s;
-            if (!"".equals(sqlNameEscape)) {
-                String[] split = string.split(sqlNameEscape);
-                string = split[split.length/2];
-            }
-            String[] split = string.split("\\.");
-            if (split.length > 1) {
-                return sqlNameEscape + split[0] + sqlNameEscape + "." + sqlNameEscape + split[1] + sqlNameEscape;
-            }
-            
             return s;
         }
     }

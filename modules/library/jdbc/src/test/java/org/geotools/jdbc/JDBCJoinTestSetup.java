@@ -9,6 +9,8 @@ public abstract class JDBCJoinTestSetup extends JDBCDelegatingTestSetup {
     }
 
     protected final void setUpData() throws Exception {
+        delegate.setUpData();
+        
         //kill all the data
         try {
             dropJoinTable();
