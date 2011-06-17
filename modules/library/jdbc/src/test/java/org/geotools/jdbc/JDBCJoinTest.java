@@ -187,17 +187,22 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         assertEquals(1, features.size());
 
         SimpleFeatureIterator it = features.features();
-        assertTrue(it.hasNext());
-        
-        SimpleFeature f = it.next();
-        assertEquals(5, f.getAttributeCount());
-        assertEquals(new Integer(2), f.getAttribute(aname("intProperty")));
-        assertEquals("two", f.getAttribute(aname("stringProperty")));
-        
-        SimpleFeature g = (SimpleFeature) f.getAttribute(aname("foo"));
-        assertEquals(4, g.getAttributeCount());
-        assertEquals(new Integer(2), g.getAttribute(aname("intProperty")));
-        assertEquals("two", g.getAttribute(aname("stringProperty")));
+        try {
+            assertTrue(it.hasNext());
+            
+            SimpleFeature f = it.next();
+            assertEquals(5, f.getAttributeCount());
+            assertEquals(new Integer(2), f.getAttribute(aname("intProperty")));
+            assertEquals("two", f.getAttribute(aname("stringProperty")));
+            
+            SimpleFeature g = (SimpleFeature) f.getAttribute(aname("foo"));
+            assertEquals(4, g.getAttributeCount());
+            assertEquals(new Integer(2), g.getAttribute(aname("intProperty")));
+            assertEquals("two", g.getAttribute(aname("stringProperty")));
+        }
+        finally {
+            it.close();
+        }
     }
 
     public void testSpatialJoin() throws Exception {

@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Join;
 import org.geotools.data.Query;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.PropertyName;
 
@@ -63,6 +67,21 @@ public class JoinInfo {
             //build the query and return feature types based on the post filter
             SimpleFeatureType[] types = joinFeatureSource.buildQueryAndReturnFeatureTypes(
                 joinFeatureSource.getSchema(), j.getPropertyNames(), prePostFilters[1]);
+
+            //a hack to get around geometry aliasing in queries, if this feature type has a geometry
+            // column that is the same as the name of the geometry column in the primary table, 
+            // give it a different alias
+            // copy the type first so that we don't change the original
+            types[0] = SimpleFeatureTypeBuilder.copy(types[0]);
+            for (AttributeDescriptor att : types[0].getAttributeDescriptors()) {
+                if (att instanceof GeometryDescriptor) {
+                    if (featureType.getDescriptor(att.getName()) != null) {
+                        att.getUserData().put(
+                            JDBCDataStore.JDBC_COLUMN_ALIAS, alias + "." + att.getLocalName());
+                    }
+                }
+            }
+
             part.setQueryFeatureType(types[0]);
             part.setReturnFeatureType(types[1]);
 

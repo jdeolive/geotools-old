@@ -180,16 +180,14 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     /** the schmema the encoder will be used to be encode sql for */
     protected SimpleFeatureType featureType;
 
-    protected SimpleFeatureType joinFeatureType;
-
     /** flag which indicates that the encoder is currently encoding a function */
     protected boolean encodingFunction = false;
     
     /** the geometry descriptor corresponding to the current binary spatial filter being encoded */
-    protected GeometryDescriptor currentGeometry, currentJoinGeometry;
+    protected GeometryDescriptor currentGeometry;
     
     /** the srid corresponding to the current binary spatial filter being encoded */
-    protected Integer currentSRID, currentJoinSRID;
+    protected Integer currentSRID;
 
     /** inline flag, controlling whether "WHERE" will prefix the SQL encoded filter */
     protected boolean inline = false;
@@ -310,10 +308,6 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
      */
     public void setFeatureType(SimpleFeatureType featureType) {
         this.featureType = featureType;
-    }
-
-    public void setJoinFeatureType(SimpleFeatureType joinFeatureType) {
-        this.joinFeatureType = joinFeatureType;
     }
 
     /**
@@ -898,23 +892,6 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             }
         }
 
-        if (e2 instanceof PropertyName) {
-            // handle native srid for joined feature type
-            currentJoinGeometry = null;
-            currentJoinSRID = null;
-            if (joinFeatureType != null) {
-                // going thru evaluate ensures we get the proper result even if the
-                // name has
-                // not been specified (convention -> the default geometry)
-                AttributeDescriptor descriptor = (AttributeDescriptor) e1.evaluate(joinFeatureType);
-                if (descriptor instanceof GeometryDescriptor) {
-                    currentJoinGeometry = (GeometryDescriptor) descriptor;
-                    currentJoinSRID = (Integer) descriptor.getUserData().get(
-                            JDBCDataStore.JDBC_NATIVE_SRID);
-                }
-            }
-        }
-
         if (e1 instanceof PropertyName && e2 instanceof Literal) {
             //call the "regular" method
             return visitBinarySpatialOperator(filter, (PropertyName)e1, (Literal)e2, filter
@@ -935,7 +912,7 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     }
 
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, 
-        Expression e2,Object extraData) {
+        Expression e2, Object extraData) {
         throw new RuntimeException(
             "Subclasses must implement this method in order to handle geometries");
     }

@@ -1061,4 +1061,28 @@ public class SimpleFeatureTypeBuilder {
             }            
             return b.buildFeatureType();
         }
+
+        /**
+         * Copys a feature type.
+         * <p>
+         * This method does a deep copy in that all individual attributes are copied as well.
+         * </p>
+         */
+        public static SimpleFeatureType copy( SimpleFeatureType original ) {
+            SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
+            
+            //initialize the builder
+            b.init( original );
+            
+            //clear attributes
+            b.attributes().clear();
+            
+            //add attributes in order
+            for( AttributeDescriptor descriptor : original.getAttributeDescriptors() ){
+                AttributeTypeBuilder ab = new AttributeTypeBuilder( b.factory );
+                ab.init( descriptor );
+                b.add( ab.buildDescriptor( descriptor.getLocalName() ));
+            }            
+            return b.buildFeatureType();
+        }
 }

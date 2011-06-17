@@ -648,7 +648,7 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                     querySchema = SimpleFeatureTypeBuilder.retype(getSchema(), allAttributeArray);
                 }
             }
-            types = new SimpleFeatureType[]{returnedSchema, querySchema};
+            types = new SimpleFeatureType[]{querySchema, returnedSchema};
         }
         return types;
     }

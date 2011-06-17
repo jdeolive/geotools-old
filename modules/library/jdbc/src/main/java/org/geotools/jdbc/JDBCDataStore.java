@@ -160,7 +160,12 @@ public final class JDBCDataStore extends ContentDataStore
      * type.
      */
     public static final String JDBC_NATIVE_TYPENAME = "org.geotools.jdbc.nativeTypeName";
-    
+
+    /**
+     * Used to specify the column alias to use when encoding a column in a select
+     */
+    public static final String JDBC_COLUMN_ALIAS = "org.geotools.jdbc.columnAlias";
+
     /**
      * name of table to use to store geometries when {@link #associations}
      * is set.
@@ -2888,7 +2893,6 @@ public final class JDBCDataStore extends ContentDataStore
         return sql.toString();
     }
 
-
     void selectColumns(SimpleFeatureType featureType, String prefix, Query query, StringBuffer sql) 
         throws IOException {
         
@@ -2919,8 +2923,14 @@ public final class JDBCDataStore extends ContentDataStore
                 //encode as geometry
                 encodeGeometryColumn((GeometryDescriptor) att, prefix, sql, query.getHints());
                 
-                //alias it to be the name of the original geometry
-                //dialect.encodeColumnAlias(prefix, columnName, sql);
+                if (att.getUserData().containsKey(JDBC_COLUMN_ALIAS)) {
+                  //alias it to be the name of the original geometry
+                    dialect.encodeColumnAlias((String)att.getUserData().get(JDBC_COLUMN_ALIAS), sql);
+                }
+                else {
+                    //alias it to be the name of the original geometry
+                    dialect.encodeColumnAlias(columnName, sql);
+                }
             } else {
                 dialect.encodeColumnName(prefix, columnName, sql);
             }
