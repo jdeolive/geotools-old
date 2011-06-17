@@ -480,7 +480,12 @@ public abstract class ContentFeatureSource implements SimpleFeatureSource {
             dq.setSortBy(new SortBy[] {SortBy.NATURAL_ORDER});
             query = dq;
         }
-        
+
+        //check for a join
+        if (!query.getJoins().isEmpty() && getQueryCapabilities().isJoiningSupported()) {
+            throw new IOException("Feature source does not support joins");
+        }
+
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = getReaderInternal( query );
         
         //
