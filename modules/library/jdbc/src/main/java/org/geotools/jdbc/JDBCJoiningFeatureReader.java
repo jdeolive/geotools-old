@@ -2,6 +2,7 @@ package org.geotools.jdbc;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,20 @@ public class JDBCJoiningFeatureReader extends JDBCFeatureReader {
 
         super(sql, cx, featureSource, retype(featureType, join), hints);
 
+        init(cx, featureSource, featureType, join, hints);
+    }
+    
+    public JDBCJoiningFeatureReader(PreparedStatement st, Connection cx, JDBCFeatureSource featureSource,
+        SimpleFeatureType featureType, JoinInfo join, Hints hints) 
+        throws SQLException, IOException {
+
+        super(st, cx, featureSource, retype(featureType, join), hints);
+
+        init(cx, featureSource, featureType, join, hints);
+    }
+
+    void init(Connection cx, JDBCFeatureSource featureSource, SimpleFeatureType featureType, 
+        JoinInfo join, Hints hints) throws SQLException, IOException {
         joinReaders = new ArrayList<JDBCFeatureReader>();
         int offset = featureType.getAttributeCount() + getPrimaryKey().getColumns().size();
 

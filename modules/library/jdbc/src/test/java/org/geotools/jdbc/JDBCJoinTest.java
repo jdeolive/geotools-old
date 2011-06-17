@@ -51,28 +51,31 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         assertEquals(dataStore.getFeatureSource(tname("ft1")).getFeatures(q).size(), features.size());
 
         SimpleFeatureIterator it = features.features();
-        assertTrue(it.hasNext() && ita.hasNext() && itb.hasNext());
-        
-        while(it.hasNext()) {
-            SimpleFeature f = it.next();
-            assertEquals(5, f.getAttributeCount());
+        try {
+            assertTrue(it.hasNext() && ita.hasNext() && itb.hasNext());
             
-            SimpleFeature g = (SimpleFeature) f.getAttribute(tname("ftjoin"));
-            
-            SimpleFeature a = ita.next();
-            SimpleFeature b = itb.next();
-            
-            for (int i = 0; i < a.getAttributeCount(); i++) {
-                assertAttributeValuesEqual(a.getAttribute(i), f.getAttribute(i));
-            }
-            for (int i = 0; i < b.getAttributeCount(); i++) {
-                assertAttributeValuesEqual(b.getAttribute(i), g.getAttribute(i));
+            while(it.hasNext()) {
+                SimpleFeature f = it.next();
+                assertEquals(5, f.getAttributeCount());
+                
+                SimpleFeature g = (SimpleFeature) f.getAttribute(tname("ftjoin"));
+                
+                SimpleFeature a = ita.next();
+                SimpleFeature b = itb.next();
+                
+                for (int i = 0; i < a.getAttributeCount(); i++) {
+                    assertAttributeValuesEqual(a.getAttribute(i), f.getAttribute(i));
+                }
+                for (int i = 0; i < b.getAttributeCount(); i++) {
+                    assertAttributeValuesEqual(b.getAttribute(i), g.getAttribute(i));
+                }
             }
         }
-        
-        it.close();
-        ita.close();
-        itb.close();
+        finally {
+            it.close();
+            ita.close();
+            itb.close();    
+        }
     }
     
     public void testSimpleJoinWithFilter() throws Exception {

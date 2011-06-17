@@ -584,20 +584,20 @@ public class JDBCFeatureSource extends ContentFeatureSource {
                 JoinInfo join = JoinInfo.create(preQuery, this);
 
                 if ( dialect instanceof PreparedStatementSQLDialect ) {
-                    PreparedStatement ps = null;/*getDataStore().selectJoinSQLPS(querySchema, preQuery, cx);*/
-                    reader = new JDBCFeatureReader( ps, cx, this, querySchema, query.getHints() );
+                    PreparedStatement ps =getDataStore().selectJoinSQLPS(querySchema, join, preQuery, cx);
+                    reader = new JDBCJoiningFeatureReader(ps, cx, this, querySchema, join, query.getHints());
                 } else {
                     //build up a statement for the content
                     String sql = getDataStore().selectJoinSQL(querySchema, join, preQuery);
                     getDataStore().getLogger().fine(sql);
         
                     reader = new JDBCJoiningFeatureReader(sql, cx, this, querySchema, join, query.getHints());
-                    
-                    //check for post filters
-                    if (join.hasPostFilters()) {
-                        reader = new JDBCJoiningFilteringFeatureReader(reader, join);
-                        //TODO: retyping 
-                    }
+                }
+                
+                //check for post filters
+                if (join.hasPostFilters()) {
+                    reader = new JDBCJoiningFilteringFeatureReader(reader, join);
+                    //TODO: retyping 
                 }
             }
         } catch (Throwable e) { // NOSONAR

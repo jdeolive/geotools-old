@@ -17,11 +17,16 @@
 package org.geotools.data.postgis;
 
 import org.geotools.jdbc.JDBCJoinTestSetup;
+import org.geotools.jdbc.JDBCTestSetup;
 
 public class PostgisJoinTestSetup extends JDBCJoinTestSetup {
 
     public PostgisJoinTestSetup() {
-        super(new PostGISTestSetup());
+        this(new PostGISTestSetup());
+    }
+    
+    public PostgisJoinTestSetup(JDBCTestSetup setup) {
+        super(setup);
     }
 
     @Override

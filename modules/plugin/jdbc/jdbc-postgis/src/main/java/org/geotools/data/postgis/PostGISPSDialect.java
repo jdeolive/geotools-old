@@ -73,7 +73,12 @@ public class PostGISPSDialect extends PreparedStatementSQLDialect {
                 .decodeGeometryValue(descriptor, rs, column, factory, cx);
     }
 
-
+    @Override
+    public void encodeGeometryColumn(GeometryDescriptor gatt, String prefix, int srid,
+            StringBuffer sql) {
+        delegate.encodeGeometryColumn(gatt, prefix, srid, sql);
+    }
+    
     public void encodeGeometryColumn(GeometryDescriptor gatt, int srid,
             StringBuffer sql) {
         delegate.encodeGeometryColumn(gatt, srid, sql);

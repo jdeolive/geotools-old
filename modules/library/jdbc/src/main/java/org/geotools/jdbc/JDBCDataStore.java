@@ -99,6 +99,8 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import sun.font.CreatedFontTracker;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -2939,14 +2941,17 @@ public final class JDBCDataStore extends ContentDataStore
         }
     }
 
-    void filter(SimpleFeatureType featureType, Filter filter, StringBuffer sql) throws IOException {
+    FilterToSQL filter(SimpleFeatureType featureType, Filter filter, StringBuffer sql) throws IOException {
+        
         try {
             // grab the full feature type, as we might be encoding a filter
             // that uses attributes that aren't returned in the results
             SimpleFeatureType fullSchema = getSchema(featureType.getTypeName());
-            FilterToSQL toSQL = createFilterToSQL(fullSchema);
+            FilterToSQL toSQL = dialect instanceof PreparedStatementSQLDialect ? 
+                createPreparedFilterToSQL(fullSchema) : createFilterToSQL(fullSchema);
             toSQL.setInline(true);
             sql.append(" ").append(toSQL.encodeToString(filter));
+            return toSQL;
         } catch (FilterToSQLException e) {
             throw new RuntimeException(e);
         }
@@ -3088,6 +3093,59 @@ public final class JDBCDataStore extends ContentDataStore
         } 
         
         return ps;
+    }
+    
+    protected PreparedStatement selectJoinSQLPS( SimpleFeatureType featureType, JoinInfo join, 
+        Query query, Connection cx ) throws SQLException, IOException {
+        
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT ");
+    
+        selectColumns(featureType, "a", query, sql);
+    
+        //joined columns
+        for (JoinPart part : join.getParts()) {
+            selectColumns(part.getQueryFeatureType(), part.getAlias(), query, sql);
+        }
+
+        sql.setLength(sql.length() - 1);
+        dialect.encodePostSelect(featureType, sql);
+        
+        sql.append(" FROM ");
+        
+        //join clauses
+        encodeTableJoin(featureType, join, query, sql);
+
+        //filtering
+        List<FilterToSQL> toSQLs = encodeWhereJoin(featureType, join, sql);
+
+        //sorting
+        sort(featureType, query.getSortBy(), "a", sql);
+
+        // finally encode limit/offset, if necessary
+        applyLimitOffset(sql, query);
+    
+        LOGGER.fine( sql.toString() );
+        PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ps.setFetchSize(fetchSize);
+        
+        setPreparedFilterValues(ps, toSQLs, cx);
+
+        return ps;
+    }
+
+    /**
+     * Helper method for setting the values of the WHERE class of a prepared statement from a 
+     * list of PreparedFilterToSQL.
+     * 
+     */
+    protected void setPreparedFilterValues(PreparedStatement ps, List toSQLs, Connection cx) 
+        throws SQLException {
+        int offset = 0;
+        for (PreparedFilterToSQL toSQL : (List<PreparedFilterToSQL>) toSQLs) {
+            setPreparedFilterValues(ps, toSQL, offset, cx);
+            offset += toSQL.getLiteralValues().size();
+        }
     }
     
     /**
@@ -3281,7 +3339,7 @@ public final class JDBCDataStore extends ContentDataStore
      * Generates a 'SELECT count(*) FROM' prepared statement.
      */
     protected PreparedStatement selectCountSQLPS(SimpleFeatureType featureType, Query query, Connection cx ) 
-        throws SQLException {
+        throws SQLException, IOException {
         //JD: this method shold not be called anymore
         return selectAggregateSQLPS("count",null,featureType,query,cx);
     }
@@ -3291,10 +3349,38 @@ public final class JDBCDataStore extends ContentDataStore
      */
     protected String selectAggregateSQL(String function, AttributeDescriptor att, 
             SimpleFeatureType featureType, Query query) throws SQLException, IOException {
+        StringBuffer sql = new StringBuffer();
+        doSelectAggregateSQL(function, att, featureType, query, sql);
+        return sql.toString();
+    }
+    
+    /**
+     * Generates a 'SELECT <function>() FROM' prepared statement.
+     */
+    protected PreparedStatement selectAggregateSQLPS(String function, AttributeDescriptor att, SimpleFeatureType featureType, Query query, Connection cx)
+        throws SQLException, IOException {
+        
+        StringBuffer sql = new StringBuffer();
+        List<FilterToSQL> toSQL = doSelectAggregateSQL(function, att, featureType, query, sql);
+        
+        LOGGER.fine( sql.toString() );
+          
+        PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ps.setFetchSize(fetchSize);
+        
+        setPreparedFilterValues(ps, toSQL, cx);
+
+        return ps;
+    }
+
+    /**
+     * Helper method to factor out some commonalities between selectAggregateSQL, and selectAggregateSQLPS 
+     */
+    List<FilterToSQL> doSelectAggregateSQL(String function, AttributeDescriptor att, 
+            SimpleFeatureType featureType, Query query, StringBuffer sql) throws SQLException, IOException {
+
         JoinInfo join = !query.getJoins().isEmpty() 
             ? JoinInfo.create(query, featureType, this) : null;
-
-        StringBuffer sql = new StringBuffer();
 
         boolean limitOffset = checkLimitOffset(query);
         if(limitOffset) {
@@ -3320,63 +3406,15 @@ public final class JDBCDataStore extends ContentDataStore
             encodeTableName(featureType.getTypeName(), sql, query.getHints());
         }
 
+        List<FilterToSQL> toSQL = new ArrayList();
         if (join != null) {
-            encodeWhereJoin(featureType, join, sql);
+            toSQL.addAll(encodeWhereJoin(featureType, join, sql));
         }
         else {
             Filter filter = query.getFilter();
             if (filter != null && !Filter.INCLUDE.equals(filter)) {
-                //encode filter
-                try {
-                    FilterToSQL toSQL = createFilterToSQL(featureType);
-                    sql.append(" ").append(toSQL.encodeToString(filter));
-                } catch (FilterToSQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        
-        if(limitOffset) {
-            applyLimitOffset(sql, query);
-            
-            StringBuffer sql2 = new StringBuffer("SELECT ");
-            encodeFunction(function,att,query,sql2);
-            sql2.append(" AS gt_result_");
-            sql2.append(" FROM (");
-            sql.insert(0,sql2.toString());
-            sql.append(") gt_limited_");
-        }
-
-        return sql.toString();
-    }
-    
-    /**
-     * Generates a 'SELECT <function>() FROM' prepared statement.
-     */
-    protected PreparedStatement selectAggregateSQLPS(String function, AttributeDescriptor att, SimpleFeatureType featureType, Query query, Connection cx)
-        throws SQLException {
-        
-        StringBuffer sql = new StringBuffer();
-
-        boolean limitOffset = checkLimitOffset(query);
-        if(limitOffset) {
-            sql.append("SELECT * FROM ");
-        } else {
-            sql.append("SELECT ");
-            encodeFunction(function,att,query,sql);
-            sql.append( " FROM ");
-        }
-        encodeTableName(featureType.getTypeName(), sql, query.getHints());
-
-        Filter filter = query.getFilter();
-        PreparedFilterToSQL toSQL = null;
-        if (filter != null && !Filter.INCLUDE.equals(filter)) {
-            //encode filter
-            try {
-                toSQL = createPreparedFilterToSQL(featureType);
-                sql.append(" ").append(toSQL.encodeToString(filter));
-            } catch (FilterToSQLException e) {
-                throw new RuntimeException(e);
+                sql.append(" WHERE ");
+                toSQL.add(filter(featureType, filter, sql));
             }
         }
         
@@ -3391,17 +3429,9 @@ public final class JDBCDataStore extends ContentDataStore
             sql.append(") gt_limited_");
         }
         
-        LOGGER.fine( sql.toString() );
-        PreparedStatement ps = cx.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        ps.setFetchSize(fetchSize);
-        
-        if ( toSQL != null ) {
-            setPreparedFilterValues(ps, toSQL, 0, cx);
-        } 
-        
-        return ps;
+        return toSQL;
     }
-    
+
     protected void encodeFunction( String function, AttributeDescriptor att, Query query, StringBuffer sql ) {
         sql.append(function).append("(");
         if ( att == null ) {
@@ -4078,7 +4108,8 @@ public final class JDBCDataStore extends ContentDataStore
 
             Filter j = part.getJoinFilter();
 
-            FilterToSQL toSQL = createFilterToSQL(null);
+            FilterToSQL toSQL = dialect instanceof PreparedStatementSQLDialect ? 
+                createPreparedFilterToSQL(null) : createFilterToSQL(null);
             toSQL.setInline(true);
             try {
                 sql.append(" ").append(toSQL.encodeToString(j));
@@ -4089,8 +4120,10 @@ public final class JDBCDataStore extends ContentDataStore
         }
     }
 
-    protected void encodeWhereJoin(SimpleFeatureType featureType, JoinInfo join, StringBuffer sql) 
-        throws IOException {
+    protected List<FilterToSQL> encodeWhereJoin(SimpleFeatureType featureType, 
+        JoinInfo join, StringBuffer sql) throws IOException {
+        
+        List<FilterToSQL> toSQL = new ArrayList();
         
         boolean whereEncoded = false;
         Filter filter = join.getFilter();
@@ -4099,7 +4132,7 @@ public final class JDBCDataStore extends ContentDataStore
             whereEncoded = true;
             
             //encode filter
-            filter(featureType, filter, sql);
+            toSQL.add(filter(featureType, filter, sql));
         }
 
         //filters for joined feature types
@@ -4115,9 +4148,12 @@ public final class JDBCDataStore extends ContentDataStore
                 sql.append(" AND ");
             }
 
-            filter(part.getQueryFeatureType(), filter, sql);
+            toSQL.add(filter(part.getQueryFeatureType(), filter, sql));
         }
+        
+        return toSQL;
     }
+
     /**
      * Helper method for setting the gml:id of a geometry as user data.
      */
