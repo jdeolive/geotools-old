@@ -84,7 +84,7 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         Query q = new Query(tname("ft1"));
         q.getJoins().add(new Join(tname("ftjoin"), 
             ff.equal(ff.property(aname("stringProperty")), ff.property(aname("name")), true)));
-        q.setFilter(ff.equal(ff.property("stringProperty"), ff.literal("two"), true));
+        q.setFilter(ff.equal(ff.property(aname("stringProperty")), ff.literal("two"), true));
         
         SimpleFeatureCollection features = dataStore.getFeatureSource(tname("ft1")).getFeatures(q);
         assertEquals(1, features.size());
@@ -93,12 +93,12 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         try {
             SimpleFeature f = it.next();
             assertEquals(5, f.getAttributeCount());
-            assertEquals(new Integer(2), f.getAttribute(aname("intProperty")));
+            assertEquals(2, ((Number)f.getAttribute(aname("intProperty"))).intValue());
             assertEquals("two", f.getAttribute(aname("stringProperty")));
             
             SimpleFeature g = (SimpleFeature) f.getAttribute(aname("ftjoin"));
             assertEquals(3, g.getAttributeCount());
-            assertEquals(new Integer(2), g.getAttribute(aname("id")));
+            assertEquals(2, ((Number)g.getAttribute(aname("id"))).intValue());
             assertEquals("two", g.getAttribute(aname("name")));
         }
         finally {
@@ -113,7 +113,7 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
             ff.equal(ff.property(aname("stringProperty")), ff.property(aname("name")), true));
         j.filter(ff.greater(ff.property(aname("id")), ff.literal(1)));
         q.getJoins().add(j);
-        q.setFilter(ff.less(ff.property("intProperty"), ff.literal(3)));
+        q.setFilter(ff.less(ff.property(aname("intProperty")), ff.literal(3)));
         
         assertEquals(1, dataStore.getFeatureSource(tname("ft1")).getCount(q));
     }
@@ -125,7 +125,7 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         Query q = new Query(tname("ft1"));
         q.getJoins().add(new Join(tname("ftjoin"), j));
         q.setFilter(ff.equal(
-            ff.function("__wktEquals", ff.property("geometry"), ff.literal("POINT (1 1)")), 
+            ff.function("__equals", ff.property(aname("stringProperty")), ff.literal("one")), 
             ff.literal(true), true));
 
         SimpleFeatureCollection features = dataStore.getFeatureSource(tname("ft1")).getFeatures(q);
@@ -135,8 +135,7 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         q = new Query(tname("ft1"));
         Join join = new Join(tname("ftjoin"), j);
         join.filter(ff.equal(
-            ff.function("__wktEquals", ff.property("geom"), 
-                    ff.literal("POLYGON ((-1.1 -1.1, -1.1 1.1, 1.1 1.1, 1.1 -1.1, -1.1 -1.1))")), 
+            ff.function("__equals", ff.property(aname("name")), ff.literal("one")), 
             ff.literal(true), true));
         q.getJoins().add(join);
         
@@ -156,11 +155,11 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         SimpleFeatureIterator it = features.features();
         try {
             assertTrue(it.hasNext());
-            assertEquals("two", it.next().getAttribute("stringProperty"));
+            assertEquals("two", it.next().getAttribute(aname("stringProperty")));
             assertTrue(it.hasNext());
-            assertEquals("one", it.next().getAttribute("stringProperty"));
+            assertEquals("one", it.next().getAttribute(aname("stringProperty")));
             assertTrue(it.hasNext());
-            assertEquals("zero", it.next().getAttribute("stringProperty"));
+            assertEquals("zero", it.next().getAttribute(aname("stringProperty")));
         }
         finally {
             it.close();
@@ -185,10 +184,10 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
             assertTrue(it.hasNext());
             
             SimpleFeature f = it.next();
-            assertEquals("two", f.getAttribute("stringProperty"));
+            assertEquals("two", f.getAttribute(aname("stringProperty")));
             
-            SimpleFeature g = (SimpleFeature) f.getAttribute("ftjoin");
-            assertEquals("two", g.getAttribute("name"));
+            SimpleFeature g = (SimpleFeature) f.getAttribute(aname("ftjoin"));
+            assertEquals("two", g.getAttribute(aname("name")));
         }
         finally {
             it.close();
@@ -199,8 +198,8 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
         FilterFactory ff = dataStore.getFilterFactory();
         Query q = new Query(tname("ft1"));
         q.getJoins().add(new Join(tname("ft1"), 
-            ff.equal(ff.property(aname("intProperty")), ff.property(aname("foo.intProperty")), true)).alias("foo"));
-        q.setFilter(ff.equal(ff.property("stringProperty"), ff.literal("two"), true));
+            ff.equal(ff.property(aname("intProperty")), ff.property(aname("foo.intProperty")), true)).alias(aname("foo")));
+        q.setFilter(ff.equal(ff.property(aname("stringProperty")), ff.literal("two"), true));
 
         SimpleFeatureCollection features = dataStore.getFeatureSource(tname("ft1")).getFeatures(q);
         assertEquals(1, features.size());
@@ -211,12 +210,12 @@ public abstract class JDBCJoinTest extends JDBCTestSupport {
             
             SimpleFeature f = it.next();
             assertEquals(5, f.getAttributeCount());
-            assertEquals(new Integer(2), f.getAttribute(aname("intProperty")));
+            assertEquals(2, ((Number)f.getAttribute(aname("intProperty"))).intValue());
             assertEquals("two", f.getAttribute(aname("stringProperty")));
             
             SimpleFeature g = (SimpleFeature) f.getAttribute(aname("foo"));
             assertEquals(4, g.getAttributeCount());
-            assertEquals(new Integer(2), g.getAttribute(aname("intProperty")));
+            assertEquals(2, ((Number)g.getAttribute(aname("intProperty"))).intValue());
             assertEquals("two", g.getAttribute(aname("stringProperty")));
         }
         finally {

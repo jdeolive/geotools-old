@@ -68,17 +68,13 @@ public class JoinInfo {
             SimpleFeatureType[] types = joinFeatureSource.buildQueryAndReturnFeatureTypes(
                 joinFeatureSource.getSchema(), j.getPropertyNames(), prePostFilters[1]);
 
-            //a hack to get around geometry aliasing in queries, if this feature type has a geometry
-            // column that is the same as the name of the geometry column in the primary table, 
-            // give it a different alias
-            // copy the type first so that we don't change the original
+            //alias any attributes in this feature type that clash with attributes in the primary
+            // feature type
             types[0] = SimpleFeatureTypeBuilder.copy(types[0]);
             for (AttributeDescriptor att : types[0].getAttributeDescriptors()) {
-                if (att instanceof GeometryDescriptor) {
-                    if (featureType.getDescriptor(att.getName()) != null) {
-                        att.getUserData().put(
-                            JDBCDataStore.JDBC_COLUMN_ALIAS, alias + "." + att.getLocalName());
-                    }
+                if (featureType.getDescriptor(att.getName()) != null) {
+                    att.getUserData().put(
+                            JDBCDataStore.JDBC_COLUMN_ALIAS, alias + "_" + att.getLocalName());
                 }
             }
 

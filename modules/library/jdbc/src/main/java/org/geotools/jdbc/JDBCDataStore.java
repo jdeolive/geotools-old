@@ -2910,6 +2910,7 @@ public final class JDBCDataStore extends ContentDataStore
         // we need to add the primary key columns only if they are not already exposed
         for ( PrimaryKeyColumn col : key.getColumns() ) {
             dialect.encodeColumnName(prefix, col.getName(), sql);
+            dialect.encodeColumnAlias(prefix+"_"+col.getName(), sql);
             sql.append(",");
         }
         
@@ -2919,22 +2920,28 @@ public final class JDBCDataStore extends ContentDataStore
             // skip the eventually exposed pk column values
             if(pkColumnNames.contains(columnName))
                 continue;
+
+            String alias = null;
+            if (att.getUserData().containsKey(JDBC_COLUMN_ALIAS)) {
+                alias = (String)att.getUserData().get(JDBC_COLUMN_ALIAS);
+            }
+
             if (att instanceof GeometryDescriptor) {
                 int i = sql.length();
                 
                 //encode as geometry
                 encodeGeometryColumn((GeometryDescriptor) att, prefix, sql, query.getHints());
                 
-                if (att.getUserData().containsKey(JDBC_COLUMN_ALIAS)) {
-                  //alias it to be the name of the original geometry
-                    dialect.encodeColumnAlias((String)att.getUserData().get(JDBC_COLUMN_ALIAS), sql);
-                }
-                else {
+                if (alias == null) {
                     //alias it to be the name of the original geometry
-                    dialect.encodeColumnAlias(columnName, sql);
+                    alias = columnName;
                 }
             } else {
                 dialect.encodeColumnName(prefix, columnName, sql);
+            }
+
+            if (alias != null) {
+                dialect.encodeColumnAlias(alias, sql);
             }
 
             sql.append(",");
@@ -3388,7 +3395,7 @@ public final class JDBCDataStore extends ContentDataStore
                 //don't select * to avoid ambigous result set
                 sql.append("SELECT ");
                 dialect.encodeColumnName("a", sql);
-                sql.append(".* FROM");
+                sql.append(".* FROM ");
             }
             else {
                 sql.append("SELECT * FROM ");

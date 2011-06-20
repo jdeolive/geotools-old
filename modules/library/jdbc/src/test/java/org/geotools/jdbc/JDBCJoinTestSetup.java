@@ -45,7 +45,7 @@ public abstract class JDBCJoinTestSetup extends JDBCDelegatingTestSetup {
      * <p>
      * The table should be populated with the following data:
      * 0 | 'zero' | POLYGON ((-0.1 -0.1, -0.1 0.1, 0.1 0.1, 0.1 -0.1, -0.1 -0.1))
-     * 1 | 'one' | POLYGON ((-1 -1, -1 1, 1 1, 1 -1, -1 -1))
+     * 1 | 'one' | POLYGON ((-1.1 -1.1, -1.1 1.1, 1.1 1.1, 1.1 -1.1, -1.1 -1.1))
      * 2 | 'two' | POLYGON ((-10 -10, -10 10, 10 10, 10 -10, -10 -10))
      * </p>
      */
