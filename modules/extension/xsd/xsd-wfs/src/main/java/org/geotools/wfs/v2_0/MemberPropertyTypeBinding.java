@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.opengis.wfs20.FeatureCollectionType;
+
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.v3_2.GML;
@@ -65,8 +67,14 @@ public class MemberPropertyTypeBinding extends
     @Override
     public List getProperties(Object object, XSDElementDeclaration element) throws Exception {
         ArrayList list = new ArrayList();
-        list.add(
-            new Object[]{GML.AbstractFeature, super.getProperty(object, org.geotools.gml3.GML._Feature)});
+        Object member = super.getProperty(object, org.geotools.gml3.GML._Feature);
+        if (member != null) {
+            list.add(new Object[]{GML.AbstractFeature, object});
+        }
+        else if (object instanceof FeatureCollectionType) {
+            list.add(new Object[]{WFS.FeatureCollection, object});
+        }
+
         return list;
     }
 

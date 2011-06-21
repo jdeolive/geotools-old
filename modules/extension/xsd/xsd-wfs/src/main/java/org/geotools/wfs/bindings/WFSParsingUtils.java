@@ -16,9 +16,16 @@
  */
 package org.geotools.wfs.bindings;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+
+import net.opengis.wfs20.FeatureCollectionType;
+import net.opengis.wfs20.Wfs20Factory;
 
 import org.eclipse.emf.ecore.EObject;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -93,13 +100,61 @@ public class WFSParsingUtils {
         }
         
         if ( "featureMember".equals( name.getLocalPart() ) || "member".equals(name.getLocalPart())) {
-            if (features.size() > 1) {
+            if (features.size() == 1) {
+                //just return the single
+                return first;
+            }
+
+            //different behaviour across versions, in wfs < 2.0 we merge all the features into 
+            // a single collection, wfs 2.0+ we create a feature collection that contains multiple
+            // feature collections
+            if ("featureMember".equals(name.getLocalPart())) {
                 //wrap in a single
                 return new CompositeFeatureCollection(features);
             }
 
-            //just return the single
-            return first;
+            
+            //we need to recalculate numberMatched, and numberRetunred 
+            int numberMatched = -1;
+            if (EMFUtils.has(fc, "numberMatched")) {
+                Number n = (Number) EMFUtils.get(fc, "numberMatched");
+                numberMatched = n != null ? n.intValue() : -1;
+            }
+            else if (EMFUtils.has(fc, "numberOfFeatures")) {
+                Number n = (Number)EMFUtils.get(fc, "numberOfFeatures");
+                numberMatched = n != null ? n.intValue() : -1;
+            }
+
+            //create new feature collections
+            List<FeatureCollectionType> members = new ArrayList(features.size());
+            for (Iterator<FeatureCollection> it = features.iterator(); it.hasNext(); ) {
+                FeatureCollection featureCollection = it.next();
+                
+                FeatureCollectionType member = Wfs20Factory.eINSTANCE.createFeatureCollectionType();
+                member.setTimeStamp((Calendar) EMFUtils.get(fc, "timeStamp"));
+                member.getMember().add(featureCollection);
+                members.add(member);
+
+                if (numberMatched == -1) {
+                    continue;
+                }
+
+                //TODO: calling size() here is bad because it requires a nother trip to the 
+                //underlying datastore... perhaps try to keep count of the size of each feature
+                // collection at a higher level
+                int size = featureCollection.size();
+                
+                member.setNumberReturned(BigInteger.valueOf(size));
+
+                if (it.hasNext()) {
+                    numberMatched -= size;
+                    member.setNumberMatched(BigInteger.valueOf(size));
+                }
+                else {
+                    member.setNumberMatched(BigInteger.valueOf(numberMatched));
+                }
+            }
+            return members;
         }
         
         return null;
