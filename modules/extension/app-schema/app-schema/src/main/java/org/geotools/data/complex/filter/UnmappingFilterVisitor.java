@@ -54,6 +54,7 @@ import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.PropertyIsNil;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.PropertyIsNull;
 import org.opengis.filter.expression.Add;
@@ -508,6 +509,10 @@ public class UnmappingFilterVisitor implements org.opengis.filter.FilterVisitor,
 
         Filter unrolled = combineOred(combined);
         return unrolled;
+    }
+
+    public Object visit(PropertyIsNil filter, Object extraData) {
+        throw new UnsupportedOperationException("visit(PropertyIsNil filter, Object extraData)");
     }
 
     public Object visit(BBOX filter, Object arg1) {
