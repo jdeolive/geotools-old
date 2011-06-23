@@ -54,7 +54,6 @@ import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
-import org.h2.command.dml.Merge;
 import org.opengis.feature.Association;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
