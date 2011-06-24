@@ -15,6 +15,7 @@ import net.opengis.wfs20.Wfs20Factory;
 
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.gml3.XSDIdRegistry;
+import org.geotools.gml3.v3_2.GML;
 import org.geotools.gml3.v3_2.GMLConfiguration;
 import org.geotools.ows.v1_1.OWSConfiguration;
 import org.geotools.wfs.v2_0.bindings.EnvelopePropertyTypeBinding;
@@ -24,6 +25,7 @@ import org.geotools.wfs.v2_0.bindings.QueryExpressionTextTypeBinding;
 import org.geotools.wfs.v2_0.bindings.QueryTypeBinding;
 import org.geotools.wfs.v2_0.bindings.ReturnFeatureTypesListTypeBinding;
 import org.geotools.wfs.v2_0.bindings.TransactionTypeBinding;
+import org.geotools.wfs.v2_0.bindings.TupleTypeBinding;
 import org.geotools.wfs.v2_0.bindings.ValueReferenceTypeBinding;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
@@ -124,7 +126,7 @@ public class WFSConfiguration extends Configuration {
         binding(bindings, WFS.TransactionSummaryType);
 
         bindings.put(WFS.TransactionType,TransactionTypeBinding.class);
-//        container.registerComponentImplementation(WFS.TupleType,TupleTypeBinding.class);
+        bindings.put(WFS.TupleType,TupleTypeBinding.class);
 //        container.registerComponentImplementation(WFS.UpdateActionType,UpdateActionTypeBinding.class);
         binding(bindings, WFS.UpdateType);
 //        container.registerComponentImplementation(WFS.ValueCollectionType,ValueCollectionTypeBinding.class);
@@ -144,6 +146,7 @@ public class WFSConfiguration extends Configuration {
         bindings.put(WFS.Abstract, new SimpleContentComplexEMFBinding(Wfs20Factory.eINSTANCE, new QName(WFS.NAMESPACE, "AbstractType")));
         bindings.put(WFS.DropStoredQuery, new ComplexEMFBinding(Wfs20Factory.eINSTANCE, WFS.DropStoredQuery, DropStoredQueryType.class));
         bindings.put(WFS.Title, new SimpleContentComplexEMFBinding(Wfs20Factory.eINSTANCE, new QName(WFS.NAMESPACE, "TitleType")));
+        
     }
     
     void binding(Map bindings, QName name) {

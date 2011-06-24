@@ -10,6 +10,9 @@ import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.v3_2.GML;
 import org.geotools.xml.*;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.xml.namespace.QName;
 
@@ -69,7 +72,13 @@ public class MemberPropertyTypeBinding extends
         ArrayList list = new ArrayList();
         Object member = super.getProperty(object, org.geotools.gml3.GML._Feature);
         if (member != null) {
-            list.add(new Object[]{GML.AbstractFeature, object});
+            //check for joined feature
+            if (isJoinedFeature(member)) {
+                list.add(new Object[]{WFS.Tuple, splitJoinedFeature(member)});
+            }
+            else {
+                list.add(new Object[]{GML.AbstractFeature, object});
+            }
         }
         else if (object instanceof FeatureCollectionType) {
             list.add(new Object[]{WFS.FeatureCollection, object});
@@ -77,5 +86,37 @@ public class MemberPropertyTypeBinding extends
 
         return list;
     }
+    
+    boolean isJoinedFeature(Object obj) {
+        if (!(obj instanceof SimpleFeature)) {
+            return false;
+        }
+        
+        SimpleFeature feature = (SimpleFeature) obj;
+        for (Object att : feature.getAttributes()) {
+            if (att != null && att instanceof SimpleFeature) {
+                return true;
+            }
+        }
+            
+        return false;
+    }
 
+    Feature[] splitJoinedFeature(Object obj) {
+        SimpleFeature feature = (SimpleFeature) obj;
+        List features = new ArrayList();
+        features.add(feature);
+        for (int i = 0; i < feature.getAttributeCount(); i++) {
+            Object att = feature.getAttribute(i);
+            if (att != null && att instanceof SimpleFeature) {
+                features.add(att);
+                
+                //TODO: come up with a better approcach user, use user data or something to mark 
+                // the attribute as encoded
+                feature.setAttribute(i, null);
+            }
+        }
+        
+        return (Feature[])features.toArray(new Feature[features.size()]);
+    }
 }
