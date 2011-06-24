@@ -156,7 +156,7 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
         }
     }
     
-    protected void addMultiValuedSort(String tableName, SortBy[] sort , StringBuffer sql, JoiningQuery.Join join ) throws IOException, FilterToSQLException {
+    protected void addMultiValuedSort(String tableName, SortBy[] sort , StringBuffer sql, JoiningQuery.QueryJoin join ) throws IOException, FilterToSQLException {
         sql.append(" CASE WHEN ");            
         FilterToSQL toSQL1 = createFilterToSQL(getDataStore().getSchema(tableName));
         toSQL1.setFieldEncoder(new JoiningFieldEncoder(tableName));  
@@ -180,8 +180,8 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
     protected void sort(JoiningQuery query, StringBuffer sql, String[] aliases) throws IOException, SQLException, FilterToSQLException {
         boolean orderby = false;
         
-        for (int j = query.getJoins() == null? -1 : query.getJoins().size() -1; j >= -1 ; j-- ) {                
-            JoiningQuery.Join join = j<0 ? null : query.getJoins().get(j);
+        for (int j = query.getQueryJoins() == null? -1 : query.getQueryJoins().size() -1; j >= -1 ; j-- ) {                
+            JoiningQuery.QueryJoin join = j<0 ? null : query.getQueryJoins().get(j);
             SortBy[] sort = j<0? query.getSortBy() : join.getSortBy();
         
             if ((sort != null) && (sort.length > 0)) {
@@ -191,8 +191,8 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
                 }    
                 if (j < 0) {
                     sort(query.getTypeName(), sort, sql, false);
-                    if (query.getJoins()!= null && query.getJoins().size()>0) {
-                        addMultiValuedSort(query.getTypeName(), sort, sql, query.getJoins().get(0));
+                    if (query.getQueryJoins()!= null && query.getQueryJoins().size()>0) {
+                        addMultiValuedSort(query.getTypeName(), sort, sql, query.getQueryJoins().get(0));
                     }
                 } else {
                     if (aliases!=null && aliases[j] != null) {
@@ -200,8 +200,8 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
                     } else {
                         sort(join.getJoiningTypeName() , sort, sql, false);
                     }
-                    if (query.getJoins().size()>j+1) {
-                        addMultiValuedSort(join.getJoiningTypeName(), sort, sql, query.getJoins().get(j+1));
+                    if (query.getQueryJoins().size()>j+1) {
+                        addMultiValuedSort(join.getJoiningTypeName(), sort, sql, query.getQueryJoins().get(j+1));
                     }
                 }
             }
@@ -306,13 +306,13 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
         
         String[] aliases = null;
         
-        if (query.getJoins() != null) {
+        if (query.getQueryJoins() != null) {
             
             SortBy[] lastSortBy = query.getSortBy();          
-            aliases = new String[query.getJoins().size()];
+            aliases = new String[query.getQueryJoins().size()];
             
-            for (int i=0; i< query.getJoins().size(); i++) {
-                JoiningQuery.Join join = query.getJoins().get(i);
+            for (int i=0; i< query.getQueryJoins().size(); i++) {
+                JoiningQuery.QueryJoin join = query.getQueryJoins().get(i);
                 
                 if (lastSortBy!= null && lastSortBy.length > 0) {       
                     tableNames.add(curTypeName);
@@ -414,11 +414,11 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
             sql.append(",");
         }
         
-        if (query.getJoins() != null && query.getJoins().size() > 0) {
-            for (int i=0; i<query.getJoins().size(); i++) {
-                for (int j=0; j<query.getJoins().get(i).getSortBy().length; j++) {
-                    encodeColumnName(query.getJoins().get(i).getSortBy()[j].getPropertyName().getPropertyName(), 
-                            query.getJoins().get(i).getJoiningTypeName(), sql, query.getHints());
+        if (query.getQueryJoins() != null && query.getQueryJoins().size() > 0) {
+            for (int i=0; i<query.getQueryJoins().size(); i++) {
+                for (int j=0; j<query.getQueryJoins().get(i).getSortBy().length; j++) {
+                    encodeColumnName(query.getQueryJoins().get(i).getSortBy()[j].getPropertyName().getPropertyName(), 
+                            query.getQueryJoins().get(i).getJoiningTypeName(), sql, query.getHints());
                     sql.append(" ").append(FOREIGN_ID + "_" + i + "_" + j).append(",");                    
                 }
             }
@@ -438,11 +438,11 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
             try {
                 // grab the full feature type, as we might be encoding a filter
                 // that uses attributes that aren't returned in the results
-                SortBy[] lastSortBy = query.getJoins() == null || query.getJoins().size()== 0 ? query.getSortBy() :
-                                      query.getJoins().get(query.getJoins().size()-1).getSortBy();
+                SortBy[] lastSortBy = query.getQueryJoins() == null || query.getQueryJoins().size()== 0 ? query.getSortBy() :
+                                      query.getQueryJoins().get(query.getQueryJoins().size()-1).getSortBy();
                 
-                String lastTableName = query.getJoins() == null || query.getJoins().size()== 0 ? query.getTypeName() :
-                    query.getJoins().get(query.getJoins().size()-1).getJoiningTypeName();
+                String lastTableName = query.getQueryJoins() == null || query.getQueryJoins().size()== 0 ? query.getTypeName() :
+                    query.getQueryJoins().get(query.getQueryJoins().size()-1).getJoiningTypeName();
                 
                 toSQL = createFilterToSQL(getDataStore().getSchema(lastTableName));
                 
@@ -553,8 +553,8 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
         
         AttributeTypeBuilder ab = new AttributeTypeBuilder();
         
-        for (int i=0; i<query.getJoins().size(); i++) {
-            for (int j=0; j<query.getJoins().get(i).getSortBy().length; j++) {
+        for (int i=0; i<query.getQueryJoins().size(); i++) {
+            for (int j=0; j<query.getQueryJoins().get(i).getSortBy().length; j++) {
                 ab.setBinding(String.class);
                 builder.add(ab.buildDescriptor(new NameImpl(FOREIGN_ID) + "_" + i + "_" + j, ab.buildType() ) );
             }
@@ -585,7 +585,7 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
         } else {
             querySchema = SimpleFeatureTypeBuilder.retype(getSchema(), query.getPropertyNames());            
         }
-        SimpleFeatureType fullSchema = query.getJoins() == null? querySchema : getFeatureType(querySchema, query);
+        SimpleFeatureType fullSchema = query.getQueryJoins() == null? querySchema : getFeatureType(querySchema, query);
         
         //grab connection
         Connection cx = getDataStore().getConnection(getState());
@@ -632,7 +632,7 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
     protected Query resolvePropertyNames( Query query ) {
         /*if (query instanceof JoiningQuery) {
             JoiningQuery jQuery = new JoiningQuery (super.resolvePropertyNames(query));
-            jQuery.setJoins(((JoiningQuery)query).getJoins());            
+            jQuery.setJoins(((JoiningQuery)query).getQueryJoins());            
             return jQuery;
         } else {
             return super.resolvePropertyNames(query);
@@ -647,7 +647,7 @@ public class JoiningJDBCFeatureSource extends JDBCFeatureSource {
         }
         else if (query instanceof JoiningQuery) {            
             JoiningQuery jQuery = new JoiningQuery (super.joinQuery(query));            
-            jQuery.setJoins(((JoiningQuery)query).getJoins());            
+            jQuery.setQueryJoins(((JoiningQuery)query).getQueryJoins());            
             return jQuery;            
         }
         else {            
