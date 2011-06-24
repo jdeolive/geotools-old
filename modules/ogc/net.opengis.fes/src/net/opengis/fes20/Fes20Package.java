@@ -403,7 +403,7 @@ public interface Fes20Package extends EPackage {
     int ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = ABSTRACT_QUERY_EXPRESSION_TYPE_FEATURE_COUNT + 2;
 
     /**
-     * The feature id for the '<em><b>Aliases</b></em>' attribute.
+     * The feature id for the '<em><b>Aliases</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3543,10 +3543,10 @@ public interface Fes20Package extends EPackage {
     EAttribute getAbstractAdhocQueryExpressionType_AbstractSortingClause();
 
     /**
-     * Returns the meta object for the attribute '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAliases <em>Aliases</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAliases <em>Aliases</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute '<em>Aliases</em>'.
+     * @return the meta object for the attribute list '<em>Aliases</em>'.
      * @see net.opengis.fes20.AbstractAdhocQueryExpressionType#getAliases()
      * @see #getAbstractAdhocQueryExpressionType()
      * @generated
@@ -6648,7 +6648,7 @@ public interface Fes20Package extends EPackage {
         EAttribute ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE = eINSTANCE.getAbstractAdhocQueryExpressionType_AbstractSortingClause();
 
         /**
-         * The meta object literal for the '<em><b>Aliases</b></em>' attribute feature.
+         * The meta object literal for the '<em><b>Aliases</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated

@@ -281,4 +281,44 @@ public class GetFeatureTypeBindingTest extends WFSTestSupport {
         assertNotNull(p.getValue());
         assertTrue(p.getValue().contains("gml:Polygon"));
     }
+    
+    public void testParseJoinQuery() throws Exception {
+        String xml = "<GetFeature " + 
+        "   service='WFS' " + 
+        "   version='2.0.0' " + 
+        "   xmlns='http://www.opengis.net/wfs/2.0' " + 
+        "   xmlns:myns='http://www.someserver.com/myns' " + 
+        "   xmlns:fes='http://www.opengis.net/fes/2.0' " + 
+        "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " + 
+        "   xsi:schemaLocation='http://www.opengis.net/wfs/2.0 " + 
+        "                       http://schemas.opengis.net/wfs/2.0/wfs.xsd'> " + 
+        "   <Query typeNames='myns:RoadSegments myns:Bridges' aliases='a b'> " + 
+        "      <fes:Filter> " + 
+        "         <fes:And> " + 
+        "            <fes:PropertyIsEqualTo> " + 
+        "               <fes:ValueReference>a/RoadName</fes:ValueReference> " + 
+        "               <fes:Literal>Main St.</fes:Literal> " + 
+        " " + 
+        "            </fes:PropertyIsEqualTo> " + 
+        "            <fes:PropertyIsEqualTo> " + 
+        "               <fes:ValueReference>a/RoadCode</fes:ValueReference> " + 
+        "               <fes:ValueReference>b/RoadCode</fes:ValueReference> " + 
+        "            </fes:PropertyIsEqualTo> " + 
+        "         </fes:And> " + 
+        "      </fes:Filter> " + 
+        "   </Query> " + 
+        " " + 
+        "</GetFeature>"; 
+        buildDocument(xml);
+        
+        GetFeatureType gf = (GetFeatureType) parse();
+        assertNotNull(gf);
+        
+        assertEquals(1, gf.getAbstractQueryExpression().size());
+        QueryType q = (QueryType) gf.getAbstractQueryExpression().get(0);
+        assertNotNull(q);
+        
+        assertEquals(2, q.getTypeNames().size());
+        assertEquals(2, q.getAliases().size());
+    }
 }

@@ -97,24 +97,14 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
     protected Object abstractSortingClause = ABSTRACT_SORTING_CLAUSE_EDEFAULT;
 
     /**
-     * The default value of the '{@link #getAliases() <em>Aliases</em>}' attribute.
+     * The cached value of the '{@link #getAliases() <em>Aliases</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getAliases()
      * @generated
      * @ordered
      */
-    protected static final List<String> ALIASES_EDEFAULT = null;
-
-    /**
-     * The cached value of the '{@link #getAliases() <em>Aliases</em>}' attribute.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @see #getAliases()
-     * @generated
-     * @ordered
-     */
-    protected List<String> aliases = ALIASES_EDEFAULT;
+    protected EList<String> aliases;
 
     /**
      * The cached value of the '{@link #getTypeNames() <em>Type Names</em>}' attribute list.
@@ -204,20 +194,11 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
      * <!-- end-user-doc -->
      * @generated
      */
-    public List<String> getAliases() {
+    public EList<String> getAliases() {
+        if (aliases == null) {
+            aliases = new EDataTypeUniqueEList<String>(String.class, this, Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES);
+        }
         return aliases;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void setAliases(List<String> newAliases) {
-        List<String> oldAliases = aliases;
-        aliases = newAliases;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES, oldAliases, aliases));
     }
 
     /**
@@ -274,7 +255,8 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
                 setAbstractSortingClause(newValue);
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES:
-                setAliases((List<String>)newValue);
+                getAliases().clear();
+                getAliases().addAll((Collection<? extends String>)newValue);
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
                 getTypeNames().clear();
@@ -302,7 +284,7 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
                 setAbstractSortingClause(ABSTRACT_SORTING_CLAUSE_EDEFAULT);
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES:
-                setAliases(ALIASES_EDEFAULT);
+                getAliases().clear();
                 return;
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
                 getTypeNames().clear();
@@ -326,7 +308,7 @@ public abstract class AbstractAdhocQueryExpressionTypeImpl extends AbstractQuery
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE:
                 return ABSTRACT_SORTING_CLAUSE_EDEFAULT == null ? abstractSortingClause != null : !ABSTRACT_SORTING_CLAUSE_EDEFAULT.equals(abstractSortingClause);
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES:
-                return ALIASES_EDEFAULT == null ? aliases != null : !ALIASES_EDEFAULT.equals(aliases);
+                return aliases != null && !aliases.isEmpty();
             case Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__TYPE_NAMES:
                 return typeNames != null && !typeNames.isEmpty();
         }

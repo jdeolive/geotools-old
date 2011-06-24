@@ -111,21 +111,10 @@ public interface AbstractAdhocQueryExpressionType extends AbstractQueryExpressio
      * @return the value of the '<em>Aliases</em>' attribute.
      * @see #setAliases(List)
      * @see net.opengis.fes20.Fes20Package#getAbstractAdhocQueryExpressionType_Aliases()
-     * @model dataType="net.opengis.fes20.AliasesType" many="false"
-     *        extendedMetaData="kind='attribute' name='aliases'"
-     * @generated
+     * @model
+     * @generated NOT
      */
-    List<String> getAliases();
-
-    /**
-     * Sets the value of the '{@link net.opengis.fes20.AbstractAdhocQueryExpressionType#getAliases <em>Aliases</em>}' attribute.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @param value the new value of the '<em>Aliases</em>' attribute.
-     * @see #getAliases()
-     * @generated
-     */
-    void setAliases(List<String> value);
+    EList<String> getAliases();
 
     /**
      * Returns the value of the '<em><b>Type Names</b></em>' attribute.
