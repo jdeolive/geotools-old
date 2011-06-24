@@ -247,6 +247,21 @@ public class Join {
     }
 
     /**
+     * Convenience method that returns the attribute name to be used for this join.
+     * <p>
+     * Convenience for:
+     * <code>
+     * <pre>
+     *  return getAlias() != null ? getAlias() : getTypeName();
+     * </pre>
+     * </code>
+     * </p>
+     */
+    public String attributeName() {
+        return getAlias() != null ? getAlias() : getTypeName();
+    }
+
+    /**
      * Chaining method for {@link #getProperties()}
      */
     public Join properties(String... properties) {
