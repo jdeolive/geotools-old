@@ -166,6 +166,7 @@
     <module>wfs</module>
     <module>geojson</module>
     <module>grid</module>
+    <module>imagecollection</module>
   </modules>
 
 </project>
