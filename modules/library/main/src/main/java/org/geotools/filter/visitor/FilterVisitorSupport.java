@@ -75,10 +75,6 @@ public abstract class FilterVisitorSupport implements FilterVisitor {
 
     protected abstract Object visit(BinaryLogicOperator op, Object extraData);
 
-    public Object visit(PropertyIsBetween filter, Object extraData) {
-        return visit((BinaryComparisonOperator)filter, extraData);
-    }
-
     public Object visit(PropertyIsEqualTo filter, Object extraData) {
         return visit((BinaryComparisonOperator)filter, extraData);
     }
@@ -100,18 +96,6 @@ public abstract class FilterVisitorSupport implements FilterVisitor {
     }
 
     public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
-        return visit((BinaryComparisonOperator)filter, extraData);
-    }
-
-    public Object visit(PropertyIsLike filter, Object extraData) {
-        return visit((BinaryComparisonOperator)filter, extraData);
-    }
-
-    public Object visit(PropertyIsNull filter, Object extraData) {
-        return visit((BinaryComparisonOperator)filter, extraData);
-    }
-
-    public Object visit(PropertyIsNil filter, Object extraData) {
         return visit((BinaryComparisonOperator)filter, extraData);
     }
 
