@@ -6,6 +6,8 @@
  */
 package net.opengis.wfs20.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import net.opengis.wfs20.BaseRequestType;
 import net.opengis.wfs20.Wfs20Package;
 
@@ -27,6 +29,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getVersion <em>Version</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getBaseUrl <em>Base Url</em>}</li>
+ *   <li>{@link net.opengis.wfs20.impl.BaseRequestTypeImpl#getExtendedProperties <em>Extended Properties</em>}</li>
  * </ul>
  * </p>
  *
@@ -130,6 +133,26 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
      * @ordered
      */
     protected String baseUrl = BASE_URL_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getExtendedProperties() <em>Extended Properties</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getExtendedProperties()
+     * @generated
+     * @ordered
+     */
+    protected static final Map EXTENDED_PROPERTIES_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getExtendedProperties() <em>Extended Properties</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getExtendedProperties()
+     * @generated
+     * @ordered
+     */
+    protected Map extendedProperties = new HashMap();
 
     /**
      * <!-- begin-user-doc -->
@@ -289,6 +312,27 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
      * <!-- end-user-doc -->
      * @generated
      */
+    public Map getExtendedProperties() {
+        return extendedProperties;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setExtendedProperties(Map newExtendedProperties) {
+        Map oldExtendedProperties = extendedProperties;
+        extendedProperties = newExtendedProperties;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.BASE_REQUEST_TYPE__EXTENDED_PROPERTIES, oldExtendedProperties, extendedProperties));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
@@ -300,6 +344,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return getVersion();
             case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
                 return getBaseUrl();
+            case Wfs20Package.BASE_REQUEST_TYPE__EXTENDED_PROPERTIES:
+                return getExtendedProperties();
         }
         return super.eGet(featureID, resolve, coreType);
     }
@@ -323,6 +369,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return;
             case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
                 setBaseUrl((String)newValue);
+                return;
+            case Wfs20Package.BASE_REQUEST_TYPE__EXTENDED_PROPERTIES:
+                setExtendedProperties((Map)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -348,6 +397,9 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
             case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
                 setBaseUrl(BASE_URL_EDEFAULT);
                 return;
+            case Wfs20Package.BASE_REQUEST_TYPE__EXTENDED_PROPERTIES:
+                setExtendedProperties(EXTENDED_PROPERTIES_EDEFAULT);
+                return;
         }
         super.eUnset(featureID);
     }
@@ -368,6 +420,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
                 return isSetVersion();
             case Wfs20Package.BASE_REQUEST_TYPE__BASE_URL:
                 return BASE_URL_EDEFAULT == null ? baseUrl != null : !BASE_URL_EDEFAULT.equals(baseUrl);
+            case Wfs20Package.BASE_REQUEST_TYPE__EXTENDED_PROPERTIES:
+                return EXTENDED_PROPERTIES_EDEFAULT == null ? extendedProperties != null : !EXTENDED_PROPERTIES_EDEFAULT.equals(extendedProperties);
         }
         return super.eIsSet(featureID);
     }
@@ -390,6 +444,8 @@ public abstract class BaseRequestTypeImpl extends EObjectImpl implements BaseReq
         if (versionESet) result.append(version); else result.append("<unset>");
         result.append(", baseUrl: ");
         result.append(baseUrl);
+        result.append(", extendedProperties: ");
+        result.append(extendedProperties);
         result.append(')');
         return result.toString();
     }

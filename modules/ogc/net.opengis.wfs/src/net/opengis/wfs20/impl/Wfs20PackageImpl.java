@@ -1018,6 +1018,15 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
      * <!-- end-user-doc -->
      * @generated
      */
+    public EAttribute getBaseRequestType_ExtendedProperties() {
+        return (EAttribute)baseRequestTypeEClass.getEStructuralFeatures().get(4);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     public EClass getCreatedOrModifiedFeatureType() {
         return createdOrModifiedFeatureTypeEClass;
     }
@@ -3964,6 +3973,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__SERVICE);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__VERSION);
         createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__BASE_URL);
+        createEAttribute(baseRequestTypeEClass, BASE_REQUEST_TYPE__EXTENDED_PROPERTIES);
 
         createdOrModifiedFeatureTypeEClass = createEClass(CREATED_OR_MODIFIED_FEATURE_TYPE);
         createEAttribute(createdOrModifiedFeatureTypeEClass, CREATED_OR_MODIFIED_FEATURE_TYPE__RESOURCE_ID);
@@ -4432,6 +4442,7 @@ public class Wfs20PackageImpl extends EPackageImpl implements Wfs20Package {
         initEAttribute(getBaseRequestType_Service(), theXMLTypePackage.getString(), "service", "WFS", 1, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_Version(), theXMLTypePackage.getString(), "version", "2.0.0", 1, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getBaseRequestType_BaseUrl(), ecorePackage.getEString(), "baseUrl", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getBaseRequestType_ExtendedProperties(), this.getMap(), "extendedProperties", null, 0, 1, BaseRequestType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
         initEClass(createdOrModifiedFeatureTypeEClass, CreatedOrModifiedFeatureType.class, "CreatedOrModifiedFeatureType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getCreatedOrModifiedFeatureType_ResourceId(), this.getFeatureId(), "resourceId", null, 0, -1, CreatedOrModifiedFeatureType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

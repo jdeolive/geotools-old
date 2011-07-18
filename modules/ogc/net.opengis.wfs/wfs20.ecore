@@ -151,6 +151,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUrl" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="extendedProperties" eType="#//Map"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CreatedOrModifiedFeatureType">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

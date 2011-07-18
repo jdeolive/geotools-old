@@ -86,6 +86,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/service"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/version"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/baseUrl"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//BaseRequestType/extendedProperties"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//CreatedOrModifiedFeatureType">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//CreatedOrModifiedFeatureType/resourceId"/>

@@ -6,6 +6,8 @@
  */
 package net.opengis.wfs20;
 
+import java.util.Map;
+
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -20,6 +22,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getService <em>Service</em>}</li>
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getVersion <em>Version</em>}</li>
  *   <li>{@link net.opengis.wfs20.BaseRequestType#getBaseUrl <em>Base Url</em>}</li>
+ *   <li>{@link net.opengis.wfs20.BaseRequestType#getExtendedProperties <em>Extended Properties</em>}</li>
  * </ul>
  * </p>
  *
@@ -188,5 +191,26 @@ public interface BaseRequestType extends EObject {
      * @generated
      */
     void setBaseUrl(String value);
+
+    /**
+     * Extended model properties.
+     * <p>
+     * This map allows client to store additional properties with the this
+     * request object, properties that are not part of the model proper.
+     * </p>
+     * 
+     * @model
+     */
+    Map getExtendedProperties();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.BaseRequestType#getExtendedProperties <em>Extended Properties</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Extended Properties</em>' attribute.
+     * @see #getExtendedProperties()
+     * @generated
+     */
+    void setExtendedProperties(Map value);
 
 } // BaseRequestType

@@ -585,13 +585,22 @@ public interface Wfs20Package extends EPackage {
     int BASE_REQUEST_TYPE__BASE_URL = 3;
 
     /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int BASE_REQUEST_TYPE__EXTENDED_PROPERTIES = 4;
+
+    /**
      * The number of structural features of the '<em>Base Request Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int BASE_REQUEST_TYPE_FEATURE_COUNT = 4;
+    int BASE_REQUEST_TYPE_FEATURE_COUNT = 5;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl <em>Created Or Modified Feature Type</em>}' class.
@@ -733,6 +742,15 @@ public interface Wfs20Package extends EPackage {
     int CREATE_STORED_QUERY_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int CREATE_STORED_QUERY_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
+
+    /**
      * The feature id for the '<em><b>Stored Query Definition</b></em>' containment reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -843,6 +861,15 @@ public interface Wfs20Package extends EPackage {
     int DESCRIBE_FEATURE_TYPE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DESCRIBE_FEATURE_TYPE_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
+
+    /**
      * The feature id for the '<em><b>Type Name</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -942,6 +969,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int DESCRIBE_STORED_QUERIES_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DESCRIBE_STORED_QUERIES_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Stored Query Id</b></em>' attribute list.
@@ -1439,6 +1475,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int DROP_STORED_QUERY_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DROP_STORED_QUERY_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Id</b></em>' attribute.
@@ -2092,6 +2137,15 @@ public interface Wfs20Package extends EPackage {
     int GET_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
+
+    /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -2244,6 +2298,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int GET_FEATURE_WITH_LOCK_TYPE__BASE_URL = GET_FEATURE_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_FEATURE_WITH_LOCK_TYPE__EXTENDED_PROPERTIES = GET_FEATURE_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -2416,6 +2479,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int GET_PROPERTY_VALUE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int GET_PROPERTY_VALUE_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -2655,6 +2727,15 @@ public interface Wfs20Package extends EPackage {
     int LIST_STORED_QUERIES_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
 
     /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int LIST_STORED_QUERIES_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
+
+    /**
      * The number of structural features of the '<em>List Stored Queries Type</em>' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
@@ -2754,6 +2835,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int LOCK_FEATURE_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int LOCK_FEATURE_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
@@ -3460,7 +3550,7 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__ABSTRACT_SORTING_CLAUSE = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ABSTRACT_SORTING_CLAUSE;
 
     /**
-     * The feature id for the '<em><b>Aliases</b></em>' attribute.
+     * The feature id for the '<em><b>Aliases</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3469,7 +3559,7 @@ public interface Wfs20Package extends EPackage {
     int QUERY_TYPE__ALIASES = Fes20Package.ABSTRACT_ADHOC_QUERY_EXPRESSION_TYPE__ALIASES;
 
     /**
-     * The feature id for the '<em><b>Type Names</b></em>' attribute.
+     * The feature id for the '<em><b>Type Names</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -3961,6 +4051,15 @@ public interface Wfs20Package extends EPackage {
      * @ordered
      */
     int TRANSACTION_TYPE__BASE_URL = BASE_REQUEST_TYPE__BASE_URL;
+
+    /**
+     * The feature id for the '<em><b>Extended Properties</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int TRANSACTION_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
      * The feature id for the '<em><b>Group</b></em>' attribute list.
@@ -5003,6 +5102,17 @@ public interface Wfs20Package extends EPackage {
      * @generated
      */
     EAttribute getBaseRequestType_BaseUrl();
+
+    /**
+     * Returns the meta object for the attribute '{@link net.opengis.wfs20.BaseRequestType#getExtendedProperties <em>Extended Properties</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Extended Properties</em>'.
+     * @see net.opengis.wfs20.BaseRequestType#getExtendedProperties()
+     * @see #getBaseRequestType()
+     * @generated
+     */
+    EAttribute getBaseRequestType_ExtendedProperties();
 
     /**
      * Returns the meta object for class '{@link net.opengis.wfs20.CreatedOrModifiedFeatureType <em>Created Or Modified Feature Type</em>}'.
@@ -8689,6 +8799,14 @@ public interface Wfs20Package extends EPackage {
          * @generated
          */
         EAttribute BASE_REQUEST_TYPE__BASE_URL = eINSTANCE.getBaseRequestType_BaseUrl();
+
+        /**
+         * The meta object literal for the '<em><b>Extended Properties</b></em>' attribute feature.
+         * <!-- begin-user-doc -->
+         * <!-- end-user-doc -->
+         * @generated
+         */
+        EAttribute BASE_REQUEST_TYPE__EXTENDED_PROPERTIES = eINSTANCE.getBaseRequestType_ExtendedProperties();
 
         /**
          * The meta object literal for the '{@link net.opengis.wfs20.impl.CreatedOrModifiedFeatureTypeImpl <em>Created Or Modified Feature Type</em>}' class.
