@@ -20,12 +20,14 @@ import org.geotools.filter.v1_1.FilterMockData;
 import org.geotools.filter.v2_0.FES;
 import org.geotools.filter.v2_0.FESTestSupport;
 import org.opengis.filter.And;
+import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Within;
 import org.w3c.dom.Document;
@@ -214,5 +216,22 @@ public class FilterTypeBindingTest extends FESTestSupport {
         
         assertNotNull(getElementByQName(e, FES.PropertyIsEqualTo));
         assertNotNull(getElementByQName(e, FES.PropertyIsNotEqualTo));
+    }
+    
+    public void testParseGmlWithoutSchemaLocation() throws Exception {
+        String xml = 
+        "<fes:Filter xmlns:gml='http://www.opengis.net/gml/3.2' xmlns:fes='http://www.opengis.net/fes/2.0'> " + 
+        " <fes:BBOX> " + 
+        "  <fes:ValueReference>it.geosolutions:the_geom</fes:ValueReference> " + 
+        "  <gml:Envelope srsName='urn:ogc:def:crs:EPSG::2154'> " + 
+        "   <gml:lowerCorner>834021 6504682</gml:lowerCorner> " + 
+        "   <gml:upperCorner>943396 6604240</gml:upperCorner> " + 
+        "  </gml:Envelope> " + 
+        " </fes:BBOX> " + 
+        "</fes:Filter> ";
+        buildDocument(xml);
+        BBOX f = (BBOX) parse();
+        assertTrue(f.getExpression1() instanceof PropertyName);
+        assertTrue(f.getExpression2() instanceof Literal);
     }
 }
