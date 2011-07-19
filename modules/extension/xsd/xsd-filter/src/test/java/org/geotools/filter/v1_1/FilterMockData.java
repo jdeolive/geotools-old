@@ -39,6 +39,7 @@ import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Add;
 import org.opengis.filter.expression.Divide;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.Multiply;
 import org.opengis.filter.expression.PropertyName;
@@ -114,6 +115,10 @@ public class FilterMockData {
 
     public static Literal literal(Object value) {
         return f.literal(value);
+    }
+    
+    public static Function function() {
+        return f.function("abs", f.property("foo"));
     }
 
     public static Element propertyIsEqualTo(Document document, Node parent) {

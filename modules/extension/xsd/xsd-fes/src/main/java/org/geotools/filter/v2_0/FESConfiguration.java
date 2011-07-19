@@ -32,6 +32,7 @@ import org.geotools.filter.v2_0.bindings.EndedByBinding;
 import org.geotools.filter.v2_0.bindings.EndsBinding;
 import org.geotools.filter.v2_0.bindings.EqualsBinding;
 import org.geotools.filter.v2_0.bindings.FilterTypeBinding;
+import org.geotools.filter.v2_0.bindings.FunctionTypeBinding;
 import org.geotools.filter.v2_0.bindings.IntersectsBinding;
 import org.geotools.filter.v2_0.bindings.LiteralBinding;
 import org.geotools.filter.v2_0.bindings.MeetsBinding;
@@ -119,7 +120,7 @@ public class FESConfiguration extends Configuration {
 //        container.registerComponentImplementation(FES.ComparisonOpsType,ComparisonOpsTypeBinding.class);
 //        container.registerComponentImplementation(FES.DistanceBufferType,DistanceBufferTypeBinding.class);
         container.registerComponentImplementation(FES.FilterType,FilterTypeBinding.class);
-//        container.registerComponentImplementation(FES.FunctionType,FunctionTypeBinding.class);
+        container.registerComponentImplementation(FES.FunctionType,FunctionTypeBinding.class);
 //        container.registerComponentImplementation(FES.GeometryOperandsType,GeometryOperandsTypeBinding.class);
 //        container.registerComponentImplementation(FES.Id_CapabilitiesType,Id_CapabilitiesTypeBinding.class);
 //        container.registerComponentImplementation(FES.LiteralType,LiteralTypeBinding.class);
