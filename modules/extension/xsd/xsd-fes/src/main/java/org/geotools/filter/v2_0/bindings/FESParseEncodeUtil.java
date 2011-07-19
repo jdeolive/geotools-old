@@ -16,10 +16,17 @@
  */
 package org.geotools.filter.v2_0.bindings;
 
+import javax.xml.namespace.QName;
+
+import org.geotools.filter.v2_0.FES;
 import org.geotools.xml.Node;
+import org.opengis.filter.BinaryComparisonOperator;
+import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.opengis.filter.temporal.BinaryTemporalOperator;
 
 /**
  * Utility class for FES bindings.
@@ -57,5 +64,33 @@ public class FESParseEncodeUtil {
         }
         
         return new Expression[]{name, expr};
+    }
+    
+    static Expression getProperty(BinaryTemporalOperator op, QName name) {
+        return getProperty(op.getExpression1(), op.getExpression2(), name);
+    }
+    static Expression getProperty(BinarySpatialOperator op, QName name) {
+        return getProperty(op.getExpression1(), op.getExpression2(), name);
+    }
+    
+    static Expression getProperty(Expression e1, Expression e2, QName name) {
+        if (FES.ValueReference.equals(name)) {
+            if (e1 instanceof PropertyName) {
+                return e1;
+            }
+            else if (e2 instanceof PropertyName) {
+                return e2;
+            }
+        }
+        if (FES.expression.equals(name)) {
+            if (e1 instanceof PropertyName) {
+                return e2;
+            }
+            else if (e2 instanceof PropertyName) {
+                return e1;
+            }
+        }
+        
+        return null;
     }
 }

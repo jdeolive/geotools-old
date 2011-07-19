@@ -16,16 +16,13 @@
  */
 package org.geotools.filter.v2_0.bindings;
 
-import java.util.List;
+import javax.xml.namespace.QName;
 
 import org.geotools.filter.v2_0.FES;
-import org.geotools.xml.*;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.PropertyName;
+import org.geotools.xml.AbstractComplexBinding;
+import org.geotools.xml.ElementInstance;
+import org.geotools.xml.Node;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
-
-import javax.xml.namespace.QName;
 
 /**
  * Binding object for the type http://www.opengis.net/fes/2.0:BinaryTemporalOpType.
@@ -84,25 +81,7 @@ public class BinaryTemporalOpTypeBinding extends AbstractComplexBinding {
 
     @Override
     public Object getProperty(Object object, QName name) throws Exception {
-        BinaryTemporalOperator op = (BinaryTemporalOperator) object;
-        if (FES.ValueReference.equals(name)) {
-            if (op.getExpression1() instanceof PropertyName) {
-                return op.getExpression1();
-            }
-            else if (op.getExpression2() instanceof PropertyName) {
-                return op.getExpression2();
-            }
-        }
-        if (FES.expression.equals(name)) {
-            if (op.getExpression1() instanceof PropertyName) {
-                return op.getExpression2();
-            }
-            else if (op.getExpression2() instanceof PropertyName) {
-                return op.getExpression1();
-            }
-        }
-        
-        return null;
+        return FESParseEncodeUtil.getProperty((BinaryTemporalOperator) object, name);
     }
 
 }

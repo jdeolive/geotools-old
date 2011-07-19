@@ -16,11 +16,16 @@
  */
 package org.geotools.filter.v2_0.bindings;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.spatial.Intersects;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.eclipse.xsd.XSDElementDeclaration;
 import org.geotools.filter.v1_0.OGCIntersectsBinding;
 import org.geotools.filter.v2_0.FES;
 import org.geotools.xml.AbstractComplexBinding;

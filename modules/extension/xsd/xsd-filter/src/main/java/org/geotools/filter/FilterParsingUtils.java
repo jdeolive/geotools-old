@@ -47,16 +47,19 @@ import org.opengis.filter.spatial.BinarySpatialOperator;
  */
 public class FilterParsingUtils {
 
-    public static Object Filter_getProperty(Object object, QName name ) {
+    public static Object Filter_getProperty(Object object, QName qName ) {
         Filter filter = (Filter) object;
 
+        //use the local name to handle oth the OGC and FES namespaces
+        String name = qName.getLocalPart();
+        
         //&lt;xsd:element ref="ogc:spatialOps"/&gt;
-        if (OGC.spatialOps.equals(name) && filter instanceof BinarySpatialOperator) {
+        if ("spatialOps".equals(name) && filter instanceof BinarySpatialOperator) {
             return filter;
         }
 
         //&lt;xsd:element ref="ogc:comparisonOps"/&gt;
-        if (OGC.comparisonOps.equals(name)) {
+        if ("comparisonOps".equals(name)) {
             //JD: extra check here because many of our spatial implementations
             // extend both      
             if ( filter instanceof BinaryComparisonOperator
@@ -74,13 +77,13 @@ public class FilterParsingUtils {
         }
 
         //&lt;xsd:element ref="ogc:logicOps"/&gt;
-        if (OGC.logicOps.equals(name) && filter instanceof BinaryLogicOperator) {
+        if ("logicOps".equals(name) && filter instanceof BinaryLogicOperator) {
             return filter;
         }
 
         //&lt;xsd:element maxOccurs="unbounded" ref="ogc:_Id"/&gt;
         if ( filter instanceof Id && 
-            ( OGC._Id.equals(name) /*1.1*/ || OGC.FeatureId.equals(name) /*1.0*/ ) ) {
+            ( "_Id".equals(name) /*1.1/2.0*/ || "FeatureId".equals(name) /*1.0*/ ) ) {
             //unwrap
             Id id = (Id) filter;
 

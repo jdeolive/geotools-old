@@ -1,5 +1,7 @@
 package org.geotools.filter.v2_0.bindings;
 
+import org.geotools.filter.v1_1.FilterMockData;
+import org.geotools.filter.v2_0.FES;
 import org.geotools.filter.v2_0.FESTestSupport;
 import org.opengis.filter.And;
 import org.opengis.filter.Id;
@@ -10,6 +12,8 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Within;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -153,6 +157,46 @@ public class FilterTypeBindingTest extends FESTestSupport {
         assertEquals("DEPTH", ((PropertyName)f2.getExpression()).getPropertyName());
         assertEquals(400, f2.getLowerBoundary().evaluate(null, Integer.class).intValue());
         assertEquals(800, f2.getUpperBoundary().evaluate(null, Integer.class).intValue());
+    }
+
+    public void testEncodeId() throws Exception {
+        Document doc = encode(FilterMockData.id(), FES.Filter);
+        assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
         
+        assertEquals(3, getElementsByQName(doc, FES.ResourceId).getLength());
+    }
+
+    public void testEncodeSpatial() throws Exception {
+        Document doc = encode(FilterMockData.intersects(), FES.Filter);
+        assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
+        
+        Element e = getElementByQName(doc, FES.Intersects);
+        assertNotNull(e);
+
+        assertNotNull(getElementByQName(e, FES.ValueReference));
+        assertNotNull(getElementByQName(e, FES.Literal));
+    }
+    
+    public void testEncodeComparison() throws Exception {
+        Document doc = encode(FilterMockData.propertyIsEqualTo(), FES.Filter);
+        assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
+        
+        Element e = getElementByQName(doc, FES.PropertyIsEqualTo);
+        assertNotNull(e);
+        assertEquals("true", e.getAttribute("matchCase"));
+        
+        assertNotNull(getElementByQName(e, FES.ValueReference));
+        assertNotNull(getElementByQName(e, FES.Literal));
+    }
+    
+    public void testEncodeLogic() throws Exception {
+        Document doc = encode(FilterMockData.and(), FES.Filter);
+        assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
+        
+        Element e = getElementByQName(doc, FES.And);
+        assertNotNull(e);
+        
+        assertNotNull(getElementByQName(e, FES.PropertyIsEqualTo));
+        assertNotNull(getElementByQName(e, FES.PropertyIsNotEqualTo));
     }
 }
