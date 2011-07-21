@@ -22,6 +22,7 @@ import java.util.Set;
 import org.geotools.data.FeatureLockFactory;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.feature.FeatureCollections;
+import org.geotools.filter.ExtendedOperatorFactory;
 import org.geotools.filter.FunctionFactory;
 import org.geotools.resources.LazySet;
 import org.geotools.styling.StyleFactory;
@@ -81,6 +82,7 @@ public final class CommonFactoryFinder extends FactoryFinder {
 //                  FunctionExpression.class,//TODO: remove
                     Function.class,
                     FunctionFactory.class,
+                    ExtendedOperatorFactory.class,
                     FeatureFactory.class,
                     FeatureTypeFactory.class,
                     FeatureCollections.class}));
@@ -142,6 +144,19 @@ public final class CommonFactoryFinder extends FactoryFinder {
         hints = mergeSystemHints(hints);
         return new LazySet<FunctionFactory>(getServiceRegistry().getServiceProviders(
                 FunctionFactory.class, null, hints));
+    }
+    
+    /**
+     * Returns a set of all available implementations of {@link ExtendedOperatorFactory}.
+     * 
+     * @param hints An optional map of hints, or {@code null} if none.
+     * 
+     * @return Set of available extended operator factory implementations.
+     */
+    public static synchronized Set<ExtendedOperatorFactory> getExtendedOperatorFactories(Hints hints) {
+        hints = mergeSystemHints(hints);
+        return new LazySet<ExtendedOperatorFactory>(getServiceRegistry().getServiceProviders(
+                ExtendedOperatorFactory.class, null, hints));
     }
     
     /**

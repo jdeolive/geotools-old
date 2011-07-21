@@ -16,13 +16,19 @@
  */
 package org.geotools.filter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.feature.NameImpl;
 import org.geotools.filter.v1_1.OGC;
 import org.geotools.xml.Node;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.Filter;
@@ -30,6 +36,7 @@ import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 
@@ -92,7 +99,7 @@ public class FilterParsingUtils {
 
         return null;
     }
-    
+
     public static List<Filter> BinaryLogicOperator_getChildFilters( Node node, org.opengis.filter.FilterFactory factory ) {
         List<Filter> filters = node.getChildValues(Filter.class);
         if ( filters.size() < 2 ) {
@@ -102,8 +109,63 @@ public class FilterParsingUtils {
             for ( Identifier id : ids ) {
                 filters.add( factory.id( Collections.singleton( id ) ) ) ;
             }
+            
+            //look for extended operator(s)
+            filters.addAll(parseExtendedOperators(node, factory));
         }
-        
+
+        //TODO: this parsing returns teh children out of order... 
         return filters;
     }
+    
+    public static List<Filter> parseExtendedOperators(Node node, org.opengis.filter.FilterFactory factory) {
+        List<Filter> extOps = new ArrayList();
+        
+        //TODO: this doesn't actually handle the case of an extended operator that does not take
+        // any arguments
+        if (node.hasChild(Expression.class)) {
+            //case of a single operator containing a single expression
+            Node n = node.getChild(Expression.class);
+            Name opName = new NameImpl(n.getComponent().getNamespace(), n.getComponent().getName());
+            
+            Filter extOp = lookupExtendedOperator(opName, Arrays.asList((Expression) n.getValue()), factory);
+            if (extOp != null) {
+                extOps.add(extOp);
+            }
+        }
+        else if (node.hasChild(Map.class)) {
+            List<Node> children = node.getChildren(Map.class);
+            for (Node n : children) {
+                Name opName = new NameImpl(n.getComponent().getNamespace(), n.getComponent().getName());
+                Map map = (Map) n.getValue();
+                
+                List<Expression> expressions = new ArrayList();
+                for (Object o : map.values()) {
+                    if (o instanceof Expression) {
+                        expressions.add((Expression) o);
+                    }
+                }
+
+                Filter extOp = lookupExtendedOperator(opName, expressions, factory);
+                if (extOp != null) {
+                    extOps.add(extOp);
+                }
+            }
+        }
+
+        return extOps;
+    }
+
+    static Filter lookupExtendedOperator(Name opName, List<Expression> expressions, 
+        org.opengis.filter.FilterFactory factory) {
+        for (ExtendedOperatorFactory extOpFactory :
+            CommonFactoryFinder.getExtendedOperatorFactories(null)) {
+            if (extOpFactory.getOperatorNames().contains(opName)) {
+                return extOpFactory.operator(opName, expressions, factory);
+            }
+        }
+        return null;
+    }
+
+    
 }

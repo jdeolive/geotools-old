@@ -16,15 +16,30 @@
  */
 package org.geotools.filter.v2_0.bindings;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.collections.iterators.SingletonIterator;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.FactoryIteratorProvider;
+import org.geotools.factory.FactoryRegistry;
+import org.geotools.factory.GeoTools;
+import org.geotools.feature.NameImpl;
+import org.geotools.filter.ExtendedOperatorFactory;
 import org.geotools.filter.v1_1.FilterMockData;
 import org.geotools.filter.v2_0.FES;
 import org.geotools.filter.v2_0.FESTestSupport;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Id;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -233,5 +248,78 @@ public class FilterTypeBindingTest extends FESTestSupport {
         BBOX f = (BBOX) parse();
         assertTrue(f.getExpression1() instanceof PropertyName);
         assertTrue(f.getExpression2() instanceof Literal);
+    }
+
+    public void testParseExtendedOperator() throws Exception {
+        final FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+        final ExtendedOperatorFactory extOpFactory = new ExtendedOperatorFactory() {
+            @Override
+            public Filter operator(Name name, List<Expression> args, FilterFactory factory) {
+                if (name.equals(new NameImpl("http://www.someserver.com/myops/1.0", "Foo"))) {
+                    return ff.equal(args.get(0), args.get(1), true);
+                }
+                return null;
+            }
+            
+            @Override
+            public List<Name> getOperatorNames() {
+                return (List) Arrays.asList(new NameImpl("http://www.someserver.com/myops/1.0", "Foo"));
+            }
+        };
+        final FactoryIteratorProvider factoryProvider = new FactoryIteratorProvider() {
+            
+            @Override
+            public <T> Iterator<T> iterator(Class<T> category) {
+                if (ExtendedOperatorFactory.class == category) {
+                    return new SingletonIterator(extOpFactory);
+                }
+                return null;
+            }
+        };
+        GeoTools.addFactoryIteratorProvider(factoryProvider);
+        
+        String xml = 
+            "<fes:Filter " + 
+              "xmlns:fes='http://www.opengis.net/fes/2.0' xmlns:myops='http://www.someserver.com/myops/1.0'> " + 
+            "  <myops:Foo> " + 
+            "   <fes:ValueReference>bar</fes:ValueReference> " +
+            "   <fes:Literal>baz</fes:Literal> " +
+            "  </myops:Foo> " + 
+            "</fes:Filter>"; 
+        buildDocument(xml);
+
+        PropertyIsEqualTo f = (PropertyIsEqualTo) parse();
+        assertTrue(f.getExpression1() instanceof PropertyName);
+        assertTrue(f.getExpression2() instanceof Literal);
+        
+        xml = 
+            "<fes:Filter " + 
+              "xmlns:fes='http://www.opengis.net/fes/2.0' xmlns:myops='http://www.someserver.com/myops/1.0'> " + 
+            " <fes:And> " + 
+            "  <myops:Foo> " + 
+            "   <fes:ValueReference>bar</fes:ValueReference> " +
+            "   <fes:Literal>baz</fes:Literal> " +
+            "  </myops:Foo> " +
+            "  <fes:PropertyIsBetween> " + 
+               "<fes:ValueReference>Person/age</fes:ValueReference> " + 
+            "   <fes:LowerBoundary> " + 
+            "    <fes:Literal>18</fes:Literal> " + 
+            "   </fes:LowerBoundary> " + 
+            "   <fes:UpperBoundary> " + 
+            "    <fes:Literal>200</fes:Literal> " + 
+            "   </fes:UpperBoundary> " + 
+            "  </fes:PropertyIsBetween> " + 
+            " </fes:And> " + 
+            "</fes:Filter>"; 
+        buildDocument(xml);
+
+        And a = (And) parse();
+        List<Filter> ch = a.getChildren();
+        
+        assertEquals(2, ch.size());
+        
+        assertTrue(ch.get(0) instanceof PropertyIsEqualTo || ch.get(0) instanceof PropertyIsBetween);
+        assertTrue(ch.get(1) instanceof PropertyIsEqualTo || ch.get(1) instanceof PropertyIsBetween);
+        
     }
 }
