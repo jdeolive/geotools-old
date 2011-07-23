@@ -48,6 +48,7 @@ import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
 import org.opengis.filter.IncludeFilter;
@@ -92,6 +93,7 @@ import org.opengis.filter.temporal.AnyInteracts;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.Begins;
 import org.opengis.filter.temporal.BegunBy;
+import org.opengis.filter.temporal.BinaryTemporalOperator;
 import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.EndedBy;
 import org.opengis.filter.temporal.Ends;
@@ -101,6 +103,7 @@ import org.opengis.filter.temporal.OverlappedBy;
 import org.opengis.filter.temporal.TContains;
 import org.opengis.filter.temporal.TEquals;
 import org.opengis.filter.temporal.TOverlaps;
+import org.opengis.temporal.Period;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -151,6 +154,9 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
     /** error message for exceptions */
     protected static final String IO_ERROR = "io problem writing filter";
 
+    /** filter factory */
+    protected static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
+    
     /** The filter types that this class can encode */
     protected FilterCapabilities capabilities = null;
 
@@ -360,6 +366,17 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         capabilities.addType(Id.class);
         capabilities.addType(IncludeFilter.class);
         capabilities.addType(ExcludeFilter.class);
+        
+        //temporal filters
+        capabilities.addType(After.class);
+        capabilities.addType(Before.class);
+        capabilities.addType(Begins.class);
+        capabilities.addType(BegunBy.class);
+        capabilities.addType(During.class);
+        capabilities.addType(Ends.class);
+        capabilities.addType(EndedBy.class);
+        capabilities.addType(TContains.class);
+        capabilities.addType(TEquals.class);
 
         return capabilities;
     }
@@ -931,6 +948,174 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             "Subclasses must implement this method in order to handle geometries");
     }
 
+    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter,
+            Object extraData) {
+        if (filter == null) {
+            throw new NullPointerException("Null filter");
+        }
+        
+        Expression e1 = filter.getExpression1();
+        Expression e2 = filter.getExpression2();
+
+        if (e1 instanceof Literal && e2 instanceof PropertyName) {
+            e1 = (PropertyName) filter.getExpression2();
+            e2 = (Literal) filter.getExpression1();
+        }
+
+        if (e1 instanceof PropertyName && e2 instanceof Literal) {
+            //call the "regular" method
+            return visitBinaryTemporalOperator(filter, (PropertyName)e1, (Literal)e2, 
+                filter.getExpression1() instanceof Literal, extraData);
+        }
+        else {
+            //call the join version
+            return visitBinaryTemporalOperator(filter, e1, e2, extraData);
+        }
+    }
+
+    /**
+     * Handles the common case of a PropertyName,Literal geometry binary temporal operator.
+     * <p>
+     * Subclasses should override if they support more temporal operators than what is handled in 
+     * this base class. 
+     * </p>
+     */
+    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter, 
+        PropertyName property, Literal temporal, boolean swapped, Object extraData) { 
+
+        Class typeContext = null;
+        AttributeDescriptor attType = (AttributeDescriptor)property.evaluate(featureType);
+        if (attType != null) {
+            typeContext = attType.getType().getBinding();
+        }
+        
+        //check for time period
+        Period period = null;
+        if (temporal.evaluate(null) instanceof Period) {
+            period = (Period) temporal.evaluate(null);
+        }
+
+        //verify that those filters that require a time period have one
+        if ((filter instanceof Begins || filter instanceof BegunBy || filter instanceof Ends ||
+            filter instanceof EndedBy || filter instanceof During || filter instanceof TContains) &&
+            period == null) {
+            if (period == null) {
+                throw new IllegalArgumentException("Filter requires a time period");
+            }
+        }
+        if (filter instanceof TEquals && period != null) {
+            throw new IllegalArgumentException("TEquals filter does not accept time period");
+        }
+
+        //ensure the time period is the correct argument
+        if ((filter instanceof Begins || filter instanceof Ends || filter instanceof During) && 
+            swapped) {
+            throw new IllegalArgumentException("Time period must be second argument of Filter");
+        }
+        if ((filter instanceof BegunBy || filter instanceof EndedBy || filter instanceof TContains) && 
+            !swapped) {
+            throw new IllegalArgumentException("Time period must be first argument of Filter");
+        }
+        
+        try {
+            if (filter instanceof After || filter instanceof Before) {
+                String op = filter instanceof After ? " > " : " < ";
+                String inv = filter instanceof After ? " < " : " > ";
+                
+                if (period != null) {
+                    out.write("(");
+
+                    property.accept(this, extraData);
+                    out.write(swapped ? inv : op);
+                    writeLiteral(period.getBeginning().getPosition().getDate());
+                    
+                    out.write(" AND ");
+                    
+                    property.accept(this, extraData);
+                    out.write(swapped ? inv : op);
+                    writeLiteral(period.getEnding().getPosition().getDate());
+                    
+                    out.write(")");
+                }
+                else {
+                    if (swapped) {
+                        temporal.accept(this, typeContext);
+                    }
+                    else {
+                        property.accept(this, extraData);
+                    }
+        
+                    out.write(op);
+                    
+                    if (swapped) {
+                        property.accept(this, extraData);
+                    }
+                    else {
+                        temporal.accept(this, typeContext);
+                    }
+                }
+            }
+            else if (filter instanceof Begins || filter instanceof Ends || 
+                     filter instanceof BegunBy || filter instanceof EndedBy ) {
+                property.accept(this, extraData);
+                out.write( " = ");
+
+                if (filter instanceof Begins || filter instanceof BegunBy) {
+                    writeLiteral(period.getBeginning().getPosition().getDate());
+                }
+                else {
+                    writeLiteral(period.getEnding().getPosition().getDate());
+                }
+            }
+            else if (filter instanceof During || filter instanceof TContains){
+                property.accept(this, extraData);
+                out.write( " BETWEEN ");
+
+                writeLiteral(period.getBeginning().getPosition().getDate());
+                out.write( " AND ");
+                writeLiteral(period.getEnding().getPosition().getDate());
+            }
+            else if (filter instanceof TEquals) {
+                property.accept(this, extraData);
+                out.write(" = ");
+                temporal.accept(this, typeContext);
+            }
+        }
+        catch(IOException e) {
+            throw new RuntimeException("Error encoding temporal filter", e);
+        }
+        
+        return extraData;
+    }
+
+    /**
+     * Handles the general case of two expressions in a binary temporal filter.
+     * <p>
+     * Subclasses should override if they support more temporal operators than what is handled in 
+     * this base class. 
+     * </p>
+     */
+    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter, Expression e1, 
+        Expression e2, Object extraData) {
+
+        if (!(filter instanceof After || filter instanceof Before || filter instanceof TEquals)) {
+            throw new IllegalArgumentException("Unsupported filter: " + filter + 
+                ". Only After,Before,TEquals supported");
+        }
+
+        String op = filter instanceof After ? ">" : filter instanceof Before ? "<" : "=";
+
+        try {
+            e1.accept(this, extraData);
+            out.write(" " + op + " ");
+            e2.accept(this, extraData);
+        }
+        catch(IOException e) {
+            return new RuntimeException("Error encoding temporal filter", e);
+        }
+        return extraData;
+    }
+
     /**
      * Encodes a null filter value.  The current implementation
      * does exactly nothing.
@@ -1045,8 +1230,9 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
             // handle geometry case
             if (literal instanceof Geometry) {
                 // call this method for backwards compatibility with subclasses
-                visitLiteralGeometry(CommonFactoryFinder.getFilterFactory(null).literal(literal));
-            } else {
+                visitLiteralGeometry(filterFactory.literal(literal));
+            }
+            else {
                 // write out the literal allowing subclasses to override this
                 // behaviour (for writing out dates and the like using the BDMS custom functions)
                 writeLiteral(literal);
@@ -1130,7 +1316,12 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
         throw new RuntimeException(
             "Subclasses must implement this method in order to handle geometries");
     }
-    
+
+    protected void visitLiteralTimePeriod(Period expression) {
+        throw new RuntimeException("Time periods not supported, subclasses must implement this " +
+            "method to support encoding timeperiods");
+    }
+
     public Object visit(Add expression, Object extraData) {
         return visit((BinaryExpression)expression, "+", extraData);
     }
@@ -1253,46 +1444,46 @@ public class FilterToSQL implements FilterVisitor, ExpressionVisitor {
 
     //temporal filters, not supported
     public Object visit(After after, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter After not implemented");
+        return visitBinaryTemporalOperator(after, extraData);
     }
     public Object visit(AnyInteracts anyInteracts, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter AnyInteracts not implemented");
+        return visitBinaryTemporalOperator(anyInteracts, extraData);
     }
     public Object visit(Before before, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter Before not implemented");
+        return visitBinaryTemporalOperator(before, extraData);
     }
     public Object visit(Begins begins, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter Begins not implemented");
+        return visitBinaryTemporalOperator(begins, extraData);
     }
     public Object visit(BegunBy begunBy, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter BegunBy not implemented");
+        return visitBinaryTemporalOperator(begunBy, extraData);
     }
     public Object visit(During during, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter During not implemented");
+        return visitBinaryTemporalOperator(during, extraData);
     }
     public Object visit(EndedBy endedBy, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter EndedBy not implemented");
+        return visitBinaryTemporalOperator(endedBy, extraData);
     }
     public Object visit(Ends ends, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter Ends not implemented");
+        return visitBinaryTemporalOperator(ends, extraData);
     }
     public Object visit(Meets meets, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter Meets not implemented");
+        return visitBinaryTemporalOperator(meets, extraData);
     }
     public Object visit(MetBy metBy, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter MetBy not implemented");
+        return visitBinaryTemporalOperator(metBy, extraData);
     }
     public Object visit(OverlappedBy overlappedBy, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter OverlappedBy not implemented");
+        return visitBinaryTemporalOperator(overlappedBy, extraData);
     }
     public Object visit(TContains contains, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter TContains not implemented");
+        return visitBinaryTemporalOperator(contains, extraData);
     }
     public Object visit(TEquals equals, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter TEquals not implemented");
+        return visitBinaryTemporalOperator(equals, extraData);
     }
     public Object visit(TOverlaps contains, Object extraData) {
-        throw new UnsupportedOperationException("Temporal filter TOverlaps not implemented");
+        return visitBinaryTemporalOperator(contains, extraData);
     }
 
     /**

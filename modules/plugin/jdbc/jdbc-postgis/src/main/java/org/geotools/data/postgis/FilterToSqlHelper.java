@@ -69,6 +69,15 @@ import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
+import org.opengis.filter.temporal.After;
+import org.opengis.filter.temporal.Before;
+import org.opengis.filter.temporal.Begins;
+import org.opengis.filter.temporal.BegunBy;
+import org.opengis.filter.temporal.During;
+import org.opengis.filter.temporal.EndedBy;
+import org.opengis.filter.temporal.Ends;
+import org.opengis.filter.temporal.TEquals;
+import org.opengis.filter.temporal.TOverlaps;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -108,6 +117,17 @@ class FilterToSqlHelper {
         caps.addType(DWithin.class);
         caps.addType(Beyond.class);
         
+        //temporal filters
+        caps.addType(After.class);
+        caps.addType(Before.class);
+        caps.addType(Begins.class);
+        caps.addType(BegunBy.class);
+        caps.addType(During.class);
+        caps.addType(TOverlaps.class);
+        caps.addType(Ends.class);
+        caps.addType(EndedBy.class);
+        caps.addType(TEquals.class);
+
         if(encodeFunctions) {
             // add support for string functions
             caps.addType(FilterFunction_strConcat.class);
