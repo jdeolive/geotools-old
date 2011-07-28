@@ -232,7 +232,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetFeatureWithLockType/lockAction"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//GetPropertyValueType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetPropertyValueType/abstractQueryExpressionGroup"/>
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference wfs20.ecore#//GetPropertyValueType/abstractQueryExpression"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetPropertyValueType/count"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//GetPropertyValueType/outputFormat"/>
@@ -402,7 +401,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//UpdateType/typeName"/>
     </genClasses>
     <genClasses ecoreClass="wfs20.ecore#//ValueCollectionType">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//ValueCollectionType/member"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute wfs20.ecore#//ValueCollectionType/member"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//ValueCollectionType/additionalValues"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference wfs20.ecore#//ValueCollectionType/truncatedResponse"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute wfs20.ecore#//ValueCollectionType/next"/>

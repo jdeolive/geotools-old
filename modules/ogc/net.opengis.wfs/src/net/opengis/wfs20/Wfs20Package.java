@@ -2490,22 +2490,13 @@ public interface Wfs20Package extends EPackage {
     int GET_PROPERTY_VALUE_TYPE__EXTENDED_PROPERTIES = BASE_REQUEST_TYPE__EXTENDED_PROPERTIES;
 
     /**
-     * The feature id for the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
+     * The feature id for the '<em><b>Abstract Query Expression</b></em>' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP = BASE_REQUEST_TYPE_FEATURE_COUNT + 0;
-
-    /**
-     * The feature id for the '<em><b>Abstract Query Expression</b></em>' containment reference.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    int GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION = BASE_REQUEST_TYPE_FEATURE_COUNT + 1;
+    int GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION = BASE_REQUEST_TYPE_FEATURE_COUNT + 0;
 
     /**
      * The feature id for the '<em><b>Count</b></em>' attribute.
@@ -2514,7 +2505,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 2;
+    int GET_PROPERTY_VALUE_TYPE__COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 1;
 
     /**
      * The feature id for the '<em><b>Output Format</b></em>' attribute.
@@ -2523,7 +2514,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__OUTPUT_FORMAT = BASE_REQUEST_TYPE_FEATURE_COUNT + 3;
+    int GET_PROPERTY_VALUE_TYPE__OUTPUT_FORMAT = BASE_REQUEST_TYPE_FEATURE_COUNT + 2;
 
     /**
      * The feature id for the '<em><b>Resolve</b></em>' attribute.
@@ -2532,7 +2523,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__RESOLVE = BASE_REQUEST_TYPE_FEATURE_COUNT + 4;
+    int GET_PROPERTY_VALUE_TYPE__RESOLVE = BASE_REQUEST_TYPE_FEATURE_COUNT + 3;
 
     /**
      * The feature id for the '<em><b>Resolve Depth</b></em>' attribute.
@@ -2541,7 +2532,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH = BASE_REQUEST_TYPE_FEATURE_COUNT + 5;
+    int GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH = BASE_REQUEST_TYPE_FEATURE_COUNT + 4;
 
     /**
      * The feature id for the '<em><b>Resolve Path</b></em>' attribute.
@@ -2550,7 +2541,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__RESOLVE_PATH = BASE_REQUEST_TYPE_FEATURE_COUNT + 6;
+    int GET_PROPERTY_VALUE_TYPE__RESOLVE_PATH = BASE_REQUEST_TYPE_FEATURE_COUNT + 5;
 
     /**
      * The feature id for the '<em><b>Resolve Timeout</b></em>' attribute.
@@ -2559,7 +2550,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__RESOLVE_TIMEOUT = BASE_REQUEST_TYPE_FEATURE_COUNT + 7;
+    int GET_PROPERTY_VALUE_TYPE__RESOLVE_TIMEOUT = BASE_REQUEST_TYPE_FEATURE_COUNT + 6;
 
     /**
      * The feature id for the '<em><b>Result Type</b></em>' attribute.
@@ -2568,7 +2559,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__RESULT_TYPE = BASE_REQUEST_TYPE_FEATURE_COUNT + 8;
+    int GET_PROPERTY_VALUE_TYPE__RESULT_TYPE = BASE_REQUEST_TYPE_FEATURE_COUNT + 7;
 
     /**
      * The feature id for the '<em><b>Start Index</b></em>' attribute.
@@ -2577,7 +2568,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__START_INDEX = BASE_REQUEST_TYPE_FEATURE_COUNT + 9;
+    int GET_PROPERTY_VALUE_TYPE__START_INDEX = BASE_REQUEST_TYPE_FEATURE_COUNT + 8;
 
     /**
      * The feature id for the '<em><b>Value Reference</b></em>' attribute.
@@ -2586,7 +2577,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE__VALUE_REFERENCE = BASE_REQUEST_TYPE_FEATURE_COUNT + 10;
+    int GET_PROPERTY_VALUE_TYPE__VALUE_REFERENCE = BASE_REQUEST_TYPE_FEATURE_COUNT + 9;
 
     /**
      * The number of structural features of the '<em>Get Property Value Type</em>' class.
@@ -2595,7 +2586,7 @@ public interface Wfs20Package extends EPackage {
      * @generated
      * @ordered
      */
-    int GET_PROPERTY_VALUE_TYPE_FEATURE_COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 11;
+    int GET_PROPERTY_VALUE_TYPE_FEATURE_COUNT = BASE_REQUEST_TYPE_FEATURE_COUNT + 10;
 
     /**
      * The meta object id for the '{@link net.opengis.wfs20.impl.InsertTypeImpl <em>Insert Type</em>}' class.
@@ -4264,7 +4255,7 @@ public interface Wfs20Package extends EPackage {
     int VALUE_COLLECTION_TYPE = 57;
 
     /**
-     * The feature id for the '<em><b>Member</b></em>' containment reference list.
+     * The feature id for the '<em><b>Member</b></em>' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
@@ -6456,21 +6447,10 @@ public interface Wfs20Package extends EPackage {
     EClass getGetPropertyValueType();
 
     /**
-     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpressionGroup <em>Abstract Query Expression Group</em>}'.
+     * Returns the meta object for the reference '{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpression <em>Abstract Query Expression</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the attribute list '<em>Abstract Query Expression Group</em>'.
-     * @see net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpressionGroup()
-     * @see #getGetPropertyValueType()
-     * @generated
-     */
-    EAttribute getGetPropertyValueType_AbstractQueryExpressionGroup();
-
-    /**
-     * Returns the meta object for the containment reference '{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpression <em>Abstract Query Expression</em>}'.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return the meta object for the containment reference '<em>Abstract Query Expression</em>'.
+     * @return the meta object for the reference '<em>Abstract Query Expression</em>'.
      * @see net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpression()
      * @see #getGetPropertyValueType()
      * @generated
@@ -8000,15 +7980,15 @@ public interface Wfs20Package extends EPackage {
     EClass getValueCollectionType();
 
     /**
-     * Returns the meta object for the containment reference list '{@link net.opengis.wfs20.ValueCollectionType#getMember <em>Member</em>}'.
+     * Returns the meta object for the attribute list '{@link net.opengis.wfs20.ValueCollectionType#getMember <em>Member</em>}'.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @return the meta object for the containment reference list '<em>Member</em>'.
+     * @return the meta object for the attribute list '<em>Member</em>'.
      * @see net.opengis.wfs20.ValueCollectionType#getMember()
      * @see #getValueCollectionType()
      * @generated
      */
-    EReference getValueCollectionType_Member();
+    EAttribute getValueCollectionType_Member();
 
     /**
      * Returns the meta object for the containment reference '{@link net.opengis.wfs20.ValueCollectionType#getAdditionalValues <em>Additional Values</em>}'.
@@ -9847,15 +9827,7 @@ public interface Wfs20Package extends EPackage {
         EClass GET_PROPERTY_VALUE_TYPE = eINSTANCE.getGetPropertyValueType();
 
         /**
-         * The meta object literal for the '<em><b>Abstract Query Expression Group</b></em>' attribute list feature.
-         * <!-- begin-user-doc -->
-         * <!-- end-user-doc -->
-         * @generated
-         */
-        EAttribute GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP = eINSTANCE.getGetPropertyValueType_AbstractQueryExpressionGroup();
-
-        /**
-         * The meta object literal for the '<em><b>Abstract Query Expression</b></em>' containment reference feature.
+         * The meta object literal for the '<em><b>Abstract Query Expression</b></em>' reference feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
@@ -11049,12 +11021,12 @@ public interface Wfs20Package extends EPackage {
         EClass VALUE_COLLECTION_TYPE = eINSTANCE.getValueCollectionType();
 
         /**
-         * The meta object literal for the '<em><b>Member</b></em>' containment reference list feature.
+         * The meta object literal for the '<em><b>Member</b></em>' attribute list feature.
          * <!-- begin-user-doc -->
          * <!-- end-user-doc -->
          * @generated
          */
-        EReference VALUE_COLLECTION_TYPE__MEMBER = eINSTANCE.getValueCollectionType_Member();
+        EAttribute VALUE_COLLECTION_TYPE__MEMBER = eINSTANCE.getValueCollectionType_Member();
 
         /**
          * The meta object literal for the '<em><b>Additional Values</b></em>' containment reference feature.

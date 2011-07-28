@@ -7,12 +7,17 @@ import java.util.List;
 import net.opengis.wfs20.FeatureCollectionType;
 
 import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.XSDFactory;
+import org.eclipse.xsd.XSDParticle;
+import org.eclipse.xsd.XSDTypeDefinition;
 import org.geotools.gml3.XSDIdRegistry;
 import org.geotools.gml3.v3_2.GML;
 import org.geotools.xml.*;
+import org.opengis.feature.Attribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 
 import javax.xml.namespace.QName;
 
@@ -45,8 +50,11 @@ import javax.xml.namespace.QName;
 public class MemberPropertyTypeBinding extends
         org.geotools.gml3.bindings.FeaturePropertyTypeBinding {
 
-    public MemberPropertyTypeBinding(XSDIdRegistry idSet) {
+    SchemaIndex schemaIndex;
+    
+    public MemberPropertyTypeBinding(XSDIdRegistry idSet, SchemaIndex schemaIndex) {
         super(idSet);
+        this.schemaIndex = schemaIndex;
     }
     
     /**
@@ -83,10 +91,32 @@ public class MemberPropertyTypeBinding extends
         else if (object instanceof FeatureCollectionType) {
             list.add(new Object[]{WFS.FeatureCollection, object});
         }
+        else if (object instanceof Attribute) {
+            //encoding a ValueCollection
+            Attribute att = (Attribute) object;
+            list.add(new Object[]{particle(att), att.getValue()});
+        }
 
         return list;
     }
-    
+
+    XSDParticle particle(Attribute att) {
+        XSDFactory factory = XSDFactory.eINSTANCE;
+
+        AttributeType attType = att.getType();
+        XSDTypeDefinition xsdType = schemaIndex.getTypeDefinition(
+            new QName(attType.getName().getNamespaceURI(), attType.getName().getLocalPart()));
+
+        XSDElementDeclaration element = factory.createXSDElementDeclaration();
+        element.setName(att.getName().getLocalPart());
+        element.setTargetNamespace(att.getName().getNamespaceURI());
+        element.setTypeDefinition(xsdType);
+        
+        XSDParticle particle = factory.createXSDParticle();
+        particle.setContent(element);
+        return particle;
+    }
+
     boolean isJoinedFeature(Object obj) {
         if (!(obj instanceof SimpleFeature)) {
             return false;

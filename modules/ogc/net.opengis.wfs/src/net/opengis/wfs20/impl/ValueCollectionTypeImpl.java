@@ -8,6 +8,7 @@ package net.opengis.wfs20.impl;
 
 import java.math.BigInteger;
 
+import java.util.Calendar;
 import java.util.Collection;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -29,6 +30,8 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
+import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
+import org.geotools.feature.FeatureCollection;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -54,14 +57,14 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollectionType {
     /**
-     * The cached value of the '{@link #getMember() <em>Member</em>}' containment reference list.
+     * The cached value of the '{@link #getMember() <em>Member</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @see #getMember()
      * @generated
      * @ordered
      */
-    protected EList<MemberPropertyType> member;
+    protected EList<FeatureCollection> member;
 
     /**
      * The cached value of the '{@link #getAdditionalValues() <em>Additional Values</em>}' containment reference.
@@ -171,7 +174,7 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
      * @generated
      * @ordered
      */
-    protected static final XMLGregorianCalendar TIME_STAMP_EDEFAULT = null;
+    protected static final Calendar TIME_STAMP_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getTimeStamp() <em>Time Stamp</em>}' attribute.
@@ -181,7 +184,7 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
      * @generated
      * @ordered
      */
-    protected XMLGregorianCalendar timeStamp = TIME_STAMP_EDEFAULT;
+    protected Calendar timeStamp = TIME_STAMP_EDEFAULT;
 
     /**
      * <!-- begin-user-doc -->
@@ -207,9 +210,9 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
      * <!-- end-user-doc -->
      * @generated
      */
-    public EList<MemberPropertyType> getMember() {
+    public EList<FeatureCollection> getMember() {
         if (member == null) {
-            member = new EObjectContainmentEList<MemberPropertyType>(MemberPropertyType.class, this, Wfs20Package.VALUE_COLLECTION_TYPE__MEMBER);
+            member = new EDataTypeUniqueEList<FeatureCollection>(FeatureCollection.class, this, Wfs20Package.VALUE_COLLECTION_TYPE__MEMBER);
         }
         return member;
     }
@@ -389,7 +392,7 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
      * <!-- end-user-doc -->
      * @generated
      */
-    public XMLGregorianCalendar getTimeStamp() {
+    public Calendar getTimeStamp() {
         return timeStamp;
     }
 
@@ -398,8 +401,8 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setTimeStamp(XMLGregorianCalendar newTimeStamp) {
-        XMLGregorianCalendar oldTimeStamp = timeStamp;
+    public void setTimeStamp(Calendar newTimeStamp) {
+        Calendar oldTimeStamp = timeStamp;
         timeStamp = newTimeStamp;
         if (eNotificationRequired())
             eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.VALUE_COLLECTION_TYPE__TIME_STAMP, oldTimeStamp, timeStamp));
@@ -413,8 +416,6 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
     @Override
     public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
         switch (featureID) {
-            case Wfs20Package.VALUE_COLLECTION_TYPE__MEMBER:
-                return ((InternalEList<?>)getMember()).basicRemove(otherEnd, msgs);
             case Wfs20Package.VALUE_COLLECTION_TYPE__ADDITIONAL_VALUES:
                 return basicSetAdditionalValues(null, msgs);
             case Wfs20Package.VALUE_COLLECTION_TYPE__TRUNCATED_RESPONSE:
@@ -462,7 +463,7 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
         switch (featureID) {
             case Wfs20Package.VALUE_COLLECTION_TYPE__MEMBER:
                 getMember().clear();
-                getMember().addAll((Collection<? extends MemberPropertyType>)newValue);
+                getMember().addAll((Collection<? extends FeatureCollection>)newValue);
                 return;
             case Wfs20Package.VALUE_COLLECTION_TYPE__ADDITIONAL_VALUES:
                 setAdditionalValues((AdditionalValuesType)newValue);
@@ -483,7 +484,7 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
                 setPrevious((String)newValue);
                 return;
             case Wfs20Package.VALUE_COLLECTION_TYPE__TIME_STAMP:
-                setTimeStamp((XMLGregorianCalendar)newValue);
+                setTimeStamp((Calendar)newValue);
                 return;
         }
         super.eSet(featureID, newValue);
@@ -563,7 +564,9 @@ public class ValueCollectionTypeImpl extends EObjectImpl implements ValueCollect
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (next: ");
+        result.append(" (member: ");
+        result.append(member);
+        result.append(", next: ");
         result.append(next);
         result.append(", numberMatched: ");
         result.append(numberMatched);

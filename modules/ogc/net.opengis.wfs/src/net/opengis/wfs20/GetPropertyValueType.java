@@ -20,7 +20,6 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpressionGroup <em>Abstract Query Expression Group</em>}</li>
  *   <li>{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpression <em>Abstract Query Expression</em>}</li>
  *   <li>{@link net.opengis.wfs20.GetPropertyValueType#getCount <em>Count</em>}</li>
  *   <li>{@link net.opengis.wfs20.GetPropertyValueType#getOutputFormat <em>Output Format</em>}</li>
@@ -39,24 +38,8 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @generated
  */
 public interface GetPropertyValueType extends BaseRequestType {
-    /**
-     * Returns the value of the '<em><b>Abstract Query Expression Group</b></em>' attribute list.
-     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-     * <!-- begin-user-doc -->
-     * <p>
-     * If the meaning of the '<em>Abstract Query Expression Group</em>' attribute list isn't clear,
-     * there really should be more of a description here...
-     * </p>
-     * <!-- end-user-doc -->
-     * @return the value of the '<em>Abstract Query Expression Group</em>' attribute list.
-     * @see net.opengis.wfs20.Wfs20Package#getGetPropertyValueType_AbstractQueryExpressionGroup()
-     * @model dataType="org.eclipse.emf.ecore.EFeatureMapEntry" required="true" many="false"
-     *        extendedMetaData="kind='group' name='AbstractQueryExpression:group' namespace='http://www.opengis.net/fes/2.0'"
-     * @generated
-     */
-    FeatureMap getAbstractQueryExpressionGroup();
 
-    /**
+  /**
      * Returns the value of the '<em><b>Abstract Query Expression</b></em>' containment reference.
      * <!-- begin-user-doc -->
      * <p>
@@ -66,11 +49,20 @@ public interface GetPropertyValueType extends BaseRequestType {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Abstract Query Expression</em>' containment reference.
      * @see net.opengis.wfs20.Wfs20Package#getGetPropertyValueType_AbstractQueryExpression()
-     * @model containment="true" required="true" transient="true" changeable="false" volatile="true" derived="true"
-     *        extendedMetaData="kind='element' name='AbstractQueryExpression' namespace='http://www.opengis.net/fes/2.0' group='http://www.opengis.net/fes/2.0#AbstractQueryExpression:group'"
-     * @generated
+     * @model 
+     * @generated NOT
      */
     AbstractQueryExpressionType getAbstractQueryExpression();
+
+    /**
+     * Sets the value of the '{@link net.opengis.wfs20.GetPropertyValueType#getAbstractQueryExpression <em>Abstract Query Expression</em>}' reference.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Abstract Query Expression</em>' reference.
+     * @see #getAbstractQueryExpression()
+     * @generated
+     */
+    void setAbstractQueryExpression(AbstractQueryExpressionType value);
 
     /**
      * Returns the value of the '<em><b>Count</b></em>' attribute.
@@ -226,46 +218,20 @@ public interface GetPropertyValueType extends BaseRequestType {
      * @see #unsetResolveDepth()
      * @see #setResolveDepth(Object)
      * @see net.opengis.wfs20.Wfs20Package#getGetPropertyValueType_ResolveDepth()
-     * @model default="*" unsettable="true" dataType="net.opengis.wfs20.PositiveIntegerWithStar"
-     *        extendedMetaData="kind='attribute' name='resolveDepth'"
-     * @generated
+     * @model 
+     * @generated NOT
      */
-    Object getResolveDepth();
+    Integer getResolveDepth();
 
     /**
      * Sets the value of the '{@link net.opengis.wfs20.GetPropertyValueType#getResolveDepth <em>Resolve Depth</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @param value the new value of the '<em>Resolve Depth</em>' attribute.
-     * @see #isSetResolveDepth()
-     * @see #unsetResolveDepth()
      * @see #getResolveDepth()
      * @generated
      */
-    void setResolveDepth(Object value);
-
-    /**
-     * Unsets the value of the '{@link net.opengis.wfs20.GetPropertyValueType#getResolveDepth <em>Resolve Depth</em>}' attribute.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @see #isSetResolveDepth()
-     * @see #getResolveDepth()
-     * @see #setResolveDepth(Object)
-     * @generated
-     */
-    void unsetResolveDepth();
-
-    /**
-     * Returns whether the value of the '{@link net.opengis.wfs20.GetPropertyValueType#getResolveDepth <em>Resolve Depth</em>}' attribute is set.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @return whether the value of the '<em>Resolve Depth</em>' attribute is set.
-     * @see #unsetResolveDepth()
-     * @see #getResolveDepth()
-     * @see #setResolveDepth(Object)
-     * @generated
-     */
-    boolean isSetResolveDepth();
+    void setResolveDepth(Integer value);
 
     /**
      * Returns the value of the '<em><b>Resolve Path</b></em>' attribute.

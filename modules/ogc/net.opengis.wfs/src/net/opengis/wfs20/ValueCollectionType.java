@@ -7,12 +7,14 @@
 package net.opengis.wfs20;
 
 import java.math.BigInteger;
+import java.util.Calendar;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.eclipse.emf.common.util.EList;
 
 import org.eclipse.emf.ecore.EObject;
+import org.geotools.feature.FeatureCollection;
 
 /**
  * <!-- begin-user-doc -->
@@ -49,11 +51,10 @@ public interface ValueCollectionType extends EObject {
      * <!-- end-user-doc -->
      * @return the value of the '<em>Member</em>' containment reference list.
      * @see net.opengis.wfs20.Wfs20Package#getValueCollectionType_Member()
-     * @model containment="true"
-     *        extendedMetaData="kind='element' name='member' namespace='##targetNamespace'"
-     * @generated
+     * @model 
+     * @generated NOT
      */
-    EList<MemberPropertyType> getMember();
+    EList<FeatureCollection> getMember();
 
     /**
      * Returns the value of the '<em><b>Additional Values</b></em>' containment reference.
@@ -228,11 +229,10 @@ public interface ValueCollectionType extends EObject {
      * @return the value of the '<em>Time Stamp</em>' attribute.
      * @see #setTimeStamp(XMLGregorianCalendar)
      * @see net.opengis.wfs20.Wfs20Package#getValueCollectionType_TimeStamp()
-     * @model dataType="org.eclipse.emf.ecore.xml.type.DateTime" required="true"
-     *        extendedMetaData="kind='attribute' name='timeStamp'"
-     * @generated
+     * @model 
+     * @generated NOT
      */
-    XMLGregorianCalendar getTimeStamp();
+    Calendar getTimeStamp();
 
     /**
      * Sets the value of the '{@link net.opengis.wfs20.ValueCollectionType#getTimeStamp <em>Time Stamp</em>}' attribute.
@@ -242,6 +242,5 @@ public interface ValueCollectionType extends EObject {
      * @see #getTimeStamp()
      * @generated
      */
-    void setTimeStamp(XMLGregorianCalendar value);
-
+    void setTimeStamp(Calendar value);
 } // ValueCollectionType

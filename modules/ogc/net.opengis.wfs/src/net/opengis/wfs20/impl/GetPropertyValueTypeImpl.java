@@ -35,7 +35,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link net.opengis.wfs20.impl.GetPropertyValueTypeImpl#getAbstractQueryExpressionGroup <em>Abstract Query Expression Group</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.GetPropertyValueTypeImpl#getAbstractQueryExpression <em>Abstract Query Expression</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.GetPropertyValueTypeImpl#getCount <em>Count</em>}</li>
  *   <li>{@link net.opengis.wfs20.impl.GetPropertyValueTypeImpl#getOutputFormat <em>Output Format</em>}</li>
@@ -53,14 +52,14 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements GetPropertyValueType {
     /**
-     * The cached value of the '{@link #getAbstractQueryExpressionGroup() <em>Abstract Query Expression Group</em>}' attribute list.
+     * The cached value of the '{@link #getAbstractQueryExpression() <em>Abstract Query Expression</em>}' reference.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see #getAbstractQueryExpressionGroup()
+     * @see #getAbstractQueryExpression()
      * @generated
      * @ordered
      */
-    protected FeatureMap abstractQueryExpressionGroup;
+    protected AbstractQueryExpressionType abstractQueryExpression;
 
     /**
      * The default value of the '{@link #getCount() <em>Count</em>}' attribute.
@@ -148,7 +147,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * @generated
      * @ordered
      */
-    protected static final Object RESOLVE_DEPTH_EDEFAULT = Wfs20Factory.eINSTANCE.createFromString(Wfs20Package.eINSTANCE.getPositiveIntegerWithStar(), "*");
+    protected static final Integer RESOLVE_DEPTH_EDEFAULT = null;
 
     /**
      * The cached value of the '{@link #getResolveDepth() <em>Resolve Depth</em>}' attribute.
@@ -158,16 +157,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * @generated
      * @ordered
      */
-    protected Object resolveDepth = RESOLVE_DEPTH_EDEFAULT;
-
-    /**
-     * This is true if the Resolve Depth attribute has been set.
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     * @ordered
-     */
-    protected boolean resolveDepthESet;
+    protected Integer resolveDepth = RESOLVE_DEPTH_EDEFAULT;
 
     /**
      * The default value of the '{@link #getResolvePath() <em>Resolve Path</em>}' attribute.
@@ -320,20 +310,16 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * <!-- end-user-doc -->
      * @generated
      */
-    public FeatureMap getAbstractQueryExpressionGroup() {
-        if (abstractQueryExpressionGroup == null) {
-            abstractQueryExpressionGroup = new BasicFeatureMap(this, Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP);
-        }
-        return abstractQueryExpressionGroup;
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
     public AbstractQueryExpressionType getAbstractQueryExpression() {
-        return (AbstractQueryExpressionType)getAbstractQueryExpressionGroup().get(Wfs20Package.Literals.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION, true);
+        if (abstractQueryExpression != null && abstractQueryExpression.eIsProxy()) {
+            InternalEObject oldAbstractQueryExpression = (InternalEObject)abstractQueryExpression;
+            abstractQueryExpression = (AbstractQueryExpressionType)eResolveProxy(oldAbstractQueryExpression);
+            if (abstractQueryExpression != oldAbstractQueryExpression) {
+                if (eNotificationRequired())
+                    eNotify(new ENotificationImpl(this, Notification.RESOLVE, Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION, oldAbstractQueryExpression, abstractQueryExpression));
+            }
+        }
+        return abstractQueryExpression;
     }
 
     /**
@@ -341,8 +327,20 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * <!-- end-user-doc -->
      * @generated
      */
-    public NotificationChain basicSetAbstractQueryExpression(AbstractQueryExpressionType newAbstractQueryExpression, NotificationChain msgs) {
-        return ((FeatureMap.Internal)getAbstractQueryExpressionGroup()).basicAdd(Wfs20Package.Literals.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION, newAbstractQueryExpression, msgs);
+    public AbstractQueryExpressionType basicGetAbstractQueryExpression() {
+        return abstractQueryExpression;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setAbstractQueryExpression(AbstractQueryExpressionType newAbstractQueryExpression) {
+        AbstractQueryExpressionType oldAbstractQueryExpression = abstractQueryExpression;
+        abstractQueryExpression = newAbstractQueryExpression;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION, oldAbstractQueryExpression, abstractQueryExpression));
     }
 
     /**
@@ -463,7 +461,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * <!-- end-user-doc -->
      * @generated
      */
-    public Object getResolveDepth() {
+    public Integer getResolveDepth() {
         return resolveDepth;
     }
 
@@ -472,36 +470,11 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * <!-- end-user-doc -->
      * @generated
      */
-    public void setResolveDepth(Object newResolveDepth) {
-        Object oldResolveDepth = resolveDepth;
+    public void setResolveDepth(Integer newResolveDepth) {
+        Integer oldResolveDepth = resolveDepth;
         resolveDepth = newResolveDepth;
-        boolean oldResolveDepthESet = resolveDepthESet;
-        resolveDepthESet = true;
         if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH, oldResolveDepth, resolveDepth, !oldResolveDepthESet));
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public void unsetResolveDepth() {
-        Object oldResolveDepth = resolveDepth;
-        boolean oldResolveDepthESet = resolveDepthESet;
-        resolveDepth = RESOLVE_DEPTH_EDEFAULT;
-        resolveDepthESet = false;
-        if (eNotificationRequired())
-            eNotify(new ENotificationImpl(this, Notification.UNSET, Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH, oldResolveDepth, RESOLVE_DEPTH_EDEFAULT, oldResolveDepthESet));
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public boolean isSetResolveDepth() {
-        return resolveDepthESet;
+            eNotify(new ENotificationImpl(this, Notification.SET, Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH, oldResolveDepth, resolveDepth));
     }
 
     /**
@@ -690,29 +663,11 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
      * @generated
      */
     @Override
-    public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-        switch (featureID) {
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
-                return ((InternalEList<?>)getAbstractQueryExpressionGroup()).basicRemove(otherEnd, msgs);
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION:
-                return basicSetAbstractQueryExpression(null, msgs);
-        }
-        return super.eInverseRemove(otherEnd, featureID, msgs);
-    }
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    @Override
     public Object eGet(int featureID, boolean resolve, boolean coreType) {
         switch (featureID) {
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
-                if (coreType) return getAbstractQueryExpressionGroup();
-                return ((FeatureMap.Internal)getAbstractQueryExpressionGroup()).getWrapper();
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION:
-                return getAbstractQueryExpression();
+                if (resolve) return getAbstractQueryExpression();
+                return basicGetAbstractQueryExpression();
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__COUNT:
                 return getCount();
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__OUTPUT_FORMAT:
@@ -743,8 +698,8 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
     @Override
     public void eSet(int featureID, Object newValue) {
         switch (featureID) {
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
-                ((FeatureMap.Internal)getAbstractQueryExpressionGroup()).set(newValue);
+            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION:
+                setAbstractQueryExpression((AbstractQueryExpressionType)newValue);
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__COUNT:
                 setCount((BigInteger)newValue);
@@ -756,7 +711,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
                 setResolve((ResolveValueType)newValue);
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH:
-                setResolveDepth(newValue);
+                setResolveDepth((Integer)newValue);
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_PATH:
                 setResolvePath((String)newValue);
@@ -785,8 +740,8 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
     @Override
     public void eUnset(int featureID) {
         switch (featureID) {
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
-                getAbstractQueryExpressionGroup().clear();
+            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION:
+                setAbstractQueryExpression((AbstractQueryExpressionType)null);
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__COUNT:
                 setCount(COUNT_EDEFAULT);
@@ -798,7 +753,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
                 unsetResolve();
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH:
-                unsetResolveDepth();
+                setResolveDepth(RESOLVE_DEPTH_EDEFAULT);
                 return;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_PATH:
                 setResolvePath(RESOLVE_PATH_EDEFAULT);
@@ -827,10 +782,8 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
     @Override
     public boolean eIsSet(int featureID) {
         switch (featureID) {
-            case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION_GROUP:
-                return abstractQueryExpressionGroup != null && !abstractQueryExpressionGroup.isEmpty();
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__ABSTRACT_QUERY_EXPRESSION:
-                return getAbstractQueryExpression() != null;
+                return abstractQueryExpression != null;
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__COUNT:
                 return COUNT_EDEFAULT == null ? count != null : !COUNT_EDEFAULT.equals(count);
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__OUTPUT_FORMAT:
@@ -838,7 +791,7 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE:
                 return isSetResolve();
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_DEPTH:
-                return isSetResolveDepth();
+                return RESOLVE_DEPTH_EDEFAULT == null ? resolveDepth != null : !RESOLVE_DEPTH_EDEFAULT.equals(resolveDepth);
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_PATH:
                 return RESOLVE_PATH_EDEFAULT == null ? resolvePath != null : !RESOLVE_PATH_EDEFAULT.equals(resolvePath);
             case Wfs20Package.GET_PROPERTY_VALUE_TYPE__RESOLVE_TIMEOUT:
@@ -863,16 +816,14 @@ public class GetPropertyValueTypeImpl extends BaseRequestTypeImpl implements Get
         if (eIsProxy()) return super.toString();
 
         StringBuffer result = new StringBuffer(super.toString());
-        result.append(" (abstractQueryExpressionGroup: ");
-        result.append(abstractQueryExpressionGroup);
-        result.append(", count: ");
+        result.append(" (count: ");
         result.append(count);
         result.append(", outputFormat: ");
         if (outputFormatESet) result.append(outputFormat); else result.append("<unset>");
         result.append(", resolve: ");
         if (resolveESet) result.append(resolve); else result.append("<unset>");
         result.append(", resolveDepth: ");
-        if (resolveDepthESet) result.append(resolveDepth); else result.append("<unset>");
+        result.append(resolveDepth);
         result.append(", resolvePath: ");
         result.append(resolvePath);
         result.append(", resolveTimeout: ");

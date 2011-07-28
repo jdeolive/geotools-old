@@ -26,6 +26,7 @@ import org.geotools.wfs.v2_0.bindings.QueryTypeBinding;
 import org.geotools.wfs.v2_0.bindings.ReturnFeatureTypesListTypeBinding;
 import org.geotools.wfs.v2_0.bindings.TransactionTypeBinding;
 import org.geotools.wfs.v2_0.bindings.TupleTypeBinding;
+import org.geotools.wfs.v2_0.bindings.ValueCollectionTypeBinding;
 import org.geotools.wfs.v2_0.bindings.ValueReferenceTypeBinding;
 import org.geotools.xml.ComplexEMFBinding;
 import org.geotools.xml.Configuration;
@@ -95,7 +96,7 @@ public class WFSConfiguration extends Configuration {
         binding(bindings, WFS.GetCapabilitiesType);
         binding(bindings, WFS.GetFeatureType);
         binding(bindings, WFS.GetFeatureWithLockType);
-//        container.registerComponentImplementation(WFS.GetPropertyValueType,GetPropertyValueTypeBinding.class);
+        binding(bindings, WFS.GetPropertyValueType);
         binding(bindings, WFS.InsertType);
         binding(bindings, WFS.ListStoredQueriesResponseType);
         binding(bindings, WFS.ListStoredQueriesType);
@@ -129,7 +130,7 @@ public class WFSConfiguration extends Configuration {
         bindings.put(WFS.TupleType,TupleTypeBinding.class);
 //        container.registerComponentImplementation(WFS.UpdateActionType,UpdateActionTypeBinding.class);
         binding(bindings, WFS.UpdateType);
-//        container.registerComponentImplementation(WFS.ValueCollectionType,ValueCollectionTypeBinding.class);
+        bindings.put(WFS.ValueCollectionType, ValueCollectionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ValueListType,ValueListTypeBinding.class);
 //        container.registerComponentImplementation(WFS.WFS_CapabilitiesType,WFS_CapabilitiesTypeBinding.class);
 //        container.registerComponentImplementation(WFS._Abstract,_AbstractBinding.class);
