@@ -1,13 +1,6 @@
 package org.geotools.filter.v2_0;
 
 import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.filter.v1_0.OGCPropertyIsEqualToBinding;
-import org.geotools.filter.v1_0.OGCPropertyIsGreaterThanBinding;
-import org.geotools.filter.v1_0.OGCPropertyIsGreaterThanOrEqualToBinding;
-import org.geotools.filter.v1_0.OGCPropertyIsLessThanBinding;
-import org.geotools.filter.v1_0.OGCPropertyIsLessThanOrEqualToBinding;
-import org.geotools.filter.v1_0.OGCPropertyIsNotEqualToBinding;
-import org.geotools.filter.v1_1.OGC;
 import org.geotools.filter.v1_1.SortByTypeBinding;
 import org.geotools.filter.v1_1.SortOrderTypeBinding;
 import org.geotools.filter.v1_1.SortPropertyTypeBinding;
@@ -57,17 +50,12 @@ import org.geotools.filter.v2_0.bindings.TEqualsBinding;
 import org.geotools.filter.v2_0.bindings.TOverlapsBinding;
 import org.geotools.filter.v2_0.bindings.TouchesBinding;
 import org.geotools.filter.v2_0.bindings.ValueReferenceBinding;
+import org.geotools.filter.v2_0.bindings.VersionTypeBinding;
 import org.geotools.filter.v2_0.bindings.WithinBinding;
 import org.geotools.gml3.v3_2.GMLConfiguration;
 import org.geotools.ows.v1_1.OWSConfiguration;
 import org.geotools.xml.Configuration;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.temporal.BegunBy;
-import org.opengis.filter.temporal.EndedBy;
-import org.opengis.filter.temporal.Ends;
-import org.opengis.filter.temporal.OverlappedBy;
-import org.opengis.filter.temporal.TContains;
-import org.opengis.filter.temporal.TOverlaps;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -153,7 +141,7 @@ public class FESConfiguration extends Configuration {
 //        container.registerComponentImplementation(FES.UnaryLogicOpType,UnaryLogicOpTypeBinding.class);
 //        container.registerComponentImplementation(FES.UpperBoundaryType,UpperBoundaryTypeBinding.class);
 //        container.registerComponentImplementation(FES.VersionActionTokens,VersionActionTokensBinding.class);
-//        container.registerComponentImplementation(FES.VersionType,VersionTypeBinding.class);
+          container.registerComponentImplementation(FES.VersionType, VersionTypeBinding.class);
 //        container.registerComponentImplementation(FES._Filter_Capabilities,_Filter_CapabilitiesBinding.class);
 //        container.registerComponentImplementation(FES._LogicalOperators,_LogicalOperatorsBinding.class);
 //        container.registerComponentImplementation(FES.GeometryOperandsType_GeometryOperand,GeometryOperandsType_GeometryOperandBinding.class);

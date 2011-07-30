@@ -22,6 +22,7 @@ package org.geotools.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,7 @@ import org.geotools.filter.expression.PropertyAccessorFactory;
 import org.geotools.filter.expression.SubtractImpl;
 import org.geotools.filter.identity.FeatureIdImpl;
 import org.geotools.filter.identity.GmlObjectIdImpl;
+import org.geotools.filter.identity.ResourceIdImpl;
 import org.geotools.filter.spatial.BBOXImpl;
 import org.geotools.filter.spatial.BeyondImpl;
 import org.geotools.filter.spatial.ContainsImpl;
@@ -117,6 +119,8 @@ import org.opengis.filter.expression.Subtract;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.identity.GmlObjectId;
 import org.opengis.filter.identity.Identifier;
+import org.opengis.filter.identity.ResourceId;
+import org.opengis.filter.identity.Version;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.filter.spatial.BBOX;
@@ -182,6 +186,28 @@ public class FilterFactoryImpl implements FilterFactory {
     
     public GmlObjectId gmlObjectId(String id) {
         return new GmlObjectIdImpl( id );
+    }
+    
+    /**
+     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String)
+     */
+    @Override
+    public ResourceId resourceId(String rid) {
+        return new ResourceIdImpl(rid);
+    }
+
+    /**
+     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String, java.lang.String,
+     *      org.opengis.filter.identity.Version, java.util.Date, java.util.Date)
+     */
+    public ResourceId resourceId(String rid, String previousRid, Version version, Date startTime,
+            Date endTime) {
+        ResourceIdImpl id = new ResourceIdImpl(rid);
+        id.setPreviousRid(previousRid);
+        id.setVersion(version);
+        id.setStartTime(startTime);
+        id.setEndTime(endTime);
+        return id;
     }
     
     public And and(Filter f, Filter g ) {

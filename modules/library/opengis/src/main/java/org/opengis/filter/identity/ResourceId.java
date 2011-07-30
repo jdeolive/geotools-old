@@ -1,0 +1,73 @@
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2005, Open Geospatial Consortium Inc.
+ *    
+ *    All Rights Reserved. http://www.opengis.org/legal/
+ */
+package org.opengis.filter.identity;
+
+import java.util.Date;
+
+import org.opengis.annotation.XmlElement;
+
+/**
+ * Resource identifier as per FES 2.0.
+ * <p>
+ * If an implementation that references this International Standard does not support versioning, any
+ * value specified for the attributes {@link #getPreviousRid() previousRid}, {@link #getVersion()
+ * version}, {@link #getStartTime() startTime}, and {@link #getEndTime() endTime} shall be ignored
+ * and the predicate shall always select the single version that is available.
+ * </p>
+ */
+@XmlElement("FeatureId")
+public interface ResourceId extends FeatureId {
+    /**
+     * id of the resource that shall be selected by the predicate.
+     */
+    @XmlElement("rid")
+    String getRid();
+
+    /**
+     * previousRid attribute may be used, in implementations that support versioning, to report the
+     * previous identifier of a resource.
+     */
+    @XmlElement("previousRid")
+    String getPreviousRid();
+
+    /**
+     * Used to navigate versions of a resource if an implementation that references this
+     * International Standard supports versioning.
+     */
+    @XmlElement("version")
+    Version getVersion();
+
+    /**
+     * The version attribute may then be used to navigate the various versions of a resource.
+     * <p>
+     * Used to navigate versions of a resource if an implementation that references this
+     * International Standard supports versioning.
+     * </p>
+     */
+    @XmlElement("startTime")
+    Date getStartTime();
+
+    /**
+     * Used to navigate versions of a resource if an implementation that references this
+     * International Standard supports versioning.
+     */
+    @XmlElement("endTime")
+    Date getEndTime();
+
+    /**
+     * Evaluates the identifer value against the given resource.
+     * 
+     * @param resource
+     *            The resource to be tested.
+     * @return {@code true} if a match, otherwise {@code false}.
+     */
+    @Override
+    boolean matches(Object resource);
+}

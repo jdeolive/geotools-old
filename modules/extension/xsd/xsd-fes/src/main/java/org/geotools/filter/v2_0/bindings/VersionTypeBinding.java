@@ -1,0 +1,57 @@
+package org.geotools.filter.v2_0.bindings;
+
+import java.util.Calendar;
+
+import javax.xml.namespace.QName;
+
+import org.geotools.filter.v2_0.FES;
+import org.geotools.xml.InstanceComponent;
+import org.geotools.xml.SimpleBinding;
+import org.geotools.xml.impl.DatatypeConverterImpl;
+import org.opengis.filter.identity.Version;
+import org.opengis.filter.identity.VersionAction;
+
+/**
+ * Binding for FES 2.0 {@code VersionType} mapping to {@link Version}
+ * 
+ */
+public class VersionTypeBinding implements SimpleBinding {
+
+    @Override
+    public QName getTarget() {
+        return FES.VersionType;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return Version.class;
+    }
+
+    @Override
+    public int getExecutionMode() {
+        return OVERRIDE;
+    }
+
+    @Override
+    public Object parse(InstanceComponent instance, Object value) throws Exception {
+        final String content = (String) value;
+
+        try {
+            VersionAction versionAction = VersionAction.valueOf(content);
+            return new Version(versionAction);
+        } catch (IllegalArgumentException e) {
+            try {
+                Integer index = Integer.valueOf(content);
+                return new Version(index);
+            } catch (NumberFormatException nfe) {
+                Calendar dateTime = DatatypeConverterImpl.getInstance().parseDateTime(content);
+                return new Version(dateTime.getTime());
+            }
+        }
+    }
+
+    @Override
+    public String encode(Object object, String value) throws Exception {
+        throw new UnsupportedOperationException("not yet implemented");
+    }
+}
