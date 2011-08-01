@@ -26,6 +26,16 @@ import org.opengis.annotation.XmlElement;
 public interface ResourceId extends FeatureId {
     /**
      * id of the resource that shall be selected by the predicate.
+     * <p>
+     * If an implementation that references this International Standard supports versioning, the rid
+     * shall be a system generated hash containing a logical resource identifier and a version
+     * number. The specific details of the hash are implementation dependant and shall be opaque to
+     * a client
+     * </p>
+     * <p>
+     * If versioning is not supported, the same value than {@link FeatureId#getID()} shall be
+     * returned.
+     * </p>
      */
     @XmlElement("rid")
     String getRid();
