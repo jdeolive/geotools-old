@@ -24,8 +24,15 @@ import org.opengis.annotation.XmlElement;
  */
 @XmlElement("FeatureId")
 public interface ResourceId extends FeatureId {
+
+    public static final char VERSION_SEPARATOR = '@';
+
     /**
      * id of the resource that shall be selected by the predicate.
+     * <p>
+     * Equals to {@link #getID()} if no feature version is provided, or
+     * {@code getID() + "@" + getFeatureVersion()} if {@code getFeatureVersion() != null}
+     * 
      * <p>
      * If an implementation that references this International Standard supports versioning, the rid
      * shall be a system generated hash containing a logical resource identifier and a version
@@ -39,6 +46,14 @@ public interface ResourceId extends FeatureId {
      */
     @XmlElement("rid")
     String getRid();
+
+    /**
+     * Version identifier for the feature instance, may be {@code null}
+     * 
+     * @see #getID()
+     * @see #getRid()
+     */
+    String getFeatureVersion();
 
     /**
      * previousRid attribute may be used, in implementations that support versioning, to report the

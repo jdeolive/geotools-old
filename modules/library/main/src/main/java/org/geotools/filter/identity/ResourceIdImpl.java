@@ -45,34 +45,33 @@ public class ResourceIdImpl extends FeatureIdImpl implements ResourceId {
 
     private Date endTime;
 
-    public ResourceIdImpl(final String rid) {
-        super(rid);
+    private final String featureVersion;
+
+    /**
+     * @param fid
+     *            the feature id, non {@code null}
+     * @param featureVersion
+     *            the feature version, may be {@code null}
+     */
+    public ResourceIdImpl(final String fid, final String featureVersion) {
+        super(fid);
+        this.featureVersion = featureVersion;
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append("[rid:'").append(fid).append('\'');
-        if (previousRid != null) {
-            sb.append(", previousRid:'").append(previousRid).append('\'');
-        }
-        if (version != null) {
-            sb.append(", version:").append(version);
-        }
-        if (startTime != null) {
-            sb.append(", startTime:").append(startTime);
-        }
-        if (endTime != null) {
-            sb.append(", endTime:").append(endTime);
-        }
-        sb.append(']');
+    public String getID() {
+        return super.getID();
+    }
 
-        return sb.toString();
+    @Override
+    public String getFeatureVersion() {
+        return featureVersion;
     }
 
     @Override
     public String getRid() {
-        return getID();
+        return featureVersion == null ? getID() : new StringBuilder(getID())
+                .append(VERSION_SEPARATOR).append(featureVersion).toString();
     }
 
     public void setRid(String rid) {
@@ -116,6 +115,27 @@ public class ResourceIdImpl extends FeatureIdImpl implements ResourceId {
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append("[").append(getRid()).append('\'');
+        if (previousRid != null) {
+            sb.append(", previousRid:'").append(previousRid).append('\'');
+        }
+        if (version != null) {
+            sb.append(", version:").append(version);
+        }
+        if (startTime != null) {
+            sb.append(", startTime:").append(startTime);
+        }
+        if (endTime != null) {
+            sb.append(", endTime:").append(endTime);
+        }
+        sb.append(']');
+
+        return sb.toString();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ResourceId)) {
             return false;
@@ -124,12 +144,14 @@ public class ResourceIdImpl extends FeatureIdImpl implements ResourceId {
             return false;
         }
         final ResourceId o = (ResourceId) obj;
-        return Utilities.equals(previousRid, o.getPreviousRid())
+        return Utilities.equals(featureVersion, o.getFeatureVersion())
+                && Utilities.equals(previousRid, o.getPreviousRid())
                 && Utilities.equals(version, o.getVersion())
                 && Utilities.equals(startTime, o.getStartTime())
                 && Utilities.equals(endTime, o.getEndTime());
     }
 
+    @Override
     public int hashCode() {
         int hash = super.hashCode();
         hash = Utilities.hash(previousRid, hash);

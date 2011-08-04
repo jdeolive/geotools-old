@@ -40,7 +40,17 @@ public class ResourceIdTypeBinding extends AbstractComplexBinding {
         Date startTime = startTimeAtt == null ? null : startTimeAtt.getTime();
         Date endTime = endTimeAtt == null ? null : endTimeAtt.getTime();
 
-        ResourceId resourceId = factory.resourceId(rid, previousRid, version, startTime, endTime);
+        String fid;
+        String featureVersion = null;
+        int idx = rid.indexOf(ResourceId.VERSION_SEPARATOR);
+        if (idx == -1) {
+            fid = rid;
+        } else {
+            fid = rid.substring(0, idx);
+            featureVersion = rid.substring(idx + 1);
+        }
+        ResourceId resourceId = factory.resourceId(fid, featureVersion, previousRid, version,
+                startTime, endTime);
         return resourceId;
     }
 
@@ -53,7 +63,7 @@ public class ResourceIdTypeBinding extends AbstractComplexBinding {
         final ResourceId rid = (ResourceId) object;
         final String localName = name.getLocalPart();
         if ("rid".equals(localName)) {
-            return rid.getID();
+            return rid.getRid();
         }
         if ("previousRid".equals(localName)) {
             return rid.getPreviousRid();

@@ -102,9 +102,10 @@ public interface FilterFactory {
     /** Creates a new gml object id from a string */
     GmlObjectId gmlObjectId(String id);
 
-    ResourceId resourceId(String rid);
-    
-    ResourceId resourceId(String rid, String previousRid, Version version, Date startTime, Date endTime);
+    ResourceId resourceId(String fid, String featureVersion);
+
+    ResourceId resourceId(String fid, String featureVersion, String previousRid, Version version,
+            Date startTime, Date endTime);
     
 ////////////////////////////////////////////////////////////////////////////////
 //

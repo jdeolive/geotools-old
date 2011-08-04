@@ -189,20 +189,19 @@ public class FilterFactoryImpl implements FilterFactory {
     }
     
     /**
-     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String)
+     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String, java.lang.String)
      */
     @Override
-    public ResourceId resourceId(String rid) {
-        return new ResourceIdImpl(rid);
+    public ResourceId resourceId(String fid, String featureVersion) {
+        return new ResourceIdImpl(fid, featureVersion);
     }
 
     /**
-     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String, java.lang.String,
-     *      org.opengis.filter.identity.Version, java.util.Date, java.util.Date)
+     * @see org.opengis.filter.FilterFactory#resourceId(java.lang.String, java.lang.String, java.lang.String, org.opengis.filter.identity.Version, java.util.Date, java.util.Date)
      */
-    public ResourceId resourceId(String rid, String previousRid, Version version, Date startTime,
+    public ResourceId resourceId(String fid, String featureVersion, String previousRid, Version version, Date startTime,
             Date endTime) {
-        ResourceIdImpl id = new ResourceIdImpl(rid);
+        ResourceIdImpl id = new ResourceIdImpl(fid, featureVersion);
         id.setPreviousRid(previousRid);
         id.setVersion(version);
         id.setStartTime(startTime);

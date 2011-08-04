@@ -3,7 +3,7 @@ package org.opengis.filter.identity;
 import java.util.Date;
 
 /**
- * Marker interface for the {@code Version} Union type in FES 2.0
+ * Union type class for the {@code Version} Union type in FES 2.0
  * 
  * @invariant {@code #getVersionAction() != null || #getIndex() != null || #getDateTime() != null}
  */

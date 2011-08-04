@@ -30,13 +30,13 @@ public class ResourceIdTypeBindingTest extends FESTestSupport {
                 + "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' "
                 + "   xsi:schemaLocation='http://www.opengis.net/fes/2.0 http://schemas.opengis.net/filter/2.0/filterAll.xsd"
                 + " http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd'>"
-                + "   <fes:ResourceId rid=\"rid1\" previousRid=\"previous1\" version=\"FIRST\"/> "
+                + "   <fes:ResourceId rid=\"rid1@abc\" previousRid=\"previous1\" version=\"FIRST\"/> "
                 + "   <fes:ResourceId rid=\"rid2\" version=\"LAST\"/> "
                 + "   <fes:ResourceId rid=\"rid3\" version=\"PREVIOUS\"/> "
                 + "   <fes:ResourceId rid=\"rid4\" version=\"NEXT\"/> "
                 + "   <fes:ResourceId rid=\"rid5\" version=\"ALL\"/> "
                 + "   <fes:ResourceId rid=\"rid6\" previousRid=\"previous2\" version=\"4\" startDate=\"1977-01-17T01:05:40Z\" endDate=\"2011-07-29T23:49:40Z\" /> "
-                + "   <fes:ResourceId rid=\"rid7\" version=\"1977-01-17T01:05:40Z\"/> "
+                + "   <fes:ResourceId rid=\"rid7@123\" version=\"1977-01-17T01:05:40Z\"/> "
                 + "</fes:Filter>";
 
         buildDocument(xml);
@@ -61,12 +61,15 @@ public class ResourceIdTypeBindingTest extends FESTestSupport {
         final Date date2 = dateParser.parseDateTime("2011-07-29T23:49:40Z").getTime();
         FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
 
-        assertEquals(ff.resourceId("rid1", "previous1", new Version(FIRST), null, null), ids.get(0));
-        assertEquals(ff.resourceId("rid2", null, new Version(LAST), null, null), ids.get(1));
-        assertEquals(ff.resourceId("rid3", null, new Version(PREVIOUS), null, null), ids.get(2));
-        assertEquals(ff.resourceId("rid4", null, new Version(NEXT), null, null), ids.get(3));
-        assertEquals(ff.resourceId("rid5", null, new Version(ALL), null, null), ids.get(4));
-        assertEquals(ff.resourceId("rid6", "previous2", new Version(4), date1, date2), ids.get(5));
-        assertEquals(ff.resourceId("rid7", null, new Version(date1), null, null), ids.get(6));
+        assertEquals(ff.resourceId("rid1", "abc", "previous1", new Version(FIRST), null, null),
+                ids.get(0));
+        assertEquals(ff.resourceId("rid2", null, null, new Version(LAST), null, null), ids.get(1));
+        assertEquals(ff.resourceId("rid3", null, null, new Version(PREVIOUS), null, null),
+                ids.get(2));
+        assertEquals(ff.resourceId("rid4", null, null, new Version(NEXT), null, null), ids.get(3));
+        assertEquals(ff.resourceId("rid5", null, null, new Version(ALL), null, null), ids.get(4));
+        assertEquals(ff.resourceId("rid6", null, "previous2", new Version(4), date1, date2),
+                ids.get(5));
+        assertEquals(ff.resourceId("rid7", "123", null, new Version(date1), null, null), ids.get(6));
     }
 }
