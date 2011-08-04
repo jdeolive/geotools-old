@@ -1,6 +1,8 @@
 package org.geotools.filter.v2_0.bindings;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.xml.namespace.QName;
 
@@ -52,6 +54,19 @@ public class VersionTypeBinding implements SimpleBinding {
 
     @Override
     public String encode(Object object, String value) throws Exception {
-        throw new UnsupportedOperationException("not yet implemented");
+        Version version = (Version) object;
+        if (version.getDateTime() != null) {
+            Calendar cal = GregorianCalendar.getInstance(TimeZone.getTimeZone("GMT"));
+            cal.setTimeInMillis(version.getDateTime().getTime());
+            String dateTime = DatatypeConverterImpl.getInstance().printDateTime(cal);
+            return dateTime;
+        }
+        if (version.getIndex() != null) {
+            return String.valueOf(version.getIndex());
+        }
+        if (version.getVersionAction() != null) {
+            return String.valueOf(version.getVersionAction());
+        }
+        throw new IllegalArgumentException("Empty version union");
     }
 }

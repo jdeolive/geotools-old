@@ -17,6 +17,7 @@
 package org.geotools.filter.v1_1;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashSet;
 
 import org.w3c.dom.Document;
@@ -46,6 +47,8 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.expression.Subtract;
 import org.opengis.filter.identity.GmlObjectId;
 import org.opengis.filter.identity.Identifier;
+import org.opengis.filter.identity.Version;
+import org.opengis.filter.identity.VersionAction;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.filter.spatial.Beyond;
@@ -79,6 +82,14 @@ public class FilterMockData {
             f.featureId("foo.1"), f.featureId("foo.2"), f.featureId("foo.3"))));
     }
     
+    public static Id resourceId() {
+        return f.id(new LinkedHashSet<Identifier>(Arrays.asList(f.resourceId("foo.1", "v1"),//
+                f.resourceId("foo.2", null, null, new Version(new Date(1000)),null, null),//
+                f.resourceId("foo.3", null, null, new Version(5),null, null),//
+                f.resourceId("foo.4", null, "previousRid", new Version(VersionAction.NEXT),
+                        new Date(1000), new Date(2000)))));
+    }
+
     public static Element propertyName(Document document, Node parent) {
         return propertyName("foo", document, parent);
     }

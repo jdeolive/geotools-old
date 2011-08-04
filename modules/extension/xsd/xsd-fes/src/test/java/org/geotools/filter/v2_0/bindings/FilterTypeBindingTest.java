@@ -17,14 +17,12 @@
 package org.geotools.filter.v2_0.bindings;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.iterators.SingletonIterator;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryIteratorProvider;
-import org.geotools.factory.FactoryRegistry;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.ExtendedOperatorFactory;
@@ -197,6 +195,28 @@ public class FilterTypeBindingTest extends FESTestSupport {
         assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
         
         assertEquals(3, getElementsByQName(doc, FES.ResourceId).getLength());
+    }
+
+    public void testEncodeRsourceId() throws Exception {
+        Document doc = encode(FilterMockData.resourceId(), FES.Filter);
+        assertEquals("fes:Filter", doc.getDocumentElement().getNodeName());
+        //
+        // TransformerFactory txFactory = TransformerFactory.newInstance();
+        // try {
+        // txFactory.setAttribute("{http://xml.apache.org/xalan}indent-number", new Integer(2));
+        // } catch(Exception e) {
+        // // some
+        // }
+        //
+        // Transformer tx = txFactory.newTransformer();
+        // tx.setOutputProperty(OutputKeys.METHOD,"xml");
+        // tx.setOutputProperty( OutputKeys.INDENT, "yes" );
+        //
+        // tx.transform( new DOMSource( doc ), new StreamResult(new OutputStreamWriter(System.out,
+        // "utf-8") ));
+
+        assertEquals(4, getElementsByQName(doc, FES.ResourceId).getLength());
+
     }
 
     public void testEncodeSpatial() throws Exception {
