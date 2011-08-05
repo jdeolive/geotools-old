@@ -115,27 +115,6 @@ public class ResourceIdImpl extends FeatureIdImpl implements ResourceId {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append("[").append(getRid()).append('\'');
-        if (previousRid != null) {
-            sb.append(", previousRid:'").append(previousRid).append('\'');
-        }
-        if (version != null) {
-            sb.append(", version:").append(version);
-        }
-        if (startTime != null) {
-            sb.append(", startTime:").append(startTime);
-        }
-        if (endTime != null) {
-            sb.append(", endTime:").append(endTime);
-        }
-        sb.append(']');
-
-        return sb.toString();
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ResourceId)) {
             return false;
