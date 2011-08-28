@@ -21,6 +21,7 @@ import org.geotools.filter.GeometryFilter;
 import org.geotools.filter.FilterVisitorFilterWrapper;
 import org.geotools.filter.IllegalFilterException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.FilterFactory;
@@ -29,6 +30,8 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.BinarySpatialOperator;
+import org.opengis.geometry.BoundingBox;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -81,6 +84,16 @@ class FastBBOX implements BBOX, BinarySpatialOperator, BinaryComparisonOperator,
     }
 
     public String getSRS() {
+        if (envelope instanceof BoundingBox) {
+            CoordinateReferenceSystem crs = ((BoundingBox) envelope).getCoordinateReferenceSystem();
+            if (crs != null) {
+                String srs = CRS.toSRS(crs);
+                if (srs == null) {
+                    srs = crs.toWKT();
+                }
+                return srs;
+            }
+        }
         return null;
     }
     
