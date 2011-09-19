@@ -50,6 +50,11 @@ public class JoinInfo {
             //hack on the join filter as necessary
             Filter joinFilter = j.getJoinFilter();
 
+            if (query.getAlias() != null) {
+                //rewrite any user specified alias with the one we specified
+                joinFilter = 
+                    (Filter) joinFilter.accept(new JoinPrefixRewriter(query.getAlias(), "a"), null);
+            }
             if (j.getAlias() != null) {
                 //rewrite any user specified alias with the one we specified
                 joinFilter = 

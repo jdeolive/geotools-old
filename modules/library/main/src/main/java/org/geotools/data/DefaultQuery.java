@@ -140,6 +140,7 @@ public class DefaultQuery extends Query {
       this.version = query.getVersion();
       this.hints = query.getHints();
       this.startIndex = query.getStartIndex();
+      this.alias = query.getAlias();
       this.joins = query.getJoins();
     }
     

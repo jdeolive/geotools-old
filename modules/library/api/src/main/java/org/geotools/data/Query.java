@@ -187,6 +187,9 @@ public class Query {
 
     /** The typeName to get */
     protected String typeName;
+    
+    /** The optional alias for type name */
+    protected String alias;
 
     /** The namespace to get */
     protected URI namespace =Query.NO_NAMESPACE;
@@ -343,6 +346,7 @@ public class Query {
       this.version = query.getVersion();
       this.hints = query.getHints();
       this.startIndex = query.getStartIndex();
+      this.alias = query.getAlias();
       this.joins = new ArrayList();
       for (Join j : query.getJoins()) {
           this.joins.add(new Join(j));
@@ -606,7 +610,29 @@ public class Query {
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
-    
+
+    /**
+     * An alias substitutable for {@link #getTypeName()}.
+     * <p>
+     * This value is typically used in a join query in which the join filter requires disambiguation
+     * due to property name overlaps between joined types.
+     * </p>
+     * @since 8.0
+     */
+    public String getAlias() {
+        return alias;
+    }
+
+    /**
+     * Sets the type name alias.
+     * 
+     * @since 8.0
+     * @see #getAlias()
+     */
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
     /**
      * Get the namespace of the feature type to be queried.
      *
