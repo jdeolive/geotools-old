@@ -87,24 +87,29 @@ public class QueryExpressionTextTypeBinding extends AbstractComplexEMFBinding {
     @Override
     public Element encode(Object object, Document document, Element value) throws Exception {
         Element e = super.encode(object, document, value);
+        
         QueryExpressionTextType qe = (QueryExpressionTextType) object;
-        
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        
-        Document d = db.parse(new ByteArrayInputStream(qe.getValue().getBytes()));
-        
-        //register all the namespaces from this context with the root element of the parsed
-        // content
-        for (Enumeration en = namespaceContext.getPrefixes(); en.hasMoreElements(); ) {
-            String prefix = (String) en.nextElement();
-            if (prefix == null) {
-                continue;
+        if (!qe.isIsPrivate()) {
+            //include the query text
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            
+            Document d = db.parse(new ByteArrayInputStream(qe.getValue().getBytes()));
+            
+            //register all the namespaces from this context with the root element of the parsed
+            // content
+            for (Enumeration en = namespaceContext.getPrefixes(); en.hasMoreElements(); ) {
+                String prefix = (String) en.nextElement();
+                if (prefix == null) {
+                    continue;
+                }
+                String uri = namespaceContext.getURI(prefix);
+                d.getDocumentElement().setAttribute("xmlns:" + prefix, uri);
             }
-            String uri = namespaceContext.getURI(prefix);
-            d.getDocumentElement().setAttribute("xmlns:" + prefix, uri);
+            e.appendChild(document.importNode(d.getDocumentElement(), true));
         }
-        e.appendChild(document.importNode(d.getDocumentElement(), true));
+        
         return e;
+        
     }
 }
