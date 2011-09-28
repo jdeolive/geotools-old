@@ -10,6 +10,7 @@ import net.opengis.wfs20.DropStoredQueryType;
 import net.opengis.wfs20.ResolveValueType;
 import net.opengis.wfs20.ResultTypeType;
 import net.opengis.wfs20.StoredQueryDescriptionType;
+import net.opengis.wfs20.UpdateActionType;
 import net.opengis.wfs20.ValueReferenceType;
 import net.opengis.wfs20.Wfs20Factory;
 
@@ -128,7 +129,7 @@ public class WFSConfiguration extends Configuration {
 
         bindings.put(WFS.TransactionType,TransactionTypeBinding.class);
         bindings.put(WFS.TupleType,TupleTypeBinding.class);
-//        container.registerComponentImplementation(WFS.UpdateActionType,UpdateActionTypeBinding.class);
+        bindings.put(WFS.UpdateActionType, new EnumSimpleBinding(UpdateActionType.class, WFS.UpdateActionType));
         binding(bindings, WFS.UpdateType);
         bindings.put(WFS.ValueCollectionType, ValueCollectionTypeBinding.class);
 //        container.registerComponentImplementation(WFS.ValueListType,ValueListTypeBinding.class);
