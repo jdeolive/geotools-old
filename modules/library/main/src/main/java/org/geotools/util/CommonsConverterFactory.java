@@ -221,23 +221,22 @@ public class CommonsConverterFactory implements ConverterFactory {
     static class DateConverter implements Converter {
         private static SimpleDateFormat format1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.S a" );
         private static SimpleDateFormat format2 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ssa" );
+        private static SimpleDateFormat format3 = new SimpleDateFormat( "yyyy-MM-dd" );
         
+        private static SimpleDateFormat[] formats = new SimpleDateFormat[]{format1,format2,format3};
         public <T> T convert(Object source, Class<T> target) throws Exception {
             if( source == null ) return null;
             String string = (String) source;
             
-            try {
-                Date parsed = format1.parse(string);
-                return target.cast( parsed );
+            for (SimpleDateFormat format : formats) {
+                try {
+                    Date parsed = format.parse(string);
+                    return target.cast( parsed );
+                }
+                catch( Exception ignore){
+                }    
             }
-            catch( Exception ignore){
-            }
-            try {
-                Date parsed = format2.parse(string);
-                return target.cast( parsed );
-            }
-            catch( Exception ignore){
-            }
+            
             return null;
         }
     }

@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.geotools.data.jdbc.FilterToSQL;
 import org.geotools.filter.FilterCapabilities;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -72,18 +73,30 @@ public class MySQLFilterToSQL extends FilterToSQL {
         }
         out.write( "GeomFromText('"+g.toText()+"', "+currentSRID+")");
     }
-    
+
     @Override
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
             PropertyName property, Literal geometry, boolean swapped, Object extraData) {
-        
+        return visitBinarySpatialOperator(filter, (Expression)property, (Expression)geometry, 
+            swapped, extraData);
+    }
+    
+    @Override
+    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1,
+        Expression e2, Object extraData) {
+        return visitBinarySpatialOperator(filter, e1, e2, false, extraData);
+    }
+
+    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1,
+        Expression e2, boolean swapped, Object extraData) {
+    
         try {
             
             if (!(filter instanceof Disjoint)) { 
                 out.write("MbrIntersects(");
-                property.accept(this, extraData);
+                e1.accept(this, extraData);
                 out.write(",");
-                geometry.accept(this, extraData);
+                e2.accept(this, extraData);
                 out.write(")");
                 
                 if (!(filter instanceof BBOX)) {
@@ -98,9 +111,9 @@ public class MySQLFilterToSQL extends FilterToSQL {
             
             if (filter instanceof DistanceBufferOperator) {
                 out.write("Distance(");
-                property.accept(this, extraData);
+                e1.accept(this, extraData);
                 out.write(", ");
-                geometry.accept(this, extraData);
+                e2.accept(this, extraData);
                 out.write(")");
                 
                 if (filter instanceof DWithin) {
@@ -148,14 +161,14 @@ public class MySQLFilterToSQL extends FilterToSQL {
                 }
                 
                 if (swapped) {
-                    geometry.accept(this, extraData);
+                    e2.accept(this, extraData);
                     out.write(", ");
-                    property.accept(this, extraData);
+                    e1.accept(this, extraData);
                 }
                 else {
-                    property.accept(this, extraData);
+                    e1.accept(this, extraData);
                     out.write(", ");
-                    geometry.accept(this, extraData);
+                    e2.accept(this, extraData);
                 }
                 
                 out.write(")");
